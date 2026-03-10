@@ -72,7 +72,7 @@ class HomeScreen extends StatelessWidget {
               ),
 
               // Upcoming Appointments Section
-              const SizedBox(height: 30),
+              const SizedBox(height: 10),
               Row(
                 children: [
                   Text(
@@ -81,7 +81,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               AppointmentCard(
                 month: "OCT",
                 day: "24",
@@ -92,24 +92,28 @@ class HomeScreen extends StatelessWidget {
               ),
 
               // Button
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
               Row(
                 children: [
-                  CustomButton(
-                    icon: Icons.edit_calendar,
-                    label: "Book Service",
-                    onPressed: () {
-                      // Handle button press
-                    },
+                  Expanded(
+                    child: CustomButton(
+                      icon: Icons.edit_calendar,
+                      label: "Book Service",
+                      onPressed: () {
+                        // Handle button press
+                      },
+                    ),
                   ),
-                  const Spacer(),
-                  CustomButton(
-                    icon: Icons.message_outlined,
-                    isPrimary: false,
-                    label: "Book Service",
-                    onPressed: () {
-                      // Handle button press
-                    },
+                  const SizedBox(width: 20),
+                  Expanded(
+                    child: CustomButton(
+                      icon: Icons.message_outlined,
+                      isPrimary: false,
+                      label: "Book Service",
+                      onPressed: () {
+                        // Handle button press
+                      },
+                    ),
                   ),
                 ],
               ),
