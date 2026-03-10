@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/features/navigation/presentation/navigation.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,20 +14,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Tapovana',
       debugShowCheckedModeBanner: false,
-      home: const HomeScreen(),
-    );
-  }
-}
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+      // --- Theme ---
+      theme: AppTheme.lightTheme,
 
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text("Tapovana App"),
-      ),
+      home: Navigation(),
     );
   }
 }
