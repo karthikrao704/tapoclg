@@ -86,10 +86,10 @@ class ServiceCard extends StatelessWidget {
                 Row(
                   children: [
                     Icon(
-                      Icons.access_time_filled_outlined,
+                      Icons.access_time,
                       size: 16,
                       // Medium grey secondaryText color
-                      color: theme.colorScheme.secondary,
+                      color: theme.colorScheme.onSurface,
                     ),
                     const SizedBox(width: 4),
                     Text(
