@@ -10,7 +10,7 @@ class Navigation extends StatelessWidget {
 
   static const List<String> _routes = [
     RouteConstants.home,
-    RouteConstants.search,
+    RouteConstants.services,
     RouteConstants.more,
     RouteConstants.profile,
   ];
@@ -24,11 +24,17 @@ class Navigation extends StatelessWidget {
   Widget build(BuildContext context) {
     final location = GoRouterState.of(context).uri.toString();
     final selectedIndex = _routeToIndex(location);
+
+    // Evaluate if the current route is the services page
+    final showMainAppBar = location.startsWith(RouteConstants.services);
+
     return Scaffold(
-      appBar: CustomAppBar(
-        greetingMessage: "Good Morning",
-        userName: "Shelton Coutinho",
-      ),
+      appBar: showMainAppBar
+          ? null
+          : CustomAppBar(
+              greetingMessage: "Good Morning",
+              userName: "Shelton Coutinho",
+            ),
       body: child,
       bottomNavigationBar: CustomBottomNavbar(
         currentIndex: selectedIndex,
