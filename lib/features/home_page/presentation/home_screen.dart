@@ -103,7 +103,7 @@ class HomeScreen extends StatelessWidget {
                     child: CustomButton(
                       icon: Icons.message_outlined,
                       isPrimary: false,
-                      label: "Book Service",
+                      label: "Support",
                       onPressed: () {
                         // Handle button press
                       },
