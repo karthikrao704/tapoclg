@@ -1,7 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:tapovana_mobile_app/core/routing/route_constants.dart';
 import 'package:tapovana_mobile_app/features/home_page/presentation/home_screen.dart';
-import 'package:tapovana_mobile_app/features/services/service_screen.dart';
+import 'package:tapovana_mobile_app/features/services/presentation/service_screen.dart';
 import 'package:tapovana_mobile_app/features/more/more_screen.dart';
 import 'package:tapovana_mobile_app/features/profile/profile_screen.dart';
 
@@ -19,7 +19,7 @@ class AppRouter {
             builder: (context, state) => const HomeScreen(),
           ),
           GoRoute(
-            path: RouteConstants.search,
+            path: RouteConstants.services,
             builder: (context, state) => const ServiceScreen(),
           ),
           GoRoute(
