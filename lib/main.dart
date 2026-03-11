@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/features/splash/splash_screen.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -12,20 +14,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Tapovana',
       debugShowCheckedModeBanner: false,
-      home: const HomeScreen(),
-    );
-  }
-}
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text("Tapovana App"),
-      ),
+      /// Start with Splash Screen
+      home: const SplashScreen(),
     );
   }
 }
