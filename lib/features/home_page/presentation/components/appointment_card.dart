@@ -34,9 +34,7 @@ class AppointmentCard extends StatelessWidget {
             // Mapping: Main Background
             color: theme.colorScheme.tertiary,
             // Mapping: Borders/Dividers
-            border: Border.all(
-              color: theme.colorScheme.outline.withOpacity(0.3),
-            ),
+            border: Border.all(color: theme.colorScheme.outline.withAlpha(77)),
             borderRadius: BorderRadius.circular(16.0),
           ),
           child: Row(
@@ -51,7 +49,7 @@ class AppointmentCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: theme.scaffoldBackgroundColor,
                   border: Border.all(
-                    color: theme.colorScheme.outline.withOpacity(0.3),
+                    color: theme.colorScheme.outline.withAlpha(77),
                   ),
                   borderRadius: BorderRadius.circular(12.0),
                 ),
