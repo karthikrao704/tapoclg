@@ -10,12 +10,6 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // AppBar with Greeting and User Name
-      // appBar: CustomAppBar(
-      //   greetingMessage: "Good Morning",
-      //   userName: "Shelton Coutinho",
-      // ),
-
       // Main UI Body
       body: SingleChildScrollView(
         child: Padding(
@@ -124,14 +118,6 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
-
-      // bottomNavigationBar
-      // bottomNavigationBar: CustomBottomNavbar(
-      //   currentIndex: 0,
-      //   onTap: (index) {
-      //     // Handle navigation tap
-      //   },
-      // ),
     );
   }
 }

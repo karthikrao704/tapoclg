@@ -1,44 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:tapovana_mobile_app/features/home_page/presentation/home_screen.dart';
-import 'package:tapovana_mobile_app/features/more/more_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:tapovana_mobile_app/core/routing/route_constants.dart';
 import 'package:tapovana_mobile_app/features/navigation/presentation/widgets/custom_app_bar.dart';
 import 'package:tapovana_mobile_app/features/navigation/presentation/widgets/custom_bottom_navbar.dart';
-import 'package:tapovana_mobile_app/features/profile/profile_screen.dart';
-import 'package:tapovana_mobile_app/features/services/service_screen.dart';
 
-class Navigation extends StatefulWidget {
-  const Navigation({super.key});
+class Navigation extends StatelessWidget {
+  final Widget child;
+  const Navigation({super.key, required this.child});
 
-  @override
-  State<Navigation> createState() => _NavigationState();
-}
-
-class _NavigationState extends State<Navigation> {
-  int _selectedIndex = 0;
-
-  final List<Widget> _pages = [
-    // Placeholder widgets for each tab
-    HomeScreen(),
-    ServiceScreen(),
-    MoreScreen(),
-    ProfileScreen(),
+  static const List<String> _routes = [
+    RouteConstants.home,
+    RouteConstants.search,
+    RouteConstants.more,
+    RouteConstants.profile,
   ];
+
+  int _routeToIndex(String location) {
+    final idx = _routes.indexWhere((r) => location.startsWith(r));
+    return idx >= 0 ? idx : 0;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final location = GoRouterState.of(context).uri.toString();
+    final selectedIndex = _routeToIndex(location);
     return Scaffold(
       appBar: CustomAppBar(
         greetingMessage: "Good Morning",
         userName: "Shelton Coutinho",
       ),
-
-      body: _pages[_selectedIndex],
-
+      body: child,
       bottomNavigationBar: CustomBottomNavbar(
-        currentIndex: _selectedIndex,
+        currentIndex: selectedIndex,
         onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
+          context.go(_routes[index]);
         },
       ),
     );
