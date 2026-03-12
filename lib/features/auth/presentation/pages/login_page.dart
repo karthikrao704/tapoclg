@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/features/auth/presentation/pages/signup_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -59,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 40),
 
                 /// EMAIL LABEL
                 const Align(
@@ -99,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 30),
 
                 /// PASSWORD LABEL
                 const Align(
@@ -173,7 +174,7 @@ class _LoginPageState extends State<LoginPage> {
                 /// SIGN IN BUTTON
                 SizedBox(
                   width: double.infinity,
-                  height: 50,
+                  height: 55,
                   child: ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
@@ -181,13 +182,13 @@ class _LoginPageState extends State<LoginPage> {
                       foregroundColor: Colors.white,
                       elevation: 3,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(20),
                       ),
                     ),
                     child: const Text(
                       "Sign In",
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 20,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -214,7 +215,7 @@ class _LoginPageState extends State<LoginPage> {
                   ],
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 7),
 
                 /// SOCIAL BUTTONS
                 Row(
@@ -222,8 +223,8 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
 
                     Container(
-                      width: 120,
-                      height: 120,
+                      width: 125,
+                      height: 125,
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -236,11 +237,11 @@ class _LoginPageState extends State<LoginPage> {
                         ],
                       ),
                       child: Image.asset(
-                        'assets/login_images/sign_in_google.png',
+                        'assets/login_images/google.png',
                       ),
                     ),
 
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 1),
 
                     Container(
                       width: 130,
@@ -257,13 +258,13 @@ class _LoginPageState extends State<LoginPage> {
                         ],
                       ),
                       child: Image.asset(
-                        'assets/login_images/sign_in_apple.png',
+                        'assets/login_images/apple.png',
                       ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 2),
 
                 /// SIGNUP TEXT
                 Row(
@@ -274,8 +275,12 @@ class _LoginPageState extends State<LoginPage> {
 
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushNamed(context, '/register');
-                      },
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SignupPage(),
+                      ),
+                    );                       },
                       child: const Text(
                         "Sign Up",
                         style: TextStyle(

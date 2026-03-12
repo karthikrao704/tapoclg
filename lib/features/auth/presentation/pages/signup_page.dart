@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/features/auth/presentation/pages/login_page.dart';
+import 'package:tapovana_mobile_app/features/auth/presentation/pages/otp_page.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -58,7 +60,7 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 40),
 
                 /// EMAIL LABEL
                 const Align(
@@ -81,6 +83,7 @@ class _SignupPageState extends State<SignupPage> {
                     hintText: "your@email.com",
                     hintStyle: const TextStyle(
                       color: Color(0xFFBDBDBD),
+                      fontSize: 14,
                     ),
                     filled: true,
                     fillColor: Colors.white,
@@ -97,7 +100,7 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 30),
 
                 /// PASSWORD LABEL
                 const Align(
@@ -159,7 +162,7 @@ class _SignupPageState extends State<SignupPage> {
                     child: const Text(
                       "Forgot Password?",
                       style: TextStyle(
-                        color: Color(0xFF6B6B6B),
+                        color: Color.fromARGB(255, 60, 60, 60),
                         fontSize: 13,
                       ),
                     ),
@@ -171,21 +174,28 @@ class _SignupPageState extends State<SignupPage> {
                 /// GET OTP BUTTON
                 SizedBox(
                   width: double.infinity,
-                  height: 50,
+                  height: 55,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                     Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const OtpPage(),
+                      ),
+                    ); 
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFC9A14A),
                       foregroundColor: Colors.white,
                       elevation: 3,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                      shape: RoundedSuperellipseBorder(
+                        borderRadius: BorderRadius.circular(20),
                       ),
                     ),
                     child: const Text(
                       "Get OTP",
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 20,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -212,7 +222,7 @@ class _SignupPageState extends State<SignupPage> {
                   ],
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height:7),
 
                 /// SOCIAL BUTTONS
                 Row(
@@ -220,8 +230,8 @@ class _SignupPageState extends State<SignupPage> {
                   children: [
 
                     Container(
-                      width: 120,
-                      height: 120,
+                      width: 125,
+                      height: 125,
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -234,11 +244,11 @@ class _SignupPageState extends State<SignupPage> {
                         ],
                       ),
                       child: Image.asset(
-                        'assets/login_images/sign_in_google.png',
+                        'assets/login_images/google.png',
                       ),
                     ),
 
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 1),
 
                     Container(
                       width: 130,
@@ -255,13 +265,13 @@ class _SignupPageState extends State<SignupPage> {
                         ],
                       ),
                       child: Image.asset(
-                        'assets/login_images/sign_in_apple.png',
+                        'assets/login_images/apple.png',
                       ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 2),
 
                 /// LOGIN TEXT
                 Row(
@@ -272,8 +282,12 @@ class _SignupPageState extends State<SignupPage> {
 
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushNamed(context, '/login');
-                      },
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LoginPage(),
+                      ),
+                    );                       },
                       child: const Text(
                         "Log In",
                         style: TextStyle(
