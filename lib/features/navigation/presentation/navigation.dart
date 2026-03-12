@@ -5,41 +5,43 @@ import 'package:tapovana_mobile_app/features/navigation/presentation/widgets/cus
 import 'package:tapovana_mobile_app/features/navigation/presentation/widgets/custom_bottom_navbar.dart';
 
 class Navigation extends StatelessWidget {
-  final Widget child;
-  const Navigation({super.key, required this.child});
+  // 1. Change from `Widget child` to `StatefulNavigationShell`
+  final StatefulNavigationShell navigationShell;
 
-  static const List<String> _routes = [
-    RouteConstants.home,
-    RouteConstants.services,
-    RouteConstants.more,
-    RouteConstants.profile,
-  ];
-
-  int _routeToIndex(String location) {
-    final idx = _routes.indexWhere((r) => location.startsWith(r));
-    return idx >= 0 ? idx : 0;
-  }
+  const Navigation({super.key, required this.navigationShell});
 
   @override
   Widget build(BuildContext context) {
     final location = GoRouterState.of(context).uri.toString();
-    final selectedIndex = _routeToIndex(location);
 
-    // Evaluate if the current route is the services page
-    final showMainAppBar = location.startsWith(RouteConstants.services);
+    final exactPathsWithAppBar = [
+      RouteConstants.home,
+      RouteConstants.more,
+      RouteConstants.profile,
+    ];
+
+    final shouldShowAppBar = exactPathsWithAppBar.contains(location);
 
     return Scaffold(
-      appBar: showMainAppBar
-          ? null
-          : CustomAppBar(
+      appBar: shouldShowAppBar
+          ? const CustomAppBar(
               greetingMessage: "Good Morning",
               userName: "Shelton Coutinho",
-            ),
-      body: child,
+            )
+          : null,
+      // 2. The body is simply the shell itself
+      body: navigationShell,
       bottomNavigationBar: CustomBottomNavbar(
-        currentIndex: selectedIndex,
+        // 3. Use the shell's built-in index manager
+        currentIndex: navigationShell.currentIndex,
         onTap: (index) {
-          context.go(_routes[index]);
+          // 4. Use goBranch instead of context.go()
+          navigationShell.goBranch(
+            index,
+            // Highly recommended: restores branch to its initial location
+            // if tapping the currently active tab.
+            initialLocation: index == navigationShell.currentIndex,
+          );
         },
       ),
     );

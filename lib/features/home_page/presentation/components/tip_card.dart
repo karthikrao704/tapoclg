@@ -8,10 +8,13 @@ class TipCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // Accessing the theme to use defined colors and text styles
     final theme = Theme.of(context);
+
+    // Fetch the system's text scaler to scale non-text UI elements proportionally
+    final textScaler = MediaQuery.textScalerOf(context);
+
     return Container(
       padding: const EdgeInsets.all(20.0),
       decoration: BoxDecoration(
-        // Uses the light greenish background mapped to secondary in AppTheme
         color: theme.colorScheme.secondary,
         borderRadius: BorderRadius.circular(16),
       ),
@@ -19,31 +22,34 @@ class TipCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            // Aligns the icon to the top in case the text wraps to multiple lines
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Icon(
                 Icons.lightbulb_outline,
-                size: 18,
-                // Uses the Olive Tan color mapped to onSecondary in AppTheme
+                // Scales the base 18px size by the user's font scale preference
+                size: textScaler.scale(18),
                 color: theme.colorScheme.onSecondary,
               ),
               const SizedBox(width: 8),
-              Text(
-                'DAILY WELLNESS TIP',
-                style: theme.textTheme.labelLarge?.copyWith(
-                  color: theme.colorScheme.onSecondary,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing:
-                      1.2, // Gives the text that spaced-out, premium look
+              // Expanded prevents horizontal overflow if the font is huge
+              Expanded(
+                child: Text(
+                  'DAILY WELLNESS TIP',
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: theme.colorScheme.onSecondary,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
+          // Body text naturally wraps because it is inside a Column
           Text(
             tipText,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              height: 1.5, // Increases line height for better readability
-            ),
+            style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
           ),
         ],
       ),

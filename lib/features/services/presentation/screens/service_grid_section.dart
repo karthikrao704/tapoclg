@@ -23,27 +23,27 @@ const List<ServiceItem> _mockServices = [
     title: 'Deep Tissue Massage',
     durationAndCategory: '60 mins • Spa',
     price: '₹250',
-    imageUrl: 'https://picsum.photos/seed/massage/400/300', // Placeholder
+    imageUrl: 'assets/images/deep_massage_bg.png',
     isFavorite: true,
   ),
   ServiceItem(
     title: 'Vidal Sassoon Cut',
     durationAndCategory: '45 mins • Salon',
     price: '₹250',
-    imageUrl: 'https://picsum.photos/seed/salon/400/300',
+    imageUrl: 'assets/images/vidal_sasson_cut_bg.png',
     isFavorite: true,
   ),
   ServiceItem(
     title: 'Hatha Yoga Session',
     durationAndCategory: '90 mins • Yoga',
     price: '₹250',
-    imageUrl: 'https://picsum.photos/seed/yoga/400/300',
+    imageUrl: 'assets/images/hatha_yoga_session_bg.png',
   ),
   ServiceItem(
     title: 'Mindfulness Intro',
     durationAndCategory: '30 mins • Meditation',
     price: '₹250',
-    imageUrl: 'https://picsum.photos/seed/meditation/400/300',
+    imageUrl: 'assets/images/mindfulness_intro_bg.png',
   ),
 ];
 
@@ -55,16 +55,25 @@ class ServiceGridSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    // 1. Fetch the text scaling factor from device accessibility settings
+    final textScale = MediaQuery.textScalerOf(context).scale(1.0);
+
+    // 2. Calculate a safe card height.
+    // Image height is roughly 150. Text area base is roughly 100, multiplied by text scale.
+    final double estimatedCardHeight = 150.0 + (110.0 * textScale);
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(title: const Text('Services')),
       body: GridView.builder(
         padding: const EdgeInsets.all(16.0),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
+        // 3. Use MaxCrossAxisExtent for responsive column counts
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent:
+              250, // Card will be max 250px wide. Drops to 1 col on small phones.
           crossAxisSpacing: 16.0,
           mainAxisSpacing: 16.0,
-          childAspectRatio: 0.70, // Adjusts height vs width ratio
+          mainAxisExtent: estimatedCardHeight, // Replaces childAspectRatio
         ),
         itemCount: _mockServices.length,
         itemBuilder: (context, index) {
@@ -94,16 +103,18 @@ class _ServiceCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Top Half: Image and Favorite Button
-          Expanded(
-            flex: 5,
+          // 4. Top Half: Image and Favorite Button using AspectRatio
+          AspectRatio(
+            aspectRatio:
+                16 /
+                10, // Gives the image a stable size regardless of card height
             child: Stack(
               children: [
                 ClipRRect(
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(15.0),
                   ),
-                  child: Image.network(
+                  child: Image.asset(
                     item.imageUrl,
                     width: double.infinity,
                     fit: BoxFit.cover,
@@ -118,9 +129,7 @@ class _ServiceCard extends StatelessWidget {
                     child: Icon(
                       item.isFavorite ? Icons.star : Icons.star_border,
                       size: 20.0,
-                      color: theme
-                          .colorScheme
-                          .primary, // Mapped to Primary Active Icons
+                      color: theme.colorScheme.primary,
                     ),
                   ),
                 ),
@@ -128,9 +137,8 @@ class _ServiceCard extends StatelessWidget {
             ),
           ),
 
-          // Bottom Half: Details
+          // 5. Bottom Half: Details take the remaining calculated space
           Expanded(
-            flex: 6,
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
@@ -149,8 +157,7 @@ class _ServiceCard extends StatelessWidget {
                   Text(
                     item.durationAndCategory,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      // Using the Olive map for the colored subtitle
-                      color: theme.colorScheme.onSecondary.withAlpha(80),
+                      color: theme.colorScheme.onSurface.withOpacity(0.6),
                     ),
                   ),
                   const Spacer(),
@@ -160,17 +167,13 @@ class _ServiceCard extends StatelessWidget {
                       Text(
                         item.price,
                         style: theme.textTheme.titleMedium?.copyWith(
-                          color: theme
-                              .colorScheme
-                              .onSecondary, // Mapped to Olive Text
+                          color: theme.colorScheme.primary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Container(
                         decoration: BoxDecoration(
-                          color: theme
-                              .colorScheme
-                              .onSecondary, // Matches the '+' button color
+                          color: theme.colorScheme.primary,
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                         child: InkWell(
@@ -182,7 +185,7 @@ class _ServiceCard extends StatelessWidget {
                             padding: const EdgeInsets.all(6.0),
                             child: Icon(
                               Icons.add,
-                              color: theme.colorScheme.surface,
+                              color: theme.colorScheme.onPrimary,
                               size: 20.0,
                             ),
                           ),

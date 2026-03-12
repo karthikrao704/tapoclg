@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tapovana_mobile_app/features/services/presentation/components/categories_buttons.dart';
 import 'package:tapovana_mobile_app/features/services/presentation/components/custom_search_bar.dart';
-import 'package:tapovana_mobile_app/features/services/presentation/screens/ListScreen.dart';
+import 'package:tapovana_mobile_app/features/services/presentation/screens/service_list_section.dart';
 import 'package:tapovana_mobile_app/features/services/presentation/screens/service_grid_section.dart';
 
 class ServiceScreen extends StatefulWidget {

@@ -20,28 +20,32 @@ class ServiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Cache the theme for cleaner code
+    // Cache the theme and text scaler for cleaner code
     final theme = Theme.of(context);
+    final textScaler = MediaQuery.textScalerOf(context);
 
-    return SizedBox(
-      height: 280,
-      // Elevation is 0 by the CardTheme, and shape with a border is also handled.
+    // Removed the fixed height SizedBox to allow dynamic vertical growth
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min, // Wrap content vertically
+        mainAxisSize: MainAxisSize.min, // Card hugs its content vertically
         children: [
           // 1. Image Section with a Stack for the tag
           Stack(
             children: [
               ClipRRect(
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(16), // Rounded corners for the image
-                ),
-                child: Image.asset(
-                  imagePath,
-                  width: double.infinity,
-                  height: 200, // Fixed height for consistency
-                  fit: BoxFit.cover, // Ensures image fills the container
+                borderRadius: const BorderRadius.all(Radius.circular(16)),
+                // AspectRatio ensures the image scales gracefully on wider screens
+                child: AspectRatio(
+                  aspectRatio:
+                      1.1, // Adjust this ratio to match your specific design needs
+                  child: Image.asset(
+                    imagePath,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
               // The dynamic tag on the top right
@@ -50,21 +54,26 @@ class ServiceCard extends StatelessWidget {
                 right: 10,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
+                    horizontal: 8,
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.onPrimary.withAlpha(200),
-                    borderRadius: BorderRadius.circular(10), // Pill shape
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
                     tagLabel,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      // Golden/Tan color from the custom theme action primaryAction
-                      color: theme.colorScheme.primary,
-                    ),
+                    // Fallback to text theme so scaling applies naturally
+                    style:
+                        theme.textTheme.labelSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.primary,
+                        ) ??
+                        TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.primary,
+                        ),
                   ),
                 ),
               ),
@@ -77,25 +86,22 @@ class ServiceCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  serviceName,
-                  // Inherits font size 16, bold, primaryText color
-                  style: theme.textTheme.titleMedium,
-                ),
+                Text(serviceName, style: theme.textTheme.titleMedium),
                 const SizedBox(height: 6),
                 Row(
+                  // Align to start in case the duration text wraps to two lines
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Icon(
                       Icons.access_time,
-                      size: 16,
-                      // Medium grey secondaryText color
+                      // Scale the icon proportionally to the system font size
+                      size: textScaler.scale(16),
                       color: theme.colorScheme.onSurface,
                     ),
                     const SizedBox(width: 4),
-                    Text(
-                      duration,
-                      // Inherits font size 13, w400, secondaryText color
-                      style: theme.textTheme.bodySmall,
+                    // Expanded prevents horizontal overflow by pushing long text to the next line
+                    Expanded(
+                      child: Text(duration, style: theme.textTheme.bodySmall),
                     ),
                   ],
                 ),

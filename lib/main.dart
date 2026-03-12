@@ -14,7 +14,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'Tapovana',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
+
+      builder: (context, child) {
+        return Theme(data: AppTheme.getLightTheme(context), child: child!);
+      },
+      // theme: AppTheme.lightTheme,
       routerConfig: AppRouter.router,
     );
   }
