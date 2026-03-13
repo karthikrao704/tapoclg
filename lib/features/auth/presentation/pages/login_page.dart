@@ -9,6 +9,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+
   bool _obscurePassword = true;
 
   final TextEditingController emailController = TextEditingController();
@@ -16,6 +17,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: const Color(0xFFFFFFFF),
 
@@ -27,10 +29,14 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+
                 const SizedBox(height: 55),
 
                 /// LOGO
-                Image.asset('assets/login_images/topovan_png.png', width: 200),
+                Image.asset(
+                  'assets/login_images/topovan_png.png',
+                  width: 200,
+                ),
 
                 const SizedBox(height: 10),
 
@@ -48,7 +54,10 @@ class _LoginPageState extends State<LoginPage> {
 
                 const Text(
                   "Welcome back to your sanctuary",
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 14,
+                  ),
                 ),
 
                 const SizedBox(height: 40),
@@ -58,7 +67,10 @@ class _LoginPageState extends State<LoginPage> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     "Email",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
 
@@ -75,10 +87,8 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     filled: true,
                     fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
@@ -97,7 +107,10 @@ class _LoginPageState extends State<LoginPage> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     "Password",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
 
@@ -109,13 +122,13 @@ class _LoginPageState extends State<LoginPage> {
                   obscureText: _obscurePassword,
                   decoration: InputDecoration(
                     hintText: "••••••••",
-                    hintStyle: const TextStyle(color: Color(0xFFBDBDBD)),
+                    hintStyle: const TextStyle(
+                      color: Color(0xFFBDBDBD),
+                    ),
                     filled: true,
                     fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
@@ -148,7 +161,10 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: () {},
                     child: const Text(
                       "Forgot Password?",
-                      style: TextStyle(color: Color(0xFF6B6B6B), fontSize: 13),
+                      style: TextStyle(
+                        color: Color(0xFF6B6B6B),
+                        fontSize: 13,
+                      ),
                     ),
                   ),
                 ),
@@ -189,68 +205,82 @@ class _LoginPageState extends State<LoginPage> {
                       padding: EdgeInsets.symmetric(horizontal: 10),
                       child: Text(
                         "OR CONNECT WITH",
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
                     Expanded(child: Divider()),
                   ],
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 7),
 
                 /// SOCIAL BUTTONS
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+
                     Container(
-                      width: 70,
-                      height: 70,
+                      width: 125,
+                      height: 125,
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: const [
-                          BoxShadow(color: Colors.black12, blurRadius: 6),
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 6,
+                          )
                         ],
                       ),
-                      child: Image.asset('assets/login_images/google.png'),
+                      child: Image.asset(
+                        'assets/login_images/google.png',
+                      ),
                     ),
 
-                    const SizedBox(width: 20),
+                    const SizedBox(width: 1),
 
                     Container(
-                      width: 70,
-                      height: 70,
+                      width: 130,
+                      height: 130,
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: const [
-                          BoxShadow(color: Colors.black12, blurRadius: 6),
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 6,
+                          )
                         ],
                       ),
-                      child: Image.asset('assets/login_images/apple.png'),
+                      child: Image.asset(
+                        'assets/login_images/apple.png',
+                      ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 2),
 
                 /// SIGNUP TEXT
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Don't have an account?  "),
+
+                    const Text("Don't have an account? "),
 
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const SignupPage(),
-                          ),
-                        );
-                      },
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SignupPage(),
+                      ),
+                    );                       },
                       child: const Text(
                         "Sign Up",
                         style: TextStyle(

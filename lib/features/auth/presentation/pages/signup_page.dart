@@ -222,7 +222,7 @@ class _SignupPageState extends State<SignupPage> {
                   ],
                 ),
 
-                const SizedBox(height:30),
+                const SizedBox(height:7),
 
                 /// SOCIAL BUTTONS
                 Row(
@@ -230,8 +230,8 @@ class _SignupPageState extends State<SignupPage> {
                   children: [
 
                     Container(
-                      width: 70,
-                      height: 70,
+                      width: 125,
+                      height: 125,
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -248,11 +248,11 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                     ),
 
-                    const SizedBox(width: 20),
+                    const SizedBox(width: 1),
 
                     Container(
-                      width: 70,
-                      height: 70,
+                      width: 130,
+                      height: 130,
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -271,7 +271,7 @@ class _SignupPageState extends State<SignupPage> {
                   ],
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 2),
 
                 /// LOGIN TEXT
                 Row(
