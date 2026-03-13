@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tapovana_mobile_app/features/splash/splash_screen.dart';
-
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/features/navigation/presentation/navigation.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,8 +15,10 @@ class MyApp extends StatelessWidget {
       title: 'Tapovana',
       debugShowCheckedModeBanner: false,
 
-      /// Start with Splash Screen
-      home: const SplashScreen(),
+      // --- Theme ---
+      theme: AppTheme.lightTheme,
+
+      home: Navigation(),
     );
   }
 }
