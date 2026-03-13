@@ -17,23 +17,20 @@ class CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // Fetch the text scaler to adjust the icon size dynamically
+    final textScaler = MediaQuery.textScalerOf(context);
 
     // 1. Resolve colors based on your theme mappings
     final bgColor = isPrimary
         ? theme.colorScheme.primary
-        : theme.colorScheme.surface; // Mapped to your Special Card Bg
+        : theme.colorScheme.surface;
 
     final contentColor = isPrimary
-        ? theme
-              .colorScheme
-              .onPrimary // Standard M3 pair for primary elements
-        : theme.colorScheme.onSurface; // Mapped to your Special Card Text
+        ? theme.colorScheme.onPrimary
+        : theme.colorScheme.onSurface;
 
     // 2. Fetch base text style directly from the theme
-    final textStyle = theme.textTheme.labelLarge?.copyWith(
-      color: contentColor,
-      // Removed hardcoded FontWeight; the theme's labelLarge handles this natively
-    );
+    final textStyle = theme.textTheme.labelLarge?.copyWith(color: contentColor);
 
     return Material(
       color: bgColor,
@@ -42,27 +39,43 @@ class CustomButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         side: isPrimary
             ? BorderSide.none
-            : BorderSide(
-                color: theme.colorScheme.outline, // Mapped to Borders/Dividers
-                width: 1.0,
-              ),
+            : BorderSide(color: theme.colorScheme.outline, width: 1.0),
       ),
       child: InkWell(
         onTap: onPressed,
         borderRadius: BorderRadius.circular(8),
-        child: SizedBox(
-          height: 48,
-          width: double.infinity,
+        // Replaced SizedBox with ConstrainedBox to allow vertical growth
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minHeight: 48, // Acts as your base height
+            minWidth: double.infinity,
+          ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            // Added vertical padding so wrapped text doesn't touch the borders
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 12.0,
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (icon != null) ...[
-                  Icon(icon, size: 18, color: contentColor),
+                  Icon(
+                    icon,
+                    size: textScaler.scale(18), // Scaled dynamically
+                    color: contentColor,
+                  ),
                   const SizedBox(width: 8),
                 ],
-                Text(label, style: textStyle),
+                // Flexible prevents horizontal overflow and allows multi-line text
+                Flexible(
+                  child: Text(
+                    label,
+                    style: textStyle,
+                    textAlign:
+                        TextAlign.center, // Keeps multi-line text centered
+                  ),
+                ),
               ],
             ),
           ),

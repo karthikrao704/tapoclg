@@ -10,34 +10,35 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // AppBar with Greeting and User Name
-      // appBar: CustomAppBar(
-      //   greetingMessage: "Good Morning",
-      //   userName: "Shelton Coutinho",
-      // ),
-
       // Main UI Body
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Tip Card
               const SizedBox(height: 20),
-              TipCard(
+              const TipCard(
                 tipText:
                     "Stay hydrated today. Drinking 8 glasses of water helps maintain your skin's natural glow and boosts energy levels.",
               ),
 
               // Featured Services Section
               const SizedBox(height: 30),
+
+              // Refactored: Allows the title to scale and "View All" to remain safe
               Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
                 children: [
-                  Text(
-                    "Featured Services",
-                    style: Theme.of(context).textTheme.titleLarge,
+                  Expanded(
+                    child: Text(
+                      "Featured Services",
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: 8),
                   Text(
                     "View All",
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -47,10 +48,13 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 20),
+
+              // Refactored: Replaced SizedBox(width) with Expanded for fluid scaling
               Row(
-                children: [
-                  SizedBox(
-                    width: 170,
+                crossAxisAlignment: CrossAxisAlignment
+                    .start, // Handles dynamic text heights cleanly
+                children: const [
+                  Expanded(
                     child: ServiceCard(
                       imagePath: "assets/images/example_service1.png",
                       tagLabel: "300+ Users",
@@ -58,9 +62,10 @@ class HomeScreen extends StatelessWidget {
                       duration: "60 mins",
                     ),
                   ),
-                  const SizedBox(width: 20),
                   SizedBox(
-                    width: 170,
+                    width: 16,
+                  ), // Slightly reduced for better fit on tiny screens
+                  Expanded(
                     child: ServiceCard(
                       imagePath: "assets/images/example_service2.png",
                       tagLabel: "Popular",
@@ -72,17 +77,13 @@ class HomeScreen extends StatelessWidget {
               ),
 
               // Upcoming Appointments Section
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Text(
-                    "Upcoming Appointments",
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ],
+              const SizedBox(height: 30),
+              Text(
+                "Upcoming Appointments",
+                style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 10),
-              AppointmentCard(
+              const AppointmentCard(
                 month: "OCT",
                 day: "24",
                 title: "Swedish Massage",
@@ -91,28 +92,27 @@ class HomeScreen extends StatelessWidget {
                 room: "Room 204",
               ),
 
-              // Button
+              // Buttons
               const SizedBox(height: 20),
               Row(
+                // Intentionally using intrinsic heights or start alignment
+                // in case button text wraps on high accessibility settings
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: CustomButton(
                       icon: Icons.edit_calendar,
                       label: "Book Service",
-                      onPressed: () {
-                        // Handle button press
-                      },
+                      onPressed: () {},
                     ),
                   ),
-                  const SizedBox(width: 20),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: CustomButton(
                       icon: Icons.message_outlined,
                       isPrimary: false,
                       label: "Support",
-                      onPressed: () {
-                        // Handle button press
-                      },
+                      onPressed: () {},
                     ),
                   ),
                 ],
@@ -124,14 +124,6 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
-
-      // bottomNavigationBar
-      // bottomNavigationBar: CustomBottomNavbar(
-      //   currentIndex: 0,
-      //   onTap: (index) {
-      //     // Handle navigation tap
-      //   },
-      // ),
     );
   }
 }

@@ -4,38 +4,31 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   // --- Core Colors ---
-  static const Color primaryAction = Color(
-    0xFFD9A04B,
-  ); // Book Service, Active Icons
-  static const Color primaryText = Color(0xFF191F38); // Headers, Titles
-  static const Color secondaryText = Color(0xFF6F7894); // Subtitles, Durations
-  static const Color cardSurface = Color(0xFFFBFBFB); // White/Light Grey Cards
-  static const Color appBackground = Color(0xFFFFFFFF); // Main App Background
+  static const Color primaryAction = Color(0xFFD9A04B);
+  static const Color primaryText = Color(0xFF191F38);
+  static const Color secondaryText = Color(0xFF6F7894);
+  static const Color cardSurface = Color(0xFFFBFBFB);
+  static const Color appBackground = Color(0xFFFFFFFF);
 
   // Specific UI Elements
-  static const Color wellnessTipBg = Color.fromARGB(
-    30,
-    88,
-    184,
-    20,
-  ); // Light greenish background
-  static const Color wellnessTipText = Color(0xFFAE8F50); // Olive Tan Title
-  static const Color outlineColor = Color.fromARGB(
-    255,
-    167,
-    167,
-    167,
-  ); // Borders (e.g., Support button)
-  // tertiary color is used for the appointment card background, which is a light grey tone
-  static const Color tertiaryColor = Color.fromARGB(
-    255,
-    236,
-    236,
-    236,
-  ); // Used for the appointment card background
+  static const Color wellnessTipBg = Color.fromARGB(30, 88, 184, 20);
+  static const Color wellnessTipText = Color(0xFFAE8F50);
+  static const Color outlineColor = Color.fromARGB(255, 167, 167, 167);
+  static const Color tertiaryColor = Color.fromARGB(255, 236, 236, 236);
 
-  // --- Light Theme Definition ---
-  static ThemeData get lightTheme {
+  // --- Responsive Light Theme Definition ---
+  // We now pass BuildContext to determine the screen size
+  static ThemeData getLightTheme(BuildContext context) {
+    // Standard design draft width (e.g., standard mobile screen)
+    const double baseDesignWidth = 375.0;
+    
+    // Get the current screen width
+    final double screenWidth = MediaQuery.sizeOf(context).width;
+
+    // Calculate scale factor. Clamped between 0.8 and 1.3 to prevent 
+    // extreme sizing on very small or very large (tablet/desktop) screens.
+    final double scaleFactor = (screenWidth / baseDesignWidth).clamp(0.8, 1.3);
+
     return ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: appBackground,
@@ -52,35 +45,30 @@ class AppTheme {
         tertiary: tertiaryColor,
       ),
 
-      // Typography / Text Theme
-      textTheme: const TextTheme(
-        // Used for "Featured Services", "Upcoming Appointments"
+      // Typography / Text Theme (Scaled Dynamically)
+      textTheme: TextTheme(
         titleLarge: TextStyle(
-          fontSize: 20,
+          fontSize: 20 * scaleFactor,
           fontWeight: FontWeight.bold,
           color: primaryText,
         ),
-        // Used for Service Names, User Name
         titleMedium: TextStyle(
-          fontSize: 16,
+          fontSize: 16 * scaleFactor,
           fontWeight: FontWeight.w700,
           color: primaryText,
         ),
-        // Used for Body Text (e.g., Wellness tip description)
         bodyMedium: TextStyle(
-          fontSize: 14,
+          fontSize: 14 * scaleFactor,
           fontWeight: FontWeight.w400,
           color: primaryText,
         ),
-        // Used for Subtitles (e.g., durations, "with Dr. Sarah Wilson")
         bodySmall: TextStyle(
-          fontSize: 13,
+          fontSize: 13 * scaleFactor,
           fontWeight: FontWeight.w400,
           color: secondaryText,
         ),
-        // Used for Labels (e.g., "Good Morning", "View all")
         labelLarge: TextStyle(
-          fontSize: 14,
+          fontSize: 14 * scaleFactor,
           fontWeight: FontWeight.w500,
           color: secondaryText,
         ),
@@ -91,39 +79,45 @@ class AppTheme {
         backgroundColor: appBackground,
         foregroundColor: primaryText,
         elevation: 0,
-        scrolledUnderElevation: 0, // Prevents color change on scroll in M3
+        scrolledUnderElevation: 0,
         centerTitle: false,
       ),
 
-      // Elevated Button Theme (The "Book Service" button)
+      // Elevated Button Theme (Scaled Padding & Text)
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryAction,
           foregroundColor: Colors.white,
           elevation: 0,
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: EdgeInsets.symmetric(vertical: 16 * scaleFactor), // Scaled height
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(12 * scaleFactor), // Scaled radius
           ),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          textStyle: TextStyle(
+            fontSize: 16 * scaleFactor, 
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
 
-      // Outlined Button Theme (The "Support" button)
+      // Outlined Button Theme (Scaled Padding & Text)
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: primaryText,
           side: const BorderSide(color: outlineColor, width: 1.5),
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: EdgeInsets.symmetric(vertical: 16 * scaleFactor),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(12 * scaleFactor),
           ),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          textStyle: TextStyle(
+            fontSize: 16 * scaleFactor, 
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
 
       // Bottom Navigation Bar Theme
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: appBackground,
         selectedItemColor: primaryAction,
         unselectedItemColor: secondaryText,
@@ -131,11 +125,11 @@ class AppTheme {
         type: BottomNavigationBarType.fixed,
         elevation: 8,
         selectedLabelStyle: TextStyle(
-          fontSize: 12,
+          fontSize: 12 * scaleFactor,
           fontWeight: FontWeight.w600,
         ),
         unselectedLabelStyle: TextStyle(
-          fontSize: 12,
+          fontSize: 12 * scaleFactor,
           fontWeight: FontWeight.w500,
         ),
       ),

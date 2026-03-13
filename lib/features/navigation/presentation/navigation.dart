@@ -1,44 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:tapovana_mobile_app/features/home_page/presentation/home_screen.dart';
-import 'package:tapovana_mobile_app/features/more/more_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:tapovana_mobile_app/core/routing/route_constants.dart';
 import 'package:tapovana_mobile_app/features/navigation/presentation/widgets/custom_app_bar.dart';
 import 'package:tapovana_mobile_app/features/navigation/presentation/widgets/custom_bottom_navbar.dart';
-import 'package:tapovana_mobile_app/features/profile/profile_screen.dart';
-import 'package:tapovana_mobile_app/features/services/service_screen.dart';
 
-class Navigation extends StatefulWidget {
-  const Navigation({super.key});
+class Navigation extends StatelessWidget {
+  // 1. Change from `Widget child` to `StatefulNavigationShell`
+  final StatefulNavigationShell navigationShell;
 
-  @override
-  State<Navigation> createState() => _NavigationState();
-}
+  const Navigation({super.key, required this.navigationShell});
 
-class _NavigationState extends State<Navigation> {
-  int _selectedIndex = 0;
-
-  final List<Widget> _pages = [
-    // Placeholder widgets for each tab
-    HomeScreen(),
-    ServiceScreen(),
-    MoreScreen(),
-    ProfileScreen(),
-  ];
   @override
   Widget build(BuildContext context) {
+    final location = GoRouterState.of(context).uri.toString();
+
+    final exactPathsWithAppBar = [
+      RouteConstants.home,
+      RouteConstants.more,
+      RouteConstants.profile,
+    ];
+
+    final shouldShowAppBar = exactPathsWithAppBar.contains(location);
+
     return Scaffold(
-      appBar: CustomAppBar(
-        greetingMessage: "Good Morning",
-        userName: "Shelton Coutinho",
-      ),
-
-      body: _pages[_selectedIndex],
-
+      appBar: shouldShowAppBar
+          ? const CustomAppBar(
+              greetingMessage: "Good Morning",
+              userName: "Shelton Coutinho",
+            )
+          : null,
+      // 2. The body is simply the shell itself
+      body: navigationShell,
       bottomNavigationBar: CustomBottomNavbar(
-        currentIndex: _selectedIndex,
+        // 3. Use the shell's built-in index manager
+        currentIndex: navigationShell.currentIndex,
         onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
+          // 4. Use goBranch instead of context.go()
+          navigationShell.goBranch(
+            index,
+            // Highly recommended: restores branch to its initial location
+            // if tapping the currently active tab.
+            initialLocation: index == navigationShell.currentIndex,
+          );
         },
       ),
     );
