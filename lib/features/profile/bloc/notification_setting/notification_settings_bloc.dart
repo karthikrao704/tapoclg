@@ -56,7 +56,5 @@ class NotificationSettingsBloc extends Bloc<NotificationSettingsEvent, Notificat
       emailUpdates: event.emailUpdates ?? state.emailUpdates,
       smsAlerts: event.smsAlerts ?? state.smsAlerts,
     ));
-    
-    // Simulate API call saving the preference in the background
   }
 }
