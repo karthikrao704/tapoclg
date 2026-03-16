@@ -5,10 +5,10 @@ import 'package:tapovana_mobile_app/core/routing/route_constants.dart';
 
 // Auth flow screens
 import 'package:tapovana_mobile_app/features/splash/splash_screen.dart';
-import 'package:tapovana_mobile_app/features/auth/pages/welcome_page.dart';
-import 'package:tapovana_mobile_app/features/auth/pages/login_page.dart';
-import 'package:tapovana_mobile_app/features/auth/pages/signup_page.dart';
-import 'package:tapovana_mobile_app/features/auth/pages/data_entry_page.dart';
+import 'package:tapovana_mobile_app/features/auth/presentation/pages/welcome_page.dart';
+import 'package:tapovana_mobile_app/features/auth/presentation/pages/login_page.dart';
+import 'package:tapovana_mobile_app/features/auth/presentation/pages/signup_page.dart';
+import 'package:tapovana_mobile_app/features/auth/presentation/pages/data_entry_page.dart';
 
 // Main app screens
 import 'package:tapovana_mobile_app/features/home_page/presentation/home_screen.dart';
