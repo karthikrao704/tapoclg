@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tapovana_mobile_app/features/navigation/presentation/widgets/custom_bottom_navbar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/profile/profile_bloc.dart';
 import '../../bloc/profile/profile_event.dart';
@@ -85,10 +84,6 @@ class ProfileView extends StatelessWidget {
             ),
           );
         },
-      ),
-      bottomNavigationBar: CustomBottomNavbar(
-        currentIndex: 3,
-        onTap: (index) {},
       ),
     );
   }
