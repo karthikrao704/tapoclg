@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/features/service_details/presentation/pages/service_details_page.dart';
 
 // --- DATA MODEL ---
 class ServiceItem {
@@ -243,7 +244,12 @@ class ServiceCard extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      // TODO: Implement booking logic
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ServiceDetailsPage(),
+                      ),
+                    );
                     },
                     child: const Text('BOOK APPOINTMENT'),
                   ),
