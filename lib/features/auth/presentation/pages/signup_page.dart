@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tapovana_mobile_app/features/auth/pages/login_page.dart';
-import 'package:tapovana_mobile_app/features/auth/pages/otp_page.dart';
+import 'package:tapovana_mobile_app/features/auth/presentation/pages/login_page.dart';
+import 'package:tapovana_mobile_app/features/auth/presentation/pages/otp_page.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});

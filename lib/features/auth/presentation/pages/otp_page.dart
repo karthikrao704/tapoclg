@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tapovana_mobile_app/features/auth/pages/data_entry_page.dart';
+import 'package:tapovana_mobile_app/features/auth/presentation/pages/data_entry_page.dart';
 
 class OtpPage extends StatelessWidget {
   const OtpPage({super.key});
