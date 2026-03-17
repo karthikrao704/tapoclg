@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../bloc/profile/profile_bloc.dart';
-import '../../bloc/profile/profile_event.dart';
-import '../../bloc/profile/profile_state.dart';
-import '../personal_info/personal_info_page.dart';
-import '../notification_settings/notification_settings_page.dart';
-import '../privacy_security/privacy_security_page.dart';
-import '../support_center/support_center_page.dart';
+import '../bloc/profile/profile_bloc.dart';
+import '../bloc/profile/profile_event.dart';
+import '../bloc/profile/profile_state.dart';
+import 'personal_info_page.dart';
+import 'notification_settings_page.dart';
+import 'privacy_security_page.dart';
+import 'support_center_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
