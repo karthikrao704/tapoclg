@@ -33,7 +33,7 @@ class ProfileView extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: false,
-        titleSpacing: 6,
+        titleSpacing: 8,
         title: const Text(
           'My Profile',
           style: TextStyle(
