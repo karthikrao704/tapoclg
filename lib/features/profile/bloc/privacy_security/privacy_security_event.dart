@@ -32,3 +32,5 @@ class ChangePassword extends PrivacySecurityEvent {
   @override
   List<Object?> get props => [currentPassword, newPassword];
 }
+
+class ClearPrivacyStatusMessages extends PrivacySecurityEvent {}

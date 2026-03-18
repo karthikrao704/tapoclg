@@ -22,121 +22,124 @@ class PrivacySecurityView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF333333)),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        centerTitle: false,
-        titleSpacing: 0,
-        title: const Text(
-          'Privacy & Security',
-          style: TextStyle(
-            color: Color(0xFF333333),
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1.0),
-          child: Container(color: const Color(0xFFF1F5F9), height: 1.0),
-        ),
-      ),
-      body: BlocBuilder<PrivacySecurityBloc, PrivacySecurityState>(
-        builder: (context, state) {
-          if (state.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (state.error != null) {
-            return Center(
-              child: Text(
-                'Error: ${state.error}',
-                style: const TextStyle(color: Colors.red),
-              ),
-            );
-          }
-
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSectionHeader('Account Security'),
-                _buildCardGroup([
-                  _buildActionItem(
-                    title: 'Change Password',
-                    subtitle: '',
-                    icon: Icons.lock_outline,
-                    iconBackColor: const Color(0xFFFDFBF4),
-                    iconColor: const Color(0xFFCDA751),
-                    onTap: () => _showChangePasswordDialog(context),
-                  ),
-                  _buildSwitchItem(
-                    title: 'Two-Factor Authentication',
-                    subtitle: 'Adds an extra layer of security',
-                    icon: Icons.security,
-                    iconBackColor: const Color(0xFFFDFBF4),
-                    iconColor: const Color(0xFFCDA751),
-                    value: state.twoFactorAuth,
-                    onChanged: (val) {
-                      context.read<PrivacySecurityBloc>().add(
-                            UpdatePrivacySettings(twoFactorAuth: val),
-                          );
-                    },
-                    showDivider: false,
-                  ),
-                ]),
-
-                if (state.passwordChanged)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 8.0, left: 8.0),
-                    child: Text(
-                      'Password changed successfully!',
-                      style: TextStyle(color: Colors.green, fontSize: 13),
-                    ),
-                  ),
-
-                const SizedBox(height: 32),
-
-                _buildSectionHeader('Privacy Controls'),
-                _buildCardGroup([
-                  _buildActionItem(
-                    title: 'Data Permissions',
-                    subtitle: '',
-                    icon: Icons.key_outlined,
-                    iconBackColor: const Color(0xFFFDFBF4),
-                    iconColor: const Color(0xFFCDA751),
-                    onTap: () {}, // Navigate or show modal
-                  ),
-                  _buildActionItem(
-                    title: 'Download Data',
-                    subtitle: '',
-                    icon: Icons.file_download_outlined,
-                    iconBackColor: const Color(0xFFFDFBF4),
-                    iconColor: const Color(0xFFCDA751),
-                    onTap: () {}, // Trigger data download action
-                  ),
-                  _buildActionItem(
-                    title: 'Delete Account',
-                    subtitle: '',
-                    titleColor: const Color(0xFFEF4444),
-                    icon: Icons.delete_forever_outlined,
-                    iconBackColor: const Color(0xFFFEF2F2),
-                    iconColor: const Color(0xFFEF4444),
-                    showChevron: false,
-                    showDivider: false,
-                    onTap: () {}, // Trigger delete account warning
-                  ),
-                ]),
-              ],
+    return BlocListener<PrivacySecurityBloc, PrivacySecurityState>(
+      listenWhen: (previous, current) =>
+          previous.error != current.error || previous.successMessage != current.successMessage,
+      listener: (context, state) {
+        if (state.error != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.error!), backgroundColor: Colors.red),
+          );
+          context.read<PrivacySecurityBloc>().add(ClearPrivacyStatusMessages());
+        }
+        if (state.successMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.successMessage!),
+              backgroundColor: const Color(0xFF4CAF50),
             ),
           );
-        },
+          context.read<PrivacySecurityBloc>().add(ClearPrivacyStatusMessages());
+        }
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFFAFAFA),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Color(0xFF333333)),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          centerTitle: false,
+          titleSpacing: 0,
+          title: const Text(
+            'Privacy & Security',
+            style: TextStyle(
+              color: Color(0xFF333333),
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(1.0),
+            child: Container(color: const Color(0xFFF1F5F9), height: 1.0),
+          ),
+        ),
+        body: BlocBuilder<PrivacySecurityBloc, PrivacySecurityState>(
+          builder: (context, state) {
+            if (state.isLoading) {
+              return const Center(child: CircularProgressIndicator(color: Color(0xFFCDA751)));
+            }
+
+            return SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSectionHeader('Account Security'),
+                  _buildCardGroup([
+                    _buildActionItem(
+                      title: 'Change Password',
+                      subtitle: '',
+                      icon: Icons.lock_outline,
+                      iconBackColor: const Color(0xFFFDFBF4),
+                      iconColor: const Color(0xFFCDA751),
+                      onTap: () => _showChangePasswordDialog(context),
+                    ),
+                    _buildSwitchItem(
+                      title: 'Two-Factor Authentication',
+                      subtitle: 'Adds an extra layer of security',
+                      icon: Icons.security,
+                      iconBackColor: const Color(0xFFFDFBF4),
+                      iconColor: const Color(0xFFCDA751),
+                      value: state.twoFactorAuth,
+                      onChanged: (val) {
+                        context.read<PrivacySecurityBloc>().add(
+                              UpdatePrivacySettings(twoFactorAuth: val),
+                            );
+                      },
+                      showDivider: false,
+                    ),
+                  ]),
+
+                  const SizedBox(height: 32),
+
+                  _buildSectionHeader('Privacy Controls'),
+                  _buildCardGroup([
+                    _buildActionItem(
+                      title: 'Data Permissions',
+                      subtitle: '',
+                      icon: Icons.key_outlined,
+                      iconBackColor: const Color(0xFFFDFBF4),
+                      iconColor: const Color(0xFFCDA751),
+                      onTap: () {}, // Navigate or show modal
+                    ),
+                    _buildActionItem(
+                      title: 'Download Data',
+                      subtitle: '',
+                      icon: Icons.file_download_outlined,
+                      iconBackColor: const Color(0xFFFDFBF4),
+                      iconColor: const Color(0xFFCDA751),
+                      onTap: () {}, // Trigger data download action
+                    ),
+                    _buildActionItem(
+                      title: 'Delete Account',
+                      subtitle: '',
+                      titleColor: const Color(0xFFEF4444),
+                      icon: Icons.delete_forever_outlined,
+                      iconBackColor: const Color(0xFFFEF2F2),
+                      iconColor: const Color(0xFFEF4444),
+                      showChevron: false,
+                      showDivider: false,
+                      onTap: () {}, // Trigger delete account warning
+                    ),
+                  ]),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
