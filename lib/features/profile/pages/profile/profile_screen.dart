@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tapovana_mobile_app/features/bookings/presentation/pages/my_bookings_page.dart';
 import '../../bloc/profile/profile_bloc.dart';
 import '../../bloc/profile/profile_event.dart';
 import '../../bloc/profile/profile_state.dart';
@@ -31,12 +32,8 @@ class ProfileView extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
         centerTitle: false,
-        titleSpacing: 0,
+        titleSpacing: 6,
         title: const Text(
           'My Profile',
           style: TextStyle(
@@ -106,7 +103,8 @@ class ProfileView extends StatelessWidget {
                   image: DecorationImage(
                     image: AssetImage(state.avatar),
                     fit: BoxFit.cover,
-                    alignment: Alignment.topCenter, // Often helps frame portraits better
+                    alignment: Alignment
+                        .topCenter, // Often helps frame portraits better
                   ),
                 ),
               ),
@@ -159,7 +157,9 @@ class ProfileView extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             decoration: BoxDecoration(
-              color: const Color(0xFF58B814).withValues(alpha: 0.10), // 10% opacity green
+              color: const Color(
+                0xFF58B814,
+              ).withValues(alpha: 0.10), // 10% opacity green
               borderRadius: BorderRadius.circular(24),
             ),
             child: const Text(
@@ -246,7 +246,10 @@ class ProfileView extends StatelessWidget {
 
           // BOTTOM: white section — credits left, gold Manage button right
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24), // Reduced padding to prevent line wrapping
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 24,
+            ), // Reduced padding to prevent line wrapping
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -276,7 +279,10 @@ class ProfileView extends StatelessWidget {
                       const SizedBox(height: 6),
                       Text(
                         'Next renewal: ${state.nextRenewal}',
-                        style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+                        style: const TextStyle(
+                          color: Color(0xFF94A3B8),
+                          fontSize: 13,
+                        ),
                       ),
                     ],
                   ),
@@ -310,50 +316,57 @@ class ProfileView extends StatelessWidget {
   }
 
   Widget _buildHistoryCard(BuildContext context, ProfileState state) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF2F7E6), // Light greenish yellow
-              borderRadius: BorderRadius.circular(12),
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (context) => const MyBookingsPage()));
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF2F7E6), // Light greenish yellow
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.restore,
+                color: Color(0xFFCFA644), // Gold color
+                size: 28,
+              ),
             ),
-            child: const Icon(
-              Icons.restore,
-              color: Color(0xFFCFA644), // Gold color
-              size: 28,
-            ),
-          ),
-          const SizedBox(width: 16),
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'History',
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF1E293B),
+            const SizedBox(width: 16),
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'My Bookings & History',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xFF1E293B),
+                  ),
                 ),
-              ),
-              SizedBox(height: 2),
-              Text(
-                '24 visits',
-                style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
-              ),
-            ],
-          ),
-        ],
+                SizedBox(height: 2),
+                Text(
+                  '24 visits',
+                  style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -394,7 +407,8 @@ class ProfileView extends StatelessWidget {
               _buildSettingsItem(
                 Icons.notifications_none,
                 'Notifications',
-                () => _navigateToPage(context, const NotificationSettingsPage()),
+                () =>
+                    _navigateToPage(context, const NotificationSettingsPage()),
                 showDivider: true,
               ),
               _buildSettingsItem(
@@ -416,11 +430,19 @@ class ProfileView extends StatelessWidget {
     );
   }
 
-  Widget _buildSettingsItem(IconData icon, String title, VoidCallback onTap, {bool showDivider = true}) {
+  Widget _buildSettingsItem(
+    IconData icon,
+    String title,
+    VoidCallback onTap, {
+    bool showDivider = true,
+  }) {
     return Column(
       children: [
         ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 0,
+          ),
           minVerticalPadding: 0,
           leading: Icon(icon, color: const Color(0xFFC5A335), size: 24),
           title: Text(
