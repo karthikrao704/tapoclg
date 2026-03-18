@@ -1,3 +1,5 @@
+// lib/main.dart
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,12 +15,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Initialize the repository
   final authRepository = AuthRepositoryImpl();
 
   runApp(MyApp(authRepository: authRepository));
 }
 
+// 1. Change MyApp to a StatefulWidget
 class MyApp extends StatefulWidget {
   final AuthRepository authRepository;
 
@@ -50,27 +52,17 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    // Provide the Cubit at the root level
-    return BlocProvider(
-      create: (context) => AuthCubit(authRepository: widget.authRepository),
-      child: Builder(
-        builder: (context) {
-          // Read the cubit instance to pass it to the router
-          final authCubit = context.read<AuthCubit>();
-
-          return MaterialApp.router(
-            title: 'Tapovana',
-            debugShowCheckedModeBanner: false,
-            builder: (context, child) {
-              return Theme(
-                data: AppTheme.getLightTheme(context),
-                child: child!,
-              );
-            },
-            // Pass the cubit to your router configuration
-            routerConfig: AppRouter.createRouter(authCubit),
-          );
+    // 5. Use BlocProvider.value since we are managing the Cubit's lifecycle manually in this state
+    return BlocProvider.value(
+      value: _authCubit,
+      child: MaterialApp.router(
+        title: 'Tapovana',
+        debugShowCheckedModeBanner: false,
+        builder: (context, child) {
+          return Theme(data: AppTheme.getLightTheme(context), child: child!);
         },
+        // 6. Pass the cached router instance!
+        routerConfig: _router,
       ),
     );
   }
