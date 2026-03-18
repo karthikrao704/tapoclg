@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tapovana_mobile_app/features/auth/bloc/auth_cubit.dart';
 import 'package:tapovana_mobile_app/features/bookings/presentation/pages/my_bookings_page.dart';
 import '../bloc/profile/profile_bloc.dart';
 import '../bloc/profile/profile_event.dart';
@@ -552,7 +553,7 @@ class ProfileView extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              context.read<ProfileBloc>().add(Logout());
+              context.read<AuthCubit>().signOut();
               Navigator.of(context).pop();
             },
             style: ElevatedButton.styleFrom(
