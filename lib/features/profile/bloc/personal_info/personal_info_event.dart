@@ -4,12 +4,12 @@ abstract class PersonalInfoEvent extends Equatable {
   const PersonalInfoEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 class LoadPersonalInfo extends PersonalInfoEvent {}
 
-class UpdatePersonalInfo extends PersonalInfoEvent {
+class SavePersonalInfo extends PersonalInfoEvent {
   final String fullName;
   final String email;
   final String phone;
@@ -22,7 +22,7 @@ class UpdatePersonalInfo extends PersonalInfoEvent {
   final String preferredTherapies;
   final String allergies;
 
-  const UpdatePersonalInfo({
+  const SavePersonalInfo({
     required this.fullName,
     required this.email,
     required this.phone,
@@ -37,7 +37,7 @@ class UpdatePersonalInfo extends PersonalInfoEvent {
   });
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
         fullName,
         email,
         phone,
@@ -51,3 +51,5 @@ class UpdatePersonalInfo extends PersonalInfoEvent {
         allergies,
       ];
 }
+
+class ClearStatusMessages extends PersonalInfoEvent {}

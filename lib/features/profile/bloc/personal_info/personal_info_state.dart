@@ -13,7 +13,9 @@ class PersonalInfoState extends Equatable {
   final String preferredTherapies;
   final String allergies;
   final bool isLoading;
+  final bool isSaving;
   final String? error;
+  final String? successMessage;
 
   const PersonalInfoState({
     this.fullName = '',
@@ -28,7 +30,9 @@ class PersonalInfoState extends Equatable {
     this.preferredTherapies = '',
     this.allergies = '',
     this.isLoading = false,
+    this.isSaving = false,
     this.error,
+    this.successMessage,
   });
 
   PersonalInfoState copyWith({
@@ -44,7 +48,9 @@ class PersonalInfoState extends Equatable {
     String? preferredTherapies,
     String? allergies,
     bool? isLoading,
+    bool? isSaving,
     String? error,
+    String? successMessage,
   }) {
     return PersonalInfoState(
       fullName: fullName ?? this.fullName,
@@ -59,7 +65,9 @@ class PersonalInfoState extends Equatable {
       preferredTherapies: preferredTherapies ?? this.preferredTherapies,
       allergies: allergies ?? this.allergies,
       isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
+      isSaving: isSaving ?? this.isSaving,
+      error: error, // Allow nulling out error
+      successMessage: successMessage, // Allow nulling out successMessage
     );
   }
 
@@ -77,6 +85,8 @@ class PersonalInfoState extends Equatable {
         preferredTherapies,
         allergies,
         isLoading,
+        isSaving,
         error,
+        successMessage,
       ];
 }

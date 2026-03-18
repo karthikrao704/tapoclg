@@ -22,11 +22,11 @@ import 'package:tapovana_mobile_app/features/more/more_screen.dart';
 import 'package:tapovana_mobile_app/features/navigation/presentation/navigation.dart';
 
 // Profile screens
-import 'package:tapovana_mobile_app/features/profile/pages/profile/profile_screen.dart';
-import 'package:tapovana_mobile_app/features/profile/pages/personal_info/personal_info_page.dart';
-import 'package:tapovana_mobile_app/features/profile/pages/notification_settings/notification_settings_page.dart';
-import 'package:tapovana_mobile_app/features/profile/pages/privacy_security/privacy_security_page.dart';
-import 'package:tapovana_mobile_app/features/profile/pages/support_center/support_center_page.dart';
+import 'package:tapovana_mobile_app/features/profile/pages/profile_screen.dart';
+import 'package:tapovana_mobile_app/features/profile/pages/personal_info_page.dart';
+import 'package:tapovana_mobile_app/features/profile/pages/notification_settings_page.dart';
+import 'package:tapovana_mobile_app/features/profile/pages/privacy_security_page.dart';
+import 'package:tapovana_mobile_app/features/profile/pages/support_center_page.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
