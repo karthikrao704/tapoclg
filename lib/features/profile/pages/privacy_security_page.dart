@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../bloc/privacy_security/privacy_security_bloc.dart';
-import '../../bloc/privacy_security/privacy_security_event.dart';
-import '../../bloc/privacy_security/privacy_security_state.dart';
+import '../bloc/privacy_security/privacy_security_bloc.dart';
+import '../bloc/privacy_security/privacy_security_event.dart';
+import '../bloc/privacy_security/privacy_security_state.dart';
 
 class PrivacySecurityPage extends StatelessWidget {
   const PrivacySecurityPage({super.key});
