@@ -147,25 +147,25 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildSectionHeader(Icons.person_outline, 'Basic Details'),
-                        _buildEditableField('FULL NAME', _nameController),
-                        _buildEditableField('EMAIL ADDRESS', _emailController, keyboardType: TextInputType.emailAddress),
-                        _buildEditableField('PHONE NUMBER', _phoneController, keyboardType: TextInputType.phone),
-                        _buildEditableField('DATE OF BIRTH', _dobController),
-                        _buildEditableField('GENDER', _genderController),
+                        _buildEditableField('FULL NAME', _nameController, hintText: 'Enter Name'),
+                        _buildEditableField('EMAIL ADDRESS', _emailController, hintText: 'Enter Email address', keyboardType: TextInputType.emailAddress),
+                        _buildEditableField('PHONE NUMBER', _phoneController, hintText: 'Enter Phone number', keyboardType: TextInputType.phone),
+                        _buildEditableField('DATE OF BIRTH', _dobController, hintText: 'Enter Date of Birth'),
+                        _buildEditableField('GENDER', _genderController, hintText: 'Enter Gender'),
 
                         const SizedBox(height: 32),
 
                         _buildSectionHeader(Icons.place_outlined, 'Address Information'),
-                        _buildEditableField('COUNTRY', _countryController),
-                        _buildEditableField('CITY', _cityController),
-                        _buildEditableField('STREET ADDRESS', _addressController),
+                        _buildEditableField('COUNTRY', _countryController, hintText: 'Enter Country'),
+                        _buildEditableField('CITY', _cityController, hintText: 'Enter City'),
+                        _buildEditableField('STREET ADDRESS', _addressController, hintText: 'Enter Street address'),
 
                         const SizedBox(height: 32),
 
                         _buildSectionHeader(Icons.spa, 'Wellness Profile'),
-                        _buildWellnessEditableField(Icons.healing, 'HEALTH CONCERNS', _healthConcernsController),
-                        _buildWellnessEditableField(Icons.self_improvement, 'PREFERRED THERAPIES', _preferredTherapiesController),
-                        _buildWellnessEditableField(Icons.warning_amber_rounded, 'ALLERGIES', _allergiesController),
+                        _buildWellnessEditableField(Icons.healing, 'HEALTH CONCERNS', _healthConcernsController, hintText: 'Enter Health concerns'),
+                        _buildWellnessEditableField(Icons.self_improvement, 'PREFERRED THERAPIES', _preferredTherapiesController, hintText: 'Enter Preferred therapies'),
+                        _buildWellnessEditableField(Icons.warning_amber_rounded, 'ALLERGIES', _allergiesController, hintText: 'Enter Allergies'),
 
                         const SizedBox(height: 16),
                       ],
@@ -201,7 +201,7 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
     );
   }
 
-  Widget _buildEditableField(String label, TextEditingController controller, {TextInputType keyboardType = TextInputType.text}) {
+  Widget _buildEditableField(String label, TextEditingController controller, {String hintText = 'Enter value', TextInputType keyboardType = TextInputType.text}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -230,12 +230,12 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               isDense: true,
-              contentPadding: EdgeInsets.only(top: 6, bottom: 4),
+              contentPadding: const EdgeInsets.only(top: 6, bottom: 4),
               border: InputBorder.none,
-              hintText: 'Enter value',
-              hintStyle: TextStyle(color: Color(0xFFB0BEC5), fontSize: 15),
+              hintText: hintText,
+              hintStyle: const TextStyle(color: Color(0xFFB0BEC5), fontSize: 15),
             ),
           ),
         ],
@@ -243,7 +243,7 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
     );
   }
 
-  Widget _buildWellnessEditableField(IconData icon, String label, TextEditingController controller) {
+  Widget _buildWellnessEditableField(IconData icon, String label, TextEditingController controller, {String hintText = 'Enter value'}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -286,12 +286,12 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
                     fontWeight: FontWeight.w500,
                     height: 1.4,
                   ),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     isDense: true,
-                    contentPadding: EdgeInsets.only(top: 6, bottom: 4),
+                    contentPadding: const EdgeInsets.only(top: 6, bottom: 4),
                     border: InputBorder.none,
-                    hintText: 'Enter value',
-                    hintStyle: TextStyle(color: Color(0xFFB0BEC5), fontSize: 14),
+                    hintText: hintText,
+                    hintStyle: const TextStyle(color: Color(0xFFB0BEC5), fontSize: 14),
                   ),
                 ),
               ],
