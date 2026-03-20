@@ -7,7 +7,6 @@ import 'package:tapovana_mobile_app/core/routing/route_constants.dart';
 import 'package:tapovana_mobile_app/core/service/mapbox_UI.dart';
 import 'package:tapovana_mobile_app/core/service/mapbox_initiate.dart';
 
-
 class DataEntryPage extends StatefulWidget {
   const DataEntryPage({super.key});
 
@@ -34,8 +33,7 @@ class _DataEntryPageState extends State<DataEntryPage> {
   }
 
   void _onSearchChanged(String query) {
-    if (_selectedPlace != null &&
-        query != _selectedPlace!.displayName) {
+    if (_selectedPlace != null && query != _selectedPlace!.displayName) {
       _selectedPlace = null;
     }
 
@@ -49,17 +47,14 @@ class _DataEntryPageState extends State<DataEntryPage> {
       return;
     }
 
-    if (_selectedPlace != null &&
-        query == _selectedPlace!.displayName) {
+    if (_selectedPlace != null && query == _selectedPlace!.displayName) {
       return;
     }
 
     setState(() => _isSearching = true);
 
-    _debounce =
-        Timer(const Duration(milliseconds: 400), () async {
-      final results =
-          await MapboxGeocodingService.searchPlaces(query);
+    _debounce = Timer(const Duration(milliseconds: 400), () async {
+      final results = await MapboxGeocodingService.searchPlaces(query);
       if (mounted) {
         setState(() {
           _searchResults = results;
@@ -92,8 +87,7 @@ class _DataEntryPageState extends State<DataEntryPage> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -101,8 +95,7 @@ class _DataEntryPageState extends State<DataEntryPage> {
 
                 /// STEP HEADER
                 Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: const [
                     Text(
                       "STEP 1 OF 4",
@@ -117,8 +110,7 @@ class _DataEntryPageState extends State<DataEntryPage> {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
-                        color:
-                            Color.fromARGB(255, 67, 72, 80),
+                        color: Color.fromARGB(255, 67, 72, 80),
                       ),
                     ),
                   ],
@@ -155,8 +147,7 @@ class _DataEntryPageState extends State<DataEntryPage> {
                   "wellness journey at Topovan Life Space.",
                   style: TextStyle(
                     fontSize: 16.5,
-                    color:
-                        Color.fromARGB(255, 71, 75, 84),
+                    color: Color.fromARGB(255, 71, 75, 84),
                   ),
                 ),
 
@@ -179,8 +170,7 @@ class _DataEntryPageState extends State<DataEntryPage> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: const [
                             Text(
                               "Privacy first",
@@ -210,10 +200,7 @@ class _DataEntryPageState extends State<DataEntryPage> {
                 /// NAME
                 const Text(
                   "Name",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                 ),
 
                 const SizedBox(height: 8),
@@ -221,8 +208,7 @@ class _DataEntryPageState extends State<DataEntryPage> {
                 const TextField(
                   decoration: InputDecoration(
                     hintText: "e.g. Elena Vance",
-                    hintStyle:
-                        TextStyle(color: Color(0xFF9CA3AF)),
+                    hintStyle: TextStyle(color: Color(0xFF9CA3AF)),
                     border: UnderlineInputBorder(
                       borderSide: BorderSide(
                         color: Color(0xFFC9A14A),
@@ -237,10 +223,7 @@ class _DataEntryPageState extends State<DataEntryPage> {
                 /// GENDER
                 const Text(
                   "Gender",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                 ),
 
                 const SizedBox(height: 12),
@@ -271,8 +254,7 @@ class _DataEntryPageState extends State<DataEntryPage> {
 
                 /// CITY SEARCH FIELD
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
                     color: const Color(0xFFF3F4F6),
                     borderRadius: BorderRadius.circular(12),
@@ -305,16 +287,14 @@ class _DataEntryPageState extends State<DataEntryPage> {
                     children: const [
                       Icon(
                         Icons.my_location,
-                        color: Color.fromARGB(
-                            255, 184, 84, 31),
+                        color: Color.fromARGB(255, 184, 84, 31),
                         size: 20,
                       ),
                       SizedBox(width: 6),
                       Text(
                         "Use Current Location",
                         style: TextStyle(
-                          color: Color.fromARGB(
-                              255, 184, 84, 31),
+                          color: Color.fromARGB(255, 184, 84, 31),
                           fontWeight: FontWeight.w500,
                           fontSize: 15,
                         ),
@@ -334,13 +314,11 @@ class _DataEntryPageState extends State<DataEntryPage> {
                       context.go(RouteConstants.home);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          const Color(0xFFC9A14A),
+                      backgroundColor: const Color(0xFFC9A14A),
                       foregroundColor: Colors.white,
                       elevation: 3,
                       shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
                     child: const Text(
@@ -367,19 +345,15 @@ class _DataEntryPageState extends State<DataEntryPage> {
     return GestureDetector(
       onTap: () => setState(() => selectedGender = gender),
       child: Container(
-        padding: const EdgeInsets.symmetric(
-            horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0xFFC9A14A)
-              : const Color(0xFFF3F4F6),
+          color: isSelected ? const Color(0xFFC9A14A) : const Color(0xFFF3F4F6),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(
           gender,
           style: TextStyle(
-            color:
-                isSelected ? Colors.white : Colors.black,
+            color: isSelected ? Colors.white : Colors.black,
             fontWeight: FontWeight.w500,
           ),
         ),

@@ -1,3 +1,4 @@
+// lib/core/services/mapbox/mapbox_ui.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -5,7 +6,9 @@ import 'package:latlong2/latlong.dart';
 
 import 'mapbox_initiate.dart';
 
-
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  1. SEARCH RESULTS DROPDOWN
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 class MapboxSearchResultsDropdown extends StatelessWidget {
   final List<MapboxPlace> results;
@@ -63,10 +66,28 @@ class MapboxSearchResultsDropdown extends StatelessWidget {
           Divider(height: 1, indent: 54, color: Colors.grey.shade200),
       itemBuilder: (_, i) {
         final place = results[i];
+        
+        // ✅ Extract city name and zipcode for display
+        String cityDisplay = place.name;
+        String? zipcodeDisplay;
+        
+        // Check if dropdownName contains zipcode in parentheses
+        if (place.dropdownName.contains('(') && 
+            place.dropdownName.contains(')')) {
+          final parts = place.dropdownName.split('(');
+          if (parts.length > 1) {
+            cityDisplay = parts[0].trim();
+            final zipPart = parts[1].split(')')[0];
+            if (zipPart != place.name) {
+              zipcodeDisplay = zipPart;
+            }
+          }
+        }
+
         return ListTile(
           dense: true,
           contentPadding:
-              const EdgeInsets.symmetric(horizontal: 14),
+              const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
           leading: Container(
             width: 36,
             height: 36,
@@ -80,17 +101,47 @@ class MapboxSearchResultsDropdown extends StatelessWidget {
               size: 20,
             ),
           ),
-          title: Text(
-            place.name,
-            style: const TextStyle(
-              fontSize: 14.5,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF111827),
-            ),
+          title: Row(
+            children: [
+              Flexible(
+                child: Text(
+                  cityDisplay,
+                  style: const TextStyle(
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF111827),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              // ✅ Show zipcode in a subtle way
+              if (zipcodeDisplay != null) ...[
+                const SizedBox(width: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    zipcodeDisplay,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF6B7280),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
-          subtitle: place.country.isNotEmpty
+          // ✅ Show full country name in subtitle
+          subtitle: place.countryName.isNotEmpty
               ? Text(
-                  place.country,
+                  place.countryName, // Full country name like "India"
                   style: const TextStyle(
                     fontSize: 12.5,
                     color: Color(0xFF6B7280),
@@ -109,10 +160,15 @@ class MapboxSearchResultsDropdown extends StatelessWidget {
   }
 }
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  2. CURRENT LOCATION MAP PICKER (bottom sheet)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+/// Opens bottom sheet → shows map with pin + city label
+/// Now uses zipcode-based city lookup for accurate city name
 Future<MapboxPlace?> showMapboxLocationPicker(
     BuildContext context) async {
-
+  // ── 1. Show loading ──────────────────────────
   showDialog(
     context: context,
     barrierDismissible: false,
@@ -123,12 +179,13 @@ Future<MapboxPlace?> showMapboxLocationPicker(
     ),
   );
 
- 
+  // ── 2. One-time GPS fetch ────────────────────
   final position =
       await MapboxLocationService.currentPosition();
 
   if (!context.mounted) return null;
-  Navigator.of(context).pop();
+  Navigator.of(context).pop(); // dismiss spinner
+
   if (position == null) {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -144,26 +201,53 @@ Future<MapboxPlace?> showMapboxLocationPicker(
     return null;
   }
 
+  // ── 3. Show loading for geocoding ────────────
+  if (context.mounted) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(
+              color: Color(0xFFC9A14A),
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Finding your city...',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-  final place = await MapboxGeocodingService.reverseGeocode(
-    position.latitude,
-    position.longitude,
-  );
+  // ── 4. Use zipcode-based lookup for accurate city ─
+  // ✅ This ensures we show the city that the zipcode belongs to
+  final place = await MapboxLocationService.currentPlaceByZipcode();
+
+  if (!context.mounted) return null;
+  Navigator.of(context).pop(); // dismiss loading
 
   final effectivePlace = place ??
       MapboxPlace(
         name: 'Current Location',
-        country: '',
-        displayName:
-            '${position.latitude.toStringAsFixed(4)}, '
-            '${position.longitude.toStringAsFixed(4)}',
+        countryName: '',
+        countryCode: '',
+        displayName: 'Current Location',
+        dropdownName: 'Current Location',
         latitude: position.latitude,
         longitude: position.longitude,
       );
 
   if (!context.mounted) return null;
 
-  
+  // ── 5. Show map bottom sheet ─────────────────
   return showModalBottomSheet<MapboxPlace>(
     context: context,
     isScrollControlled: true,
@@ -176,7 +260,7 @@ Future<MapboxPlace?> showMapboxLocationPicker(
   );
 }
 
-
+// ─────────────── Map Bottom Sheet ─────────────────
 
 class _LocationMapSheet extends StatelessWidget {
   final double latitude;
@@ -202,7 +286,7 @@ class _LocationMapSheet extends StatelessWidget {
       ),
       child: Column(
         children: [
-          
+          // ── Handle bar ────────────────────────
           const SizedBox(height: 12),
           Container(
             width: 42,
@@ -213,7 +297,7 @@ class _LocationMapSheet extends StatelessWidget {
             ),
           ),
 
-          
+          // ── Title ─────────────────────────────
           const SizedBox(height: 18),
           const Text(
             'Your Current Location',
@@ -223,9 +307,23 @@ class _LocationMapSheet extends StatelessWidget {
               color: Color(0xFF111827),
             ),
           ),
+          
+          // ✅ Show zipcode if available
+          if (place.postalCode != null &&
+              place.postalCode!.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Postal Code: ${place.postalCode}',
+              style: const TextStyle(
+                fontSize: 13,
+                color: Color(0xFF6B7280),
+              ),
+            ),
+          ],
+          
           const SizedBox(height: 14),
 
-          
+          // ── Map + Pin + City Label ────────────
           Expanded(
             child: Padding(
               padding:
@@ -235,7 +333,7 @@ class _LocationMapSheet extends StatelessWidget {
                 child: FlutterMap(
                   options: MapOptions(
                     initialCenter: point,
-                    initialZoom: 14,
+                    initialZoom: 15, // Slightly higher zoom for better detail
                     interactionOptions:
                         const InteractionOptions(
                       flags: InteractiveFlag.pinchZoom |
@@ -243,7 +341,7 @@ class _LocationMapSheet extends StatelessWidget {
                     ),
                   ),
                   children: [
-                   
+                    // Mapbox raster tiles
                     TileLayer(
                       urlTemplate: MapboxConfig.tileUrl,
                       userAgentPackageName:
@@ -251,18 +349,18 @@ class _LocationMapSheet extends StatelessWidget {
                       maxZoom: 19,
                     ),
 
-                   
+                    // Pin marker with city label on top
                     MarkerLayer(
                       markers: [
                         Marker(
                           point: point,
-                          width: 220,
+                          width: 260,
                           height: 95,
                           alignment: Alignment.bottomCenter,
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                             
+                              // ── City, Country label ──
                               Container(
                                 padding:
                                     const EdgeInsets
@@ -301,6 +399,7 @@ class _LocationMapSheet extends StatelessWidget {
                                         width: 4),
                                     Flexible(
                                       child: Text(
+                                        // ✅ Use displayName (without zipcode)
                                         place.displayName,
                                         style:
                                             const TextStyle(
@@ -322,7 +421,7 @@ class _LocationMapSheet extends StatelessWidget {
                               ),
                               const SizedBox(height: 2),
 
-                              
+                              // ── Pin icon ─────────────
                               const Icon(
                                 Icons.location_on,
                                 color:
@@ -340,7 +439,7 @@ class _LocationMapSheet extends StatelessWidget {
             ),
           ),
 
-         
+          // ── Location info row ─────────────────
           const SizedBox(height: 16),
           Padding(
             padding:
@@ -375,14 +474,41 @@ class _LocationMapSheet extends StatelessWidget {
                           color: Color(0xFF111827),
                         ),
                       ),
-                      if (place.country.isNotEmpty)
+                      // ✅ Show full country name
+                      if (place.countryName.isNotEmpty) ...[
+                        const SizedBox(height: 2),
                         Text(
-                          place.country,
+                          place.countryName,
                           style: const TextStyle(
                             fontSize: 13,
                             color: Color(0xFF6B7280),
                           ),
                         ),
+                      ],
+                      // ✅ Show postal code if available
+                      if (place.postalCode != null &&
+                          place.postalCode!.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius:
+                                BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            'ZIP: ${place.postalCode}',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: Color(0xFF6B7280),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -390,7 +516,7 @@ class _LocationMapSheet extends StatelessWidget {
             ),
           ),
 
-          
+          // ── Use This Location button ──────────
           const SizedBox(height: 18),
           Padding(
             padding:
