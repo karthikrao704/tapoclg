@@ -1,8 +1,12 @@
 // lib/features/auth/pages/data_entry_page.dart
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tapovana_mobile_app/core/routing/route_constants.dart';
+import 'package:tapovana_mobile_app/core/service/mapbox_UI.dart';
+import 'package:tapovana_mobile_app/core/service/mapbox_initiate.dart';
+
 
 class DataEntryPage extends StatefulWidget {
   const DataEntryPage({super.key});
@@ -14,6 +18,73 @@ class DataEntryPage extends StatefulWidget {
 class _DataEntryPageState extends State<DataEntryPage> {
   String selectedGender = "Female";
 
+  final _cityController = TextEditingController();
+  final _cityFocus = FocusNode();
+  List<MapboxPlace> _searchResults = [];
+  bool _isSearching = false;
+  Timer? _debounce;
+  MapboxPlace? _selectedPlace;
+
+  @override
+  void dispose() {
+    _cityController.dispose();
+    _cityFocus.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    if (_selectedPlace != null &&
+        query != _selectedPlace!.displayName) {
+      _selectedPlace = null;
+    }
+
+    _debounce?.cancel();
+
+    if (query.trim().length < 2) {
+      setState(() {
+        _searchResults = [];
+        _isSearching = false;
+      });
+      return;
+    }
+
+    if (_selectedPlace != null &&
+        query == _selectedPlace!.displayName) {
+      return;
+    }
+
+    setState(() => _isSearching = true);
+
+    _debounce =
+        Timer(const Duration(milliseconds: 400), () async {
+      final results =
+          await MapboxGeocodingService.searchPlaces(query);
+      if (mounted) {
+        setState(() {
+          _searchResults = results;
+          _isSearching = false;
+        });
+      }
+    });
+  }
+
+  void _onPlaceSelected(MapboxPlace place) {
+    setState(() {
+      _selectedPlace = place;
+      _cityController.text = place.displayName;
+      _searchResults = [];
+    });
+    _cityFocus.unfocus();
+  }
+
+  Future<void> _useCurrentLocation() async {
+    final place = await showMapboxLocationPicker(context);
+    if (place != null && mounted) {
+      _onPlaceSelected(place);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,7 +92,8 @@ class _DataEntryPageState extends State<DataEntryPage> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -29,7 +101,8 @@ class _DataEntryPageState extends State<DataEntryPage> {
 
                 /// STEP HEADER
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween,
                   children: const [
                     Text(
                       "STEP 1 OF 4",
@@ -44,9 +117,10 @@ class _DataEntryPageState extends State<DataEntryPage> {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
-                        color: Color.fromARGB(255, 67, 72, 80),
+                        color:
+                            Color.fromARGB(255, 67, 72, 80),
                       ),
-                    )
+                    ),
                   ],
                 ),
 
@@ -77,10 +151,12 @@ class _DataEntryPageState extends State<DataEntryPage> {
                 const SizedBox(height: 8),
 
                 const Text(
-                  "We use this information to personalize your wellness journey at Topovan Life Space.",
+                  "We use this information to personalize your "
+                  "wellness journey at Topovan Life Space.",
                   style: TextStyle(
                     fontSize: 16.5,
-                    color: Color.fromARGB(255, 71, 75, 84),
+                    color:
+                        Color.fromARGB(255, 71, 75, 84),
                   ),
                 ),
 
@@ -103,7 +179,8 @@ class _DataEntryPageState extends State<DataEntryPage> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment:
+                              CrossAxisAlignment.start,
                           children: const [
                             Text(
                               "Privacy first",
@@ -114,22 +191,23 @@ class _DataEntryPageState extends State<DataEntryPage> {
                             ),
                             SizedBox(height: 4),
                             Text(
-                              "Your data is encrypted and never shared with third parties.",
+                              "Your data is encrypted and never "
+                              "shared with third parties.",
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Color(0xFF6B7280),
                               ),
-                            )
+                            ),
                           ],
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
 
                 const SizedBox(height: 10),
 
-                /// NAME LABEL
+                /// NAME
                 const Text(
                   "Name",
                   style: TextStyle(
@@ -140,13 +218,11 @@ class _DataEntryPageState extends State<DataEntryPage> {
 
                 const SizedBox(height: 8),
 
-                /// NAME FIELD
                 const TextField(
                   decoration: InputDecoration(
                     hintText: "e.g. Elena Vance",
-                    hintStyle: TextStyle(
-                      color: Color(0xFF9CA3AF),
-                    ),
+                    hintStyle:
+                        TextStyle(color: Color(0xFF9CA3AF)),
                     border: UnderlineInputBorder(
                       borderSide: BorderSide(
                         color: Color(0xFFC9A14A),
@@ -158,7 +234,7 @@ class _DataEntryPageState extends State<DataEntryPage> {
 
                 const SizedBox(height: 28),
 
-                /// GENDER LABEL
+                /// GENDER
                 const Text(
                   "Gender",
                   style: TextStyle(
@@ -169,14 +245,13 @@ class _DataEntryPageState extends State<DataEntryPage> {
 
                 const SizedBox(height: 12),
 
-                /// GENDER OPTIONS
-                Row(
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
                   children: [
-                    genderButton("Female"),
-                    const SizedBox(width: 30),
-                    genderButton("Male"),
-                    const SizedBox(width: 30),
-                    genderButton("Prefer not to say"),
+                    _genderButton("Female"),
+                    _genderButton("Male"),
+                    _genderButton("Prefer not to say"),
                   ],
                 ),
 
@@ -194,15 +269,19 @@ class _DataEntryPageState extends State<DataEntryPage> {
 
                 const SizedBox(height: 8),
 
-                /// CITY SEARCH
+                /// CITY SEARCH FIELD
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16),
                   decoration: BoxDecoration(
                     color: const Color(0xFFF3F4F6),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const TextField(
-                    decoration: InputDecoration(
+                  child: TextField(
+                    controller: _cityController,
+                    focusNode: _cityFocus,
+                    onChanged: _onSearchChanged,
+                    decoration: const InputDecoration(
                       icon: Icon(Icons.search),
                       hintText: "Search for your city...",
                       border: InputBorder.none,
@@ -210,45 +289,58 @@ class _DataEntryPageState extends State<DataEntryPage> {
                   ),
                 ),
 
+                /// SEARCH RESULTS
+                MapboxSearchResultsDropdown(
+                  results: _searchResults,
+                  isLoading: _isSearching,
+                  onSelected: _onPlaceSelected,
+                ),
+
                 const SizedBox(height: 25),
 
-                /// LOCATION BUTTON
-                Row(
-                  children: const [
-                    Icon(
-                      Icons.my_location,
-                      color: Color.fromARGB(255, 184, 84, 31),
-                      size: 20,
-                    ),
-                    SizedBox(width: 6),
-                    Text(
-                      "Use Current Location",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 184, 84, 31),
-                        fontWeight: FontWeight.w500,
-                        fontSize: 15,
+                /// USE CURRENT LOCATION
+                GestureDetector(
+                  onTap: _useCurrentLocation,
+                  child: Row(
+                    children: const [
+                      Icon(
+                        Icons.my_location,
+                        color: Color.fromARGB(
+                            255, 184, 84, 31),
+                        size: 20,
                       ),
-                    )
-                  ],
+                      SizedBox(width: 6),
+                      Text(
+                        "Use Current Location",
+                        style: TextStyle(
+                          color: Color.fromARGB(
+                              255, 184, 84, 31),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
 
                 const SizedBox(height: 105),
 
-                /// ✅ CONTINUE BUTTON - NAVIGATES TO HOME
+                /// CONTINUE BUTTON
                 SizedBox(
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
                     onPressed: () {
-                      // Navigate to Home and clear entire auth stack
                       context.go(RouteConstants.home);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFC9A14A),
+                      backgroundColor:
+                          const Color(0xFFC9A14A),
                       foregroundColor: Colors.white,
                       elevation: 3,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius:
+                            BorderRadius.circular(8),
                       ),
                     ),
                     child: const Text(
@@ -270,21 +362,13 @@ class _DataEntryPageState extends State<DataEntryPage> {
     );
   }
 
-  /// Gender Button Widget
-  Widget genderButton(String gender) {
-    bool isSelected = selectedGender == gender;
-
+  Widget _genderButton(String gender) {
+    final isSelected = selectedGender == gender;
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedGender = gender;
-        });
-      },
+      onTap: () => setState(() => selectedGender = gender),
       child: Container(
         padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 10,
-        ),
+            horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: isSelected
               ? const Color(0xFFC9A14A)
@@ -294,7 +378,8 @@ class _DataEntryPageState extends State<DataEntryPage> {
         child: Text(
           gender,
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black,
+            color:
+                isSelected ? Colors.white : Colors.black,
             fontWeight: FontWeight.w500,
           ),
         ),
