@@ -1,30 +1,37 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:tapovana_mobile_app/features/auth/domain/entities/app_user.dart';
+import 'package:tapovana_mobile_app/features/auth/domain/repos/auth_repository.dart';
 import 'package:tapovana_mobile_app/main.dart';
 
+// 1. Create a Fake Repository so the test doesn't actually call Firebase
+class FakeAuthRepository implements AuthRepository {
+  @override
+  // Return an empty stream to simulate the initial checking state
+  Stream<AppUser?> get user => const Stream.empty();
+
+  @override
+  Future<AppUser?> signInWithGoogle() async {
+    return null; 
+  }
+
+  @override
+  Future<void> signOut() async {}
+}
+
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('App initialization smoke test', (WidgetTester tester) async {
+    // 2. Instantiate the fake repository
+    final fakeAuthRepository = FakeAuthRepository();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // 3. Build our app, passing in the required fake repository
+    await tester.pumpWidget(MyApp(authRepository: fakeAuthRepository));
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Trigger a frame and wait for any initial routing/animations to settle
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // 4. Verify that the app successfully built the root MaterialApp
+    // (We removed the old counter logic because your app no longer has a counter)
+    expect(find.byType(MaterialApp), findsOneWidget);
   });
 }

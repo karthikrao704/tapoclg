@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1026651541392",
+    "project_id": "tapovana-mobile-app",
+    "storage_bucket": "tapovana-mobile-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1026651541392:android:ea21a9831a8b9226b3ad15",
+        "android_client_info": {
+          "package_name": "com.example.tapovana_mobile_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPmgFa4-ltAU7adbIrlngwnC_BkGQXWaw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
