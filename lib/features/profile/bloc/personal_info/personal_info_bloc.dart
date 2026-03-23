@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
+import '../../../../core/storage/local_database.dart';
 import 'personal_info_event.dart';
 import 'personal_info_state.dart';
 
 class PersonalInfoBloc extends Bloc<PersonalInfoEvent, PersonalInfoState> {
   final String _baseUrl = 'https://backend.rosettesmartlife.com';
-  final int _userId = 2;
 
   PersonalInfoBloc() : super(const PersonalInfoState()) {
     on<LoadPersonalInfo>(_onLoadPersonalInfo);
@@ -18,8 +18,17 @@ class PersonalInfoBloc extends Bloc<PersonalInfoEvent, PersonalInfoState> {
     emit(state.copyWith(isLoading: true, error: null));
 
     try {
+      final userId = await LocalDatabase.getUserId();
+      if (userId == null) {
+        emit(state.copyWith(
+          error: 'User ID not found locally. Please login again.',
+          isLoading: false,
+        ));
+        return;
+      }
+
       final response = await http.get(
-        Uri.parse('$_baseUrl/api/details/$_userId'),
+        Uri.parse('$_baseUrl/api/details/$userId'),
       );
 
       if (response.statusCode == 200) {
@@ -34,11 +43,26 @@ class PersonalInfoBloc extends Bloc<PersonalInfoEvent, PersonalInfoState> {
           country = parts.length > 1 ? parts[1].trim() : '';
         }
 
+        String dob = user['dob'] ?? '';
+        if (dob.isNotEmpty) {
+          try {
+            // A universal fix for backend timezone shifts (where 'YYYY-MM-DD' becomes e.g. '...T18:30:00Z' the day prior).
+            // Converting to UTC and adding 12 hours safely repositions any shift up to 12 hours back onto its intended day.
+            DateTime parsedDob = DateTime.parse(dob).toUtc().add(const Duration(hours: 12));
+            String y = parsedDob.year.toString().padLeft(4, '0');
+            String m = parsedDob.month.toString().padLeft(2, '0');
+            String d = parsedDob.day.toString().padLeft(2, '0');
+            dob = '$y-$m-$d';
+          } catch (_) {
+            // keep as is if unparseable
+          }
+        }
+
         emit(state.copyWith(
           fullName: user['name'] ?? '',
           email: user['email'] ?? '',
           phone: user['phone'] ?? '',
-          dateOfBirth: user['dob'] ?? '',
+          dateOfBirth: dob,
           gender: user['gender'] ?? '',
           country: country,
           city: city,
@@ -102,8 +126,17 @@ class PersonalInfoBloc extends Bloc<PersonalInfoEvent, PersonalInfoState> {
     };
 
     try {
+      final userId = await LocalDatabase.getUserId();
+      if (userId == null) {
+        emit(state.copyWith(
+          error: 'User ID not found locally. Please login again.',
+          isSaving: false,
+        ));
+        return;
+      }
+
       final response = await http.patch(
-        Uri.parse('$_baseUrl/api/details/$_userId'),
+        Uri.parse('$_baseUrl/api/details/$userId'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(body),
       );
@@ -113,7 +146,7 @@ class PersonalInfoBloc extends Bloc<PersonalInfoEvent, PersonalInfoState> {
           fullName: event.fullName,
           email: event.email,
           phone: event.phone,
-          dateOfBirth: event.dateOfBirth,
+          dateOfBirth: dobFormatted ?? event.dateOfBirth,
           gender: event.gender,
           country: event.country,
           city: event.city,

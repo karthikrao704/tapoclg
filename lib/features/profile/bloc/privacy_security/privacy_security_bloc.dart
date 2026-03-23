@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
+import '../../../../core/storage/local_database.dart';
 import 'privacy_security_event.dart';
 import 'privacy_security_state.dart';
 
 class PrivacySecurityBloc extends Bloc<PrivacySecurityEvent, PrivacySecurityState> {
   static const String _baseUrl = 'https://backend.rosettesmartlife.com';
-  static const int _userId = 2;
 
   PrivacySecurityBloc() : super(const PrivacySecurityState()) {
     on<LoadPrivacySettings>(_onLoadPrivacySettings);
@@ -19,8 +19,17 @@ class PrivacySecurityBloc extends Bloc<PrivacySecurityEvent, PrivacySecurityStat
     emit(state.copyWith(isLoading: true, error: () => null, successMessage: () => null));
     
     try {
+      final userId = await LocalDatabase.getUserId();
+      if (userId == null) {
+        emit(state.copyWith(
+          error: () => 'User ID not found locally. Please login again.',
+          isLoading: false,
+        ));
+        return;
+      }
+
       final response = await http.get(
-        Uri.parse('$_baseUrl/api/auth/two-step/status/$_userId'),
+        Uri.parse('$_baseUrl/api/auth/two-step/status/$userId'),
       );
       
       if (response.statusCode == 200) {
@@ -47,19 +56,24 @@ class PrivacySecurityBloc extends Bloc<PrivacySecurityEvent, PrivacySecurityStat
   }
 
   Future<void> _onUpdatePrivacySettings(UpdatePrivacySettings event, Emitter<PrivacySecurityState> emit) async {
-    // Optimistically update the UI if desired, but here we wait for API confirmation
-    // or we can emit the loading state for the switch if needed.
-    // Given the UI usually shows a toggle, we'll emit the new value and then handle the API.
-    
     final bool previousValue = state.twoFactorAuth;
     emit(state.copyWith(twoFactorAuth: event.twoFactorAuth, error: () => null, successMessage: () => null));
     
     try {
+      final userId = await LocalDatabase.getUserId();
+      if (userId == null) {
+        emit(state.copyWith(
+          twoFactorAuth: previousValue,
+          error: () => 'User ID not found locally. Please login again.',
+        ));
+        return;
+      }
+
       final response = await http.post(
         Uri.parse('$_baseUrl/api/auth/two-step/toggle'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'id': _userId,
+          'id': userId,
           'enabled': event.twoFactorAuth,
         }),
       );

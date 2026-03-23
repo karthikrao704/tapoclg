@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/storage/local_database.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String greetingMessage;
@@ -21,6 +22,19 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     // Theme
     final theme = Theme.of(context);
+
+    String getGreeting() {
+      final hour = DateTime.now().hour;
+      if (hour >= 5 && hour < 12) {
+        return "Good Morning";
+      } else if (hour >= 12 && hour < 17) {
+        return "Good Afternoon";
+      } else if (hour >= 17 && hour < 21) {
+        return "Good Evening";
+      } else {
+        return "Good Night";
+      }
+    }
 
     return AppBar(
       // Background color is automatically set by the theme's colorScheme.primary
@@ -52,14 +66,20 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            greetingMessage,
+            getGreeting(),
             // Inherits size 14, w500, secondaryText color
             style: theme.textTheme.labelLarge,
           ),
-          Text(
-            userName,
-            // Inherits size 20, bold, primaryText color
-            style: theme.textTheme.titleLarge,
+          FutureBuilder<String?>(
+            future: LocalDatabase.getUserName(),
+            builder: (context, snapshot) {
+              final name = snapshot.data ?? userName;
+              return Text(
+                name,
+                // Inherits size 20, bold, primaryText color
+                style: theme.textTheme.titleLarge,
+              );
+            },
           ),
         ],
       ),
