@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/personal_info/personal_info_bloc.dart';
 import '../bloc/personal_info/personal_info_event.dart';
@@ -74,7 +75,27 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
     if (_nameController.text != state.fullName) _nameController.text = state.fullName;
     if (_emailController.text != state.email) _emailController.text = state.email;
     if (_phoneController.text != state.phone) _phoneController.text = state.phone;
-    if (_dobController.text != state.dateOfBirth) _dobController.text = state.dateOfBirth;
+    if (_dobController.text != state.dateOfBirth) {
+      // Format DOB to dd/MM/yyyy purely using strings to bypass simulator timezones
+      if (state.dateOfBirth.isNotEmpty) {
+        try {
+          final datePart = state.dateOfBirth.split('T').first; // e.g. "2003-11-03"
+          final parts = datePart.split('-');
+          if (parts.length >= 3) {
+            final y = parts[0];
+            final m = parts[1];
+            final d = parts[2];
+            _dobController.text = '$d/$m/$y';
+          } else {
+            _dobController.text = state.dateOfBirth;
+          }
+        } catch (_) {
+          _dobController.text = state.dateOfBirth;
+        }
+      } else {
+        _dobController.text = state.dateOfBirth;
+      }
+    }
     if (_genderController.text != state.gender) _genderController.text = state.gender;
     if (_countryController.text != state.country) _countryController.text = state.country;
     if (_cityController.text != state.city) _cityController.text = state.city;
@@ -148,9 +169,9 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
                       children: [
                         _buildSectionHeader(Icons.person_outline, 'Basic Details'),
                         _buildEditableField('FULL NAME', _nameController, hintText: 'Enter Name'),
-                        _buildEditableField('EMAIL ADDRESS', _emailController, hintText: 'Enter Email address', keyboardType: TextInputType.emailAddress),
+                        _buildEditableField('EMAIL ADDRESS', _emailController, hintText: 'Enter Email address', keyboardType: TextInputType.emailAddress, readOnly: true),
                         _buildEditableField('PHONE NUMBER', _phoneController, hintText: 'Enter Phone number', keyboardType: TextInputType.phone),
-                        _buildEditableField('DATE OF BIRTH', _dobController, hintText: 'Enter Date of Birth'),
+                        _buildDatePickerField('DATE OF BIRTH', _dobController, hintText: 'Select Date of Birth'),
                         _buildEditableField('GENDER', _genderController, hintText: 'Enter Gender'),
 
                         const SizedBox(height: 32),
@@ -201,12 +222,12 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
     );
   }
 
-  Widget _buildEditableField(String label, TextEditingController controller, {String hintText = 'Enter value', TextInputType keyboardType = TextInputType.text}) {
+  Widget _buildEditableField(String label, TextEditingController controller, {String hintText = 'Enter value', TextInputType keyboardType = TextInputType.text, bool readOnly = false}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: readOnly ? const Color(0xFFF5F5F5) : Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
       ),
@@ -225,8 +246,9 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
           TextField(
             controller: controller,
             keyboardType: keyboardType,
-            style: const TextStyle(
-              color: Color(0xFF1E293B),
+            readOnly: readOnly,
+            style: TextStyle(
+              color: readOnly ? const Color(0xFF94A3B8) : const Color(0xFF1E293B),
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
@@ -236,9 +258,218 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
               border: InputBorder.none,
               hintText: hintText,
               hintStyle: const TextStyle(color: Color(0xFFB0BEC5), fontSize: 15),
+              suffixIcon: readOnly
+                  ? const Icon(Icons.lock_outline, size: 16, color: Color(0xFFCBD5E1))
+                  : null,
+              suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _pickDateOfBirth() async {
+    // Parse existing value
+    DateTime initialDate = DateTime(2000, 1, 1);
+    if (_dobController.text.isNotEmpty) {
+      try {
+        initialDate = DateFormat('dd/MM/yyyy').parse(_dobController.text);
+      } catch (_) {
+        try {
+          initialDate = DateTime.parse(_dobController.text);
+        } catch (_) {}
+      }
+    }
+
+    // Step 1: Pick Year
+    final int? selectedYear = await _showYearPicker(initialDate.year);
+    if (selectedYear == null) return;
+
+    // Step 2: Pick Month
+    final int? selectedMonth = await _showMonthPicker(initialDate.month);
+    if (selectedMonth == null) return;
+
+    // Step 3: Pick Day with standard date picker locked to chosen year/month
+    final int daysInMonth = DateTime(selectedYear, selectedMonth + 1, 0).day;
+    final int initialDay = (initialDate.year == selectedYear && initialDate.month == selectedMonth)
+        ? initialDate.day.clamp(1, daysInMonth)
+        : 1;
+
+    if (!mounted) return;
+
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(selectedYear, selectedMonth, initialDay),
+      firstDate: DateTime(selectedYear, selectedMonth, 1),
+      lastDate: DateTime(selectedYear, selectedMonth, daysInMonth).isAfter(DateTime.now())
+          ? DateTime.now()
+          : DateTime(selectedYear, selectedMonth, daysInMonth),
+      helpText: 'Select day',
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFFCDA751),
+              onPrimary: Colors.white,
+              onSurface: Color(0xFF1E293B),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        _dobController.text = DateFormat('dd/MM/yyyy').format(picked);
+      });
+    }
+  }
+
+  Future<int?> _showYearPicker(int initialYear) async {
+    final now = DateTime.now();
+    int selectedYear = initialYear;
+
+    return showDialog<int>(
+      context: context,
+      builder: (context) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFFCDA751),
+              onPrimary: Colors.white,
+              onSurface: Color(0xFF1E293B),
+            ),
+          ),
+          child: AlertDialog(
+            title: const Text('Select Year', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+            content: SizedBox(
+              width: 300,
+              height: 300,
+              child: YearPicker(
+                firstDate: DateTime(1920),
+                lastDate: now,
+                selectedDate: DateTime(selectedYear),
+                onChanged: (DateTime dateTime) {
+                  Navigator.of(context).pop(dateTime.year);
+                },
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancel', style: TextStyle(color: Color(0xFFCDA751))),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<int?> _showMonthPicker(int initialMonth) async {
+    const months = [
+      'January', 'February', 'March', 'April',
+      'May', 'June', 'July', 'August',
+      'September', 'October', 'November', 'December',
+    ];
+
+    return showDialog<int>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Select Month', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+          content: SizedBox(
+            width: 300,
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                childAspectRatio: 2.2,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 12,
+              ),
+              itemCount: 12,
+              itemBuilder: (context, index) {
+                final isSelected = index + 1 == initialMonth;
+                return GestureDetector(
+                  onTap: () => Navigator.of(context).pop(index + 1),
+                  child: Container(
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: isSelected ? const Color(0xFFCDA751) : Colors.transparent,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      months[index].substring(0, 3),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                        color: isSelected ? Colors.white : const Color(0xFF1E293B),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel', style: TextStyle(color: Color(0xFFCDA751))),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildDatePickerField(String label, TextEditingController controller, {String hintText = 'Select date'}) {
+    return GestureDetector(
+      onTap: _pickDateOfBirth,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                color: Color(0xFFCDA751),
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.5,
+              ),
+            ),
+            TextField(
+              controller: controller,
+              readOnly: true,
+              enabled: false,
+              style: const TextStyle(
+                color: Color(0xFF1E293B),
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+              decoration: InputDecoration(
+                isDense: true,
+                contentPadding: const EdgeInsets.only(top: 6, bottom: 4),
+                border: InputBorder.none,
+                hintText: hintText,
+                hintStyle: const TextStyle(color: Color(0xFFB0BEC5), fontSize: 15),
+                suffixIcon: const Icon(Icons.calendar_today_outlined, size: 18, color: Color(0xFFCDA751)),
+                suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

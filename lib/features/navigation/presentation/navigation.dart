@@ -16,7 +16,6 @@ class Navigation extends StatelessWidget {
 
     final exactPathsWithAppBar = [
       RouteConstants.home,
-      RouteConstants.more,
     ];
 
     final shouldShowAppBar = exactPathsWithAppBar.contains(location);

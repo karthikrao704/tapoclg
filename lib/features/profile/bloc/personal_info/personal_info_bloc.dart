@@ -70,11 +70,29 @@ class PersonalInfoBloc extends Bloc<PersonalInfoEvent, PersonalInfoState> {
       if (event.country.trim().isNotEmpty) event.country.trim(),
     ].join(',');
 
+    // Convert DOB purely as yyyy-MM-dd string, bypassing timezones
+    String? dobFormatted;
+    if (event.dateOfBirth.trim().isNotEmpty) {
+      try {
+        final parts = event.dateOfBirth.trim().split('/');
+        if (parts.length == 3) {
+          final day = parts[0].padLeft(2, '0');
+          final month = parts[1].padLeft(2, '0');
+          final year = parts[2];
+          dobFormatted = '$year-$month-$day';
+        } else {
+          dobFormatted = event.dateOfBirth.trim();
+        }
+      } catch (_) {
+        dobFormatted = event.dateOfBirth.trim();
+      }
+    }
+
     final body = {
       'name': event.fullName.trim().isEmpty ? null : event.fullName.trim(),
       'email': event.email.trim().isEmpty ? null : event.email.trim(),
       'phone': event.phone.trim().isEmpty ? null : event.phone.trim(),
-      'dob': event.dateOfBirth.trim().isEmpty ? null : event.dateOfBirth.trim(),
+      'dob': dobFormatted,
       'gender': event.gender.trim().isEmpty ? null : event.gender.trim(),
       'city': cityValue.isEmpty ? null : cityValue,
       'address': event.streetAddress.trim().isEmpty ? null : event.streetAddress.trim(),
