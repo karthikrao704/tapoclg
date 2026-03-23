@@ -67,11 +67,11 @@ class AppRouter {
           return null;
         }
 
-        // State 3: User is NOT authenticated
-        if (authState is Unauthenticated || authState is AuthError) {
-          // If they try to access a protected route (e.g. Home), send them to Welcome
-          return isAuthRoute ? null : RouteConstants.welcome;
-        }
+        // // State 3: User is NOT authenticated
+        // if (authState is Unauthenticated || authState is AuthError) {
+        //   // If they try to access a protected route (e.g. Home), send them to Welcome
+        //   return isAuthRoute ? null : RouteConstants.home;
+        // }
 
         // State 4: User IS authenticated
         if (authState is Authenticated) {
