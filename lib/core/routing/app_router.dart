@@ -50,6 +50,7 @@ class AppRouter {
         ];
 
         final isAuthRoute = authRoutes.contains(currentLocation);
+        final isSplash = currentLocation == RouteConstants.splash;
 
         final intermediateRoutes = [
           RouteConstants.otp,
@@ -58,30 +59,32 @@ class AppRouter {
           RouteConstants.googleDataEntry,
           RouteConstants.google2faOtp,
         ];
-        final isIntermediateRoute =
-            intermediateRoutes.contains(currentLocation);
+        final isIntermediateRoute = intermediateRoutes.contains(
+          currentLocation,
+        );
 
+        // Stay on splash ONLY during AuthInitial
         if (authState is AuthInitial) {
-          return currentLocation == RouteConstants.splash
-              ? null
-              : RouteConstants.splash;
+          return isSplash ? null : RouteConstants.splash;
         }
 
         if (authState is AuthLoading) return null;
 
-        // Google NEW user → Data Entry directly (NO OTP)
+        // Google NEW user → Data Entry
         if (authState is GoogleNewUser) {
           if (currentLocation == RouteConstants.googleDataEntry) return null;
           return RouteConstants.googleDataEntry;
         }
 
-        // Google user with 2FA → OTP page
+        // Google 2FA
         if (authState is GoogleNeeds2FA) {
           if (currentLocation == RouteConstants.google2faOtp) return null;
           return RouteConstants.google2faOtp;
         }
 
+        // ✅ FIX: When Unauthenticated, redirect FROM splash TO welcome
         if (authState is Unauthenticated || authState is AuthError) {
+          if (isSplash) return RouteConstants.welcome; // <-- THIS IS THE FIX
           if (isIntermediateRoute) return null;
           return isAuthRoute ? null : RouteConstants.welcome;
         }
@@ -191,61 +194,77 @@ class AppRouter {
             return Navigation(navigationShell: navigationShell);
           },
           branches: [
-            StatefulShellBranch(routes: [
-              GoRoute(
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
                   path: RouteConstants.home,
-                  builder: (context, state) => const HomeScreen()),
-            ]),
-            StatefulShellBranch(routes: [
-              GoRoute(
+                  builder: (context, state) => const HomeScreen(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
                   path: RouteConstants.services,
-                  builder: (context, state) => const ServiceScreen()),
-              GoRoute(
+                  builder: (context, state) => const ServiceScreen(),
+                ),
+                GoRoute(
                   path: RouteConstants.bodyCare,
-                  builder: (context, state) => const BodyCareScreen()),
-              GoRoute(
+                  builder: (context, state) => const BodyCareScreen(),
+                ),
+                GoRoute(
                   path: RouteConstants.skinCare,
-                  builder: (context, state) => const SkinCareScreen()),
-              GoRoute(
+                  builder: (context, state) => const SkinCareScreen(),
+                ),
+                GoRoute(
                   path: RouteConstants.hairCare,
-                  builder: (context, state) => const HairCareScreen()),
-              GoRoute(
+                  builder: (context, state) => const HairCareScreen(),
+                ),
+                GoRoute(
                   path: RouteConstants.nailCare,
-                  builder: (context, state) => const NailCareScreen()),
-              GoRoute(
+                  builder: (context, state) => const NailCareScreen(),
+                ),
+                GoRoute(
                   path: RouteConstants.styling,
-                  builder: (context, state) =>
-                      const StylingMakeoverScreen()),
-            ]),
-            StatefulShellBranch(routes: [
-              GoRoute(
+                  builder: (context, state) => const StylingMakeoverScreen(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
                   path: RouteConstants.more,
-                  builder: (context, state) => const MoreScreen()),
-            ]),
-            StatefulShellBranch(routes: [
-              GoRoute(
-                path: RouteConstants.profile,
-                builder: (context, state) => const ProfilePage(),
-                routes: [
-                  GoRoute(
+                  builder: (context, state) => const MoreScreen(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: RouteConstants.profile,
+                  builder: (context, state) => const ProfilePage(),
+                  routes: [
+                    GoRoute(
                       path: 'personal-info',
-                      builder: (context, state) =>
-                          const PersonalInfoPage()),
-                  GoRoute(
+                      builder: (context, state) => const PersonalInfoPage(),
+                    ),
+                    GoRoute(
                       path: 'notification-settings',
                       builder: (context, state) =>
-                          const NotificationSettingsPage()),
-                  GoRoute(
+                          const NotificationSettingsPage(),
+                    ),
+                    GoRoute(
                       path: 'privacy-security',
-                      builder: (context, state) =>
-                          const PrivacySecurityPage()),
-                  GoRoute(
+                      builder: (context, state) => const PrivacySecurityPage(),
+                    ),
+                    GoRoute(
                       path: 'support-center',
-                      builder: (context, state) =>
-                          const SupportCenterPage()),
-                ],
-              ),
-            ]),
+                      builder: (context, state) => const SupportCenterPage(),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ],
         ),
       ],
