@@ -1,18 +1,16 @@
-// lib/core/routing/app_router.dart
-
 import 'package:go_router/go_router.dart';
 import 'package:tapovana_mobile_app/core/routing/route_constants.dart';
-import 'package:tapovana_mobile_app/features/auth/bloc/auth_cubit.dart';
-import 'package:tapovana_mobile_app/features/auth/bloc/auth_state.dart';
+import 'package:tapovana_mobile_app/core/routing/go_router_refresh_stream.dart';
+import 'package:tapovana_mobile_app/features/auth/bloc/auth/auth_cubit.dart';
+import 'package:tapovana_mobile_app/features/auth/bloc/auth/auth_state.dart';
 
-// Auth flow screens
 import 'package:tapovana_mobile_app/features/splash/splash_screen.dart';
 import 'package:tapovana_mobile_app/features/auth/presentation/pages/welcome_page.dart';
 import 'package:tapovana_mobile_app/features/auth/presentation/pages/login_page.dart';
 import 'package:tapovana_mobile_app/features/auth/presentation/pages/signup_page.dart';
+import 'package:tapovana_mobile_app/features/auth/presentation/pages/otp_page.dart';
 import 'package:tapovana_mobile_app/features/auth/presentation/pages/data_entry_page.dart';
 
-// Main app screens
 import 'package:tapovana_mobile_app/features/home_page/presentation/home_screen.dart';
 import 'package:tapovana_mobile_app/features/services/presentation/screens/body_care_screen.dart';
 import 'package:tapovana_mobile_app/features/services/presentation/screens/hair_care_screen.dart';
@@ -23,72 +21,82 @@ import 'package:tapovana_mobile_app/features/services/presentation/service_scree
 import 'package:tapovana_mobile_app/features/more/more_screen.dart';
 import 'package:tapovana_mobile_app/features/navigation/presentation/navigation.dart';
 
-// Profile screens
 import 'package:tapovana_mobile_app/features/profile/pages/profile_screen.dart';
 import 'package:tapovana_mobile_app/features/profile/pages/personal_info_page.dart';
 import 'package:tapovana_mobile_app/features/profile/pages/notification_settings_page.dart';
 import 'package:tapovana_mobile_app/features/profile/pages/privacy_security_page.dart';
 import 'package:tapovana_mobile_app/features/profile/pages/support_center_page.dart';
 
-import 'go_router_refresh_stream.dart';
-
 class AppRouter {
-  // Converted to a method to accept the AuthCubit
   static GoRouter createRouter(AuthCubit authCubit) {
     return GoRouter(
       initialLocation: RouteConstants.splash,
-
-      // 1. Re-evaluate routes whenever AuthCubit emits a new state
       refreshListenable: GoRouterRefreshStream(authCubit.stream),
 
-      // 2. Global redirect logic (Auth Guards)
       redirect: (context, state) {
         final authState = authCubit.state;
+        final currentLocation = state.matchedLocation;
 
-        // Define which routes are meant for unauthenticated users
-        final isAuthRoute = [
+        final authRoutes = [
           RouteConstants.splash,
           RouteConstants.welcome,
           RouteConstants.login,
           RouteConstants.signup,
+          RouteConstants.otp,
           RouteConstants.dataEntry,
-        ].contains(state.matchedLocation);
+          RouteConstants.login2faOtp,
+          RouteConstants.googleDataEntry,
+          RouteConstants.google2faOtp,
+        ];
 
-        // State 1: App is booting up. Go to Splash to hide the transition.
+        final isAuthRoute = authRoutes.contains(currentLocation);
+        final isSplash = currentLocation == RouteConstants.splash;
+
+        final intermediateRoutes = [
+          RouteConstants.otp,
+          RouteConstants.dataEntry,
+          RouteConstants.login2faOtp,
+          RouteConstants.googleDataEntry,
+          RouteConstants.google2faOtp,
+        ];
+        final isIntermediateRoute = intermediateRoutes.contains(
+          currentLocation,
+        );
+
+        // Stay on splash ONLY during AuthInitial
         if (authState is AuthInitial) {
-          return state.matchedLocation == RouteConstants.splash
-              ? null
-              : RouteConstants.splash;
+          return isSplash ? null : RouteConstants.splash;
         }
 
-        // State 2: Active login/logout in progress.
-        // Do NOTHING (return null). Let the current page display its own loading UI.
-        if (authState is AuthLoading) {
-          return null;
+        if (authState is AuthLoading) return null;
+
+        // Google NEW user → Data Entry
+        if (authState is GoogleNewUser) {
+          if (currentLocation == RouteConstants.googleDataEntry) return null;
+          return RouteConstants.googleDataEntry;
         }
 
-        // // State 3: User is NOT authenticated
-        // if (authState is Unauthenticated || authState is AuthError) {
-        //   // If they try to access a protected route (e.g. Home), send them to Welcome
-        //   return isAuthRoute ? null : RouteConstants.home;
-        // }
+        // Google 2FA
+        if (authState is GoogleNeeds2FA) {
+          if (currentLocation == RouteConstants.google2faOtp) return null;
+          return RouteConstants.google2faOtp;
+        }
 
-        // State 4: User IS authenticated
+        // ✅ FIX: When Unauthenticated, redirect FROM splash TO welcome
+        if (authState is Unauthenticated || authState is AuthError) {
+          if (isSplash) return RouteConstants.welcome; // <-- THIS IS THE FIX
+          if (isIntermediateRoute) return null;
+          return isAuthRoute ? null : RouteConstants.welcome;
+        }
+
         if (authState is Authenticated) {
-          // If they are on an auth route (Splash, Login, etc.), send them Home
-          if (isAuthRoute) {
-            return RouteConstants.home;
-          }
+          if (isAuthRoute) return RouteConstants.home;
         }
 
-        // No redirection needed
         return null;
       },
 
       routes: [
-        // ==========================================
-        // AUTH FLOW (outside bottom navigation)
-        // ==========================================
         GoRoute(
           path: RouteConstants.splash,
           builder: (context, state) => const SplashScreen(),
@@ -105,20 +113,87 @@ class AppRouter {
           path: RouteConstants.signup,
           builder: (context, state) => const SignupPage(),
         ),
+
+        // Email signup OTP
         GoRoute(
-          path: RouteConstants.dataEntry,
-          builder: (context, state) => const DataEntryPage(),
+          path: RouteConstants.otp,
+          builder: (context, state) {
+            final extra = state.extra as Map<String, String>;
+            return OtpPage(
+              email: extra['email']!,
+              password: extra['password']!,
+              otpType: OtpType.emailSignup,
+            );
+          },
         ),
 
-        // ==========================================
-        // MAIN APP (with bottom navigation)
-        // ==========================================
+        // Email signup data entry
+        GoRoute(
+          path: RouteConstants.dataEntry,
+          builder: (context, state) {
+            final extra = state.extra as Map<String, String>;
+            return DataEntryPage(
+              email: extra['email']!,
+              password: extra['password']!,
+              authMethod: 'email',
+            );
+          },
+        ),
+
+        // Email login 2FA OTP
+        GoRoute(
+          path: RouteConstants.login2faOtp,
+          builder: (context, state) {
+            final extra = state.extra as Map<String, String>;
+            return OtpPage(
+              email: extra['email']!,
+              password: extra['password']!,
+              otpType: OtpType.emailLogin2FA,
+            );
+          },
+        ),
+
+        // Google data entry (NO OTP needed)
+        GoRoute(
+          path: RouteConstants.googleDataEntry,
+          builder: (context, state) {
+            final authState = authCubit.state;
+            if (authState is GoogleNewUser) {
+              return DataEntryPage(
+                email: authState.user.email,
+                password: '',
+                authMethod: 'google',
+                googleUser: authState.user,
+                firebaseUid: authState.firebaseUid,
+              );
+            }
+            return const WelcomePage();
+          },
+        ),
+
+        // Google 2FA OTP
+        GoRoute(
+          path: RouteConstants.google2faOtp,
+          builder: (context, state) {
+            final authState = authCubit.state;
+            if (authState is GoogleNeeds2FA) {
+              return OtpPage(
+                email: authState.email,
+                password: '',
+                otpType: OtpType.googleLogin2FA,
+                googleUser: authState.user,
+              );
+            }
+            return const WelcomePage();
+          },
+        ),
+
+        // MAIN APP
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {
             return Navigation(navigationShell: navigationShell);
           },
           branches: [
-            // --- Branch 0: Home ---
             StatefulShellBranch(
               routes: [
                 GoRoute(
@@ -127,8 +202,6 @@ class AppRouter {
                 ),
               ],
             ),
-
-            // --- Branch 1: Services ---
             StatefulShellBranch(
               routes: [
                 GoRoute(
@@ -157,8 +230,6 @@ class AppRouter {
                 ),
               ],
             ),
-
-            // --- Branch 2: More ---
             StatefulShellBranch(
               routes: [
                 GoRoute(
@@ -167,8 +238,6 @@ class AppRouter {
                 ),
               ],
             ),
-
-            // --- Branch 3: Profile ---
             StatefulShellBranch(
               routes: [
                 GoRoute(

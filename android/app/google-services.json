@@ -12,7 +12,68 @@
           "package_name": "com.example.tapovana_mobile_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1026651541392-3r5rr6uokqmg2355ha691dt63pjnc2ii.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tapovana_mobile_app",
+            "certificate_hash": "b4aa1492c74e9592456d3574d3bf36201a863004"
+          }
+        },
+        {
+          "client_id": "1026651541392-a4ev2b8tettk8rs07akear536p6p0s4h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tapovana_mobile_app",
+            "certificate_hash": "255b88cfad3122e660215cae7354ea25e27163c0"
+          }
+        },
+        {
+          "client_id": "1026651541392-cr82dsurfmn788gq7tquve2i32h6akuc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tapovana_mobile_app",
+            "certificate_hash": "2450ed393e89c2027e7f99b972df95398f03fcc3"
+          }
+        },
+        {
+          "client_id": "1026651541392-e0gsa9u9708cegvkquebs9d62dsr8k2a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tapovana_mobile_app",
+            "certificate_hash": "41a28677b168bedf37f8a6e5b298b3958c961d00"
+          }
+        },
+        {
+          "client_id": "1026651541392-k6o5u0n2gddr57t1c325pl55oediiu02.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tapovana_mobile_app",
+            "certificate_hash": "d5a788280eaacee9a28a86b2a67aab5d7e7dfbb1"
+          }
+        },
+        {
+          "client_id": "1026651541392-m8iqh04m16mnisj026fhhec1a3f5jm4t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tapovana_mobile_app",
+            "certificate_hash": "80e0fffe5aa3a973606f4b9b566e4145af124f6b"
+          }
+        },
+        {
+          "client_id": "1026651541392-vnmbtfpf1v1s9h4omo3ho3l4poreih41.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tapovana_mobile_app",
+            "certificate_hash": "fb33d169e5c764feb0c21a56a1af636828bbafa2"
+          }
+        },
+        {
+          "client_id": "1026651541392-o3g2bt8gs7vq9gin1qg99eleqs09j56p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCPmgFa4-ltAU7adbIrlngwnC_BkGQXWaw"
@@ -20,7 +81,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1026651541392-o3g2bt8gs7vq9gin1qg99eleqs09j56p.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1026651541392-iaapp04blerak0cpm107pj3nf762942m.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.tapovanaMobileApp"
+              }
+            }
+          ]
         }
       }
     }

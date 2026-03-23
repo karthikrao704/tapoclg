@@ -1,14 +1,16 @@
-// lib/core/routing/route_constants.dart
-
 class RouteConstants {
-  // Auth flow routes (outside bottom nav)
+  // Auth flow routes
   static const String splash = '/';
   static const String welcome = '/welcome';
   static const String login = '/login';
   static const String signup = '/signup';
+  static const String otp = '/otp';
   static const String dataEntry = '/data-entry';
+  static const String login2faOtp = '/login-2fa-otp';
+  static const String googleDataEntry = '/google-data-entry';
+  static const String google2faOtp = '/google-2fa-otp';
 
-  // Main navigation routes (inside bottom nav)
+  // Main navigation routes
   static const String home = '/home';
   static const String services = '/services';
   static const String more = '/more';

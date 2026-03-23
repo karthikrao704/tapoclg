@@ -1,19 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/foundation.dart';
 import 'package:tapovana_mobile_app/features/auth/domain/entities/app_user.dart';
-import 'package:tapovana_mobile_app/features/auth/domain/repos/auth_repository.dart';
 
-class AuthRepositoryImpl implements AuthRepository {
+class FirebaseAuthRepository {
   final FirebaseAuth _firebaseAuth;
-
-  // 1. MUST use the singleton instance
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
 
-  // Track initialization state to prevent calling it multiple times
   bool _isInitialized = false;
 
-  AuthRepositoryImpl({FirebaseAuth? firebaseAuth})
-    : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
+  FirebaseAuthRepository({FirebaseAuth? firebaseAuth})
+      : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
 
   AppUser? _mapFirebaseUser(User? user) {
     if (user == null) return null;
@@ -22,64 +19,111 @@ class AuthRepositoryImpl implements AuthRepository {
       email: user.email ?? '',
       name: user.displayName,
       photoUrl: user.photoURL,
+      authMethod: 'google',
     );
   }
 
-  // 2. Helper method to pass the Server Client ID safely
   Future<void> _ensureInitialized() async {
     if (!_isInitialized) {
       await _googleSignIn.initialize(
-        // TODO: Replace this with the WEB Client ID from your Firebase Console
         serverClientId:
             '1026651541392-o3g2bt8gs7vq9gin1qg99eleqs09j56p.apps.googleusercontent.com',
-        // scopes: ['email', 'profile'],
       );
       _isInitialized = true;
+      debugPrint('✅ GoogleSignIn initialized');
     }
   }
 
-  @override
   Stream<AppUser?> get user {
     return _firebaseAuth.authStateChanges().map(_mapFirebaseUser);
   }
 
-  @override
-  Future<AppUser?> signInWithGoogle() async {
+  User? get currentFirebaseUser => _firebaseAuth.currentUser;
+
+  Future<GoogleSignInResult?> signInWithGoogle() async {
     try {
-      // 3. Guarantee initialization before doing anything else
       await _ensureInitialized();
 
-      // 4. Trigger the Authentication sheet (Identity)
-      final GoogleSignInAccount? googleUser = await _googleSignIn
-          .authenticate();
-      if (googleUser == null) return null; // User canceled
+      debugPrint('🔄 Step 1: Calling authenticate()...');
 
-      // 5. Request Authorization (Permissions / Access Token)
-      final clientAuth = await googleUser.authorizationClient.authorizeScopes([
-        'email',
-        'profile',
-      ]);
+      // Step 1: Authenticate (this gets the user's identity)
+      final GoogleSignInAccount? googleUser =
+          await _googleSignIn.authenticate();
 
-      // 6. Retrieve Identity Token
-      final googleAuth = await googleUser.authentication;
+      if (googleUser == null) {
+        debugPrint('❌ User canceled Google Sign-In');
+        return null;
+      }
 
-      // 7. Create Firebase Credential
+      debugPrint('✅ Step 1 done: ${googleUser.email}');
+
+      // Step 2: Get authentication tokens (idToken)
+      debugPrint('🔄 Step 2: Getting authentication tokens...');
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      debugPrint('✅ Step 2 done');
+      debugPrint('   idToken: ${googleAuth.idToken != null ? "present (${googleAuth.idToken!.substring(0, 20)}...)" : "NULL"}');
+
+      // Step 3: Try to get accessToken
+      // DON'T use authorizeScopes for basic sign-in — it causes the reauth error
+      String? accessToken;
+
+      // The idToken alone is enough for Firebase sign-in
+      // accessToken is optional
+
+      debugPrint('🔄 Step 3: Creating Firebase credential...');
+
+      // Step 4: Create Firebase credential using ONLY idToken
       final AuthCredential credential = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,
-        accessToken: clientAuth.accessToken,
+        accessToken: accessToken, // null is fine, Firebase only needs idToken
       );
 
-      // 8. Complete Sign-In
-      final UserCredential userCredential = await _firebaseAuth
-          .signInWithCredential(credential);
-      return _mapFirebaseUser(userCredential.user);
+      // Step 5: Sign in to Firebase
+      debugPrint('🔄 Step 4: Signing in to Firebase...');
+
+      final UserCredential userCredential =
+          await _firebaseAuth.signInWithCredential(credential);
+
+      debugPrint('✅ Firebase sign-in success!');
+      debugPrint('   Email: ${userCredential.user?.email}');
+      debugPrint('   UID: ${userCredential.user?.uid}');
+      debugPrint('   New user: ${userCredential.additionalUserInfo?.isNewUser}');
+
+      final user = _mapFirebaseUser(userCredential.user);
+
+      return GoogleSignInResult(
+        user: user!,
+        firebaseUid: userCredential.user!.uid,
+      );
     } catch (e) {
+      debugPrint('❌ Google Sign-In Failed: $e');
       throw Exception('Google Sign-In Failed: $e');
     }
   }
 
-  @override
   Future<void> signOut() async {
-    await Future.wait([_firebaseAuth.signOut(), _googleSignIn.signOut()]);
+    try {
+      await _googleSignIn.signOut();
+    } catch (e) {
+      debugPrint('⚠️ Google sign out error: $e');
+    }
+    await _firebaseAuth.signOut();
+    debugPrint('✅ Signed out');
   }
+}
+
+/// Result from Google sign-in
+class GoogleSignInResult {
+  final AppUser user;
+  final String firebaseUid;
+
+  GoogleSignInResult({
+    required this.user,
+    required this.firebaseUid,
+  });
+
+  String get generatedPassword => 'Google_$firebaseUid';
 }
