@@ -1,9 +1,6 @@
-// lib/core/routing/go_router_refresh_stream.dart
-
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 
-/// Converts a [Stream] into a [Listenable] for go_router's refreshListenable.
 class GoRouterRefreshStream extends ChangeNotifier {
   GoRouterRefreshStream(Stream<dynamic> stream) {
     notifyListeners();
