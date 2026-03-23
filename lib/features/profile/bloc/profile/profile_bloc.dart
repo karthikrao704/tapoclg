@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/storage/local_database.dart';
 import 'profile_event.dart';
 import 'profile_state.dart';
 
@@ -16,13 +17,16 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     emit(state.copyWith(isLoading: true));
 
     try {
-      // Simulate API call
+      // Simulate API call for other stats
       await Future.delayed(const Duration(seconds: 1));
+
+      final name = await LocalDatabase.getUserName() ?? 'User Name';
+      final email = await LocalDatabase.getUserEmail() ?? 'user@example.com';
 
       emit(
         state.copyWith(
-          name: 'Virat Kohli',
-          email: 'virat.kohli@example.com',
+          name: name,
+          email: email,
           avatar: 'assets/images/vk.png',
           membershipType: 'GOLD MEMBER',
           memberSince: 'March 2023',
