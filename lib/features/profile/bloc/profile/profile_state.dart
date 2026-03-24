@@ -3,7 +3,8 @@ import 'package:equatable/equatable.dart';
 class ProfileState extends Equatable {
   final String name;
   final String email;
-  final String avatar;
+  final String? profilePhotoUrl; // from API
+  final String avatar; // local asset fallback
   final String membershipType;
   final String memberSince;
   final int availableCredits;
@@ -11,25 +12,32 @@ class ProfileState extends Equatable {
   final int totalVisits;
   final String appVersion;
   final bool isLoading;
+  final bool isUploadingPhoto;
   final String? error;
+  final String? photoError;
 
   const ProfileState({
-    this.name = 'Virat Kohli',
-    this.email = 'virat.kohli@example.com',
-    this.avatar = 'assets/images/vk.png',
+    this.name = '',
+    this.email = '',
+    this.profilePhotoUrl,
+    this.avatar = 'assets/images/profile.png',
     this.membershipType = 'GOLD MEMBER',
-    this.memberSince = 'March 2023',
-    this.availableCredits = 12,
-    this.nextRenewal = 'Jan 15, 2026',
-    this.totalVisits = 24,
+    this.memberSince = '',
+    this.availableCredits = 0,
+    this.nextRenewal = '',
+    this.totalVisits = 0,
     this.appVersion = '2.4.0',
     this.isLoading = false,
+    this.isUploadingPhoto = false,
     this.error,
+    this.photoError,
   });
 
   ProfileState copyWith({
     String? name,
     String? email,
+    String? profilePhotoUrl,
+    bool clearProfilePhotoUrl = false,
     String? avatar,
     String? membershipType,
     String? memberSince,
@@ -38,11 +46,18 @@ class ProfileState extends Equatable {
     int? totalVisits,
     String? appVersion,
     bool? isLoading,
+    bool? isUploadingPhoto,
     String? error,
+    bool clearError = false,
+    String? photoError,
+    bool clearPhotoError = false,
   }) {
     return ProfileState(
       name: name ?? this.name,
       email: email ?? this.email,
+      profilePhotoUrl: clearProfilePhotoUrl
+          ? null
+          : (profilePhotoUrl ?? this.profilePhotoUrl),
       avatar: avatar ?? this.avatar,
       membershipType: membershipType ?? this.membershipType,
       memberSince: memberSince ?? this.memberSince,
@@ -51,22 +66,27 @@ class ProfileState extends Equatable {
       totalVisits: totalVisits ?? this.totalVisits,
       appVersion: appVersion ?? this.appVersion,
       isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
+      isUploadingPhoto: isUploadingPhoto ?? this.isUploadingPhoto,
+      error: clearError ? null : (error ?? this.error),
+      photoError: clearPhotoError ? null : (photoError ?? this.photoError),
     );
   }
 
   @override
   List<Object?> get props => [
-    name,
-    email,
-    avatar,
-    membershipType,
-    memberSince,
-    availableCredits,
-    nextRenewal,
-    totalVisits,
-    appVersion,
-    isLoading,
-    error,
-  ];
+        name,
+        email,
+        profilePhotoUrl,
+        avatar,
+        membershipType,
+        memberSince,
+        availableCredits,
+        nextRenewal,
+        totalVisits,
+        appVersion,
+        isLoading,
+        isUploadingPhoto,
+        error,
+        photoError,
+      ];
 }

@@ -1,35 +1,43 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/storage/local_database.dart';
+import 'package:tapovana_mobile_app/core/storage/local_database.dart';
+import 'package:tapovana_mobile_app/features/profile/repositories/profile_repository.dart';
 import 'profile_event.dart';
 import 'profile_state.dart';
 
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
-  ProfileBloc() : super(const ProfileState()) {
+  final ProfileRepository _repository;
+
+  ProfileBloc({ProfileRepository? repository})
+    : _repository = repository ?? ProfileRepository(),
+      super(const ProfileState()) {
     on<LoadProfile>(_onLoadProfile);
     on<UpdateProfile>(_onUpdateProfile);
+    on<UploadProfilePhoto>(_onUploadProfilePhoto);
+    on<DeleteProfilePhoto>(_onDeleteProfilePhoto);
     on<Logout>(_onLogout);
   }
+
+  // ─── Load profile from API ────────────────────────────────────────────────
 
   Future<void> _onLoadProfile(
     LoadProfile event,
     Emitter<ProfileState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(isLoading: true, clearError: true));
 
     try {
-      // Simulate API call for other stats
-      await Future.delayed(const Duration(seconds: 1));
+      final profile = await _repository.getUserDetails();
 
-      final name = await LocalDatabase.getUserName() ?? 'User Name';
-      final email = await LocalDatabase.getUserEmail() ?? 'user@example.com';
+      // ✅ Save profile photo URL locally for AppBar to use
+      await LocalDatabase.saveProfilePhotoUrl(profile.profilePhotoUrl);
 
       emit(
         state.copyWith(
-          name: name,
-          email: email,
-          avatar: 'assets/images/vk.png',
-          membershipType: 'GOLD MEMBER',
-          memberSince: 'March 2023',
+          name: profile.name,
+          email: profile.email,
+          profilePhotoUrl: profile.profilePhotoUrl,
+          memberSince: profile.memberSinceFormatted,
+          membershipType: profile.membership ?? 'GOLD MEMBER',
           availableCredits: 12,
           nextRenewal: 'Jan 15, 2026',
           totalVisits: 24,
@@ -47,16 +55,15 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     }
   }
 
+  // ─── Update profile (local, e.g. from PersonalInfoPage) ──────────────────
+
   Future<void> _onUpdateProfile(
     UpdateProfile event,
     Emitter<ProfileState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(isLoading: true, clearError: true));
 
     try {
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 1));
-
       emit(
         state.copyWith(
           name: event.name,
@@ -75,14 +82,51 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     }
   }
 
-  Future<void> _onLogout(Logout event, Emitter<ProfileState> emit) async {
-    emit(state.copyWith(isLoading: true));
+  // ─── Upload photo ─────────────────────────────────────────────────────────
+
+  Future<void> _onUploadProfilePhoto(
+    UploadProfilePhoto event,
+    Emitter<ProfileState> emit,
+  ) async {
+    emit(state.copyWith(isUploadingPhoto: true, clearPhotoError: true));
 
     try {
-      // Simulate logout API call
-      await Future.delayed(const Duration(seconds: 1));
+      final photoUrl = await _repository.uploadProfilePhoto(
+        filePath: event.filePath,
+      );
 
-      // In a real app, you would navigate to login screen here
+      // ✅ Save new photo URL locally
+      await LocalDatabase.saveProfilePhotoUrl(photoUrl);
+
+      emit(state.copyWith(profilePhotoUrl: photoUrl, isUploadingPhoto: false));
+    } catch (e) {
+      emit(state.copyWith(photoError: e.toString(), isUploadingPhoto: false));
+    }
+  }
+  // ─── Delete photo ─────────────────────────────────────────────────────────
+
+  Future<void> _onDeleteProfilePhoto(
+    DeleteProfilePhoto event,
+    Emitter<ProfileState> emit,
+  ) async {
+    emit(state.copyWith(isUploadingPhoto: true, clearPhotoError: true));
+
+    try {
+      await _repository.deleteProfilePhoto();
+
+      // ✅ Clear photo URL locally
+      await LocalDatabase.saveProfilePhotoUrl(null);
+
+      emit(state.copyWith(clearProfilePhotoUrl: true, isUploadingPhoto: false));
+    } catch (e) {
+      emit(state.copyWith(photoError: e.toString(), isUploadingPhoto: false));
+    }
+  }
+  // ─── Logout ───────────────────────────────────────────────────────────────
+
+  Future<void> _onLogout(Logout event, Emitter<ProfileState> emit) async {
+    emit(state.copyWith(isLoading: true));
+    try {
       emit(state.copyWith(isLoading: false));
     } catch (e) {
       emit(

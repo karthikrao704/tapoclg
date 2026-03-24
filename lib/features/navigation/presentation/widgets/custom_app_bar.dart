@@ -11,17 +11,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.userName,
   });
 
-  // handle onTap for notifications icon
   void _handleNotificationTap() {}
 
-  // handle onTap for profile icon (if needed)
   void _handleProfileTap() {}
-
-  // Greeting and Name can be made dynamic by passing them as parameters to the CustomAppBar widget
 
   @override
   Widget build(BuildContext context) {
-    // Theme
     final theme = Theme.of(context);
 
     String getGreeting() {
@@ -38,9 +33,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     }
 
     return AppBar(
-      // Background color is automatically set by the theme's colorScheme.primary
-
-      // profile icon with circular border
       leading: GestureDetector(
         onTap: _handleProfileTap,
         child: Padding(
@@ -48,34 +40,53 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              // Uses the secondary color (mapped to the light greenish wellnessTipBg)
               border: Border.all(color: theme.colorScheme.secondary, width: 2),
             ),
-            child: const CircleAvatar(
-              backgroundImage: NetworkImage(
-                'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cHJvZmlsZXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60',
-              ),
-              backgroundColor: Colors.transparent,
+            child: FutureBuilder<String?>(
+              future: LocalDatabase.getProfilePhotoUrl(),
+              builder: (context, snapshot) {
+                final photoUrl = snapshot.data;
+
+                if (photoUrl != null && photoUrl.isNotEmpty) {
+                  return ClipOval(
+                    child: Image.network(
+                      photoUrl,
+                      fit: BoxFit.fill,
+                      width: 40,
+                      height: 40,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Image.asset(
+                          'assets/images/profile.png',
+                          fit: BoxFit.fill,
+                          width: 50,
+                          height: 50,
+                        );
+                      },
+                    ),
+                  );
+                }
+
+                return const CircleAvatar(
+                  backgroundImage: AssetImage('assets/images/profile.png'),
+                  backgroundColor: Colors.transparent,
+                );
+              },
             ),
           ),
         ),
       ),
 
-      // Greeting and Name
       titleSpacing: 0,
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             getGreeting(),
-            // Inherits size 14, w500, secondaryText color
             style: AppFonts.headland(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF6F7894),
+              color: const Color(0xFF6F7894),
             ),
-
-            //Color(0xFF6F7894);
           ),
           FutureBuilder<String?>(
             future: LocalDatabase.getUserName(),
@@ -83,7 +94,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               final name = snapshot.data ?? userName;
               return Text(
                 name,
-                // Inherits size 20, bold, primaryText color
                 style: AppFonts.headland(
                   fontSize: 19,
                   fontWeight: FontWeight.w600,
@@ -95,7 +105,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
 
-      // Notifications Icon
       actions: [
         IconButton(
           icon: Container(

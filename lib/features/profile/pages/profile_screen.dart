@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'package:tapovana_mobile_app/features/auth/bloc/auth/auth_cubit.dart';
 import 'package:tapovana_mobile_app/features/bookings/presentation/pages/my_bookings_page.dart';
@@ -27,6 +28,161 @@ class ProfilePage extends StatelessWidget {
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
 
+  // ─── File picker + validation ─────────────────────────────────────────────
+
+  Future<void> _pickAndUploadPhoto(BuildContext context) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'jpeg', 'png'],
+      allowMultiple: false,
+      withData: false,
+    );
+
+    if (result == null || result.files.isEmpty) return;
+
+    final file = result.files.first;
+    final ext = (file.extension ?? '').toLowerCase();
+
+    if (!['jpg', 'jpeg', 'png'].contains(ext)) {
+      _showSnackBar(context, 'Only .jpg and .png files are allowed.');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      _showSnackBar(context, 'File size must not exceed 5 MB.');
+      return;
+    }
+
+    final path = file.path;
+    if (path == null) {
+      _showSnackBar(context, 'Could not access the selected file.');
+      return;
+    }
+
+    context.read<ProfileBloc>().add(UploadProfilePhoto(filePath: path));
+  }
+
+  void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: const Color(0xFFCFA644),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
+  // ─── Photo action bottom sheet ────────────────────────────────────────────
+
+  void _showPhotoOptions(BuildContext context, bool hasPhoto) {
+    // ✅ Capture the bloc BEFORE opening bottom sheet
+    final profileBloc = context.read<ProfileBloc>();
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (bottomSheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFCBD5E1),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                leading: const Icon(
+                  Icons.upload_rounded,
+                  color: Color(0xFFCFA644),
+                ),
+                title: Text(
+                  hasPhoto ? 'Change Photo' : 'Upload Photo',
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.of(bottomSheetContext).pop();
+                  // ✅ Use captured bloc reference
+                  _pickAndUploadPhotoWithBloc(context, profileBloc);
+                },
+              ),
+              if (hasPhoto)
+                ListTile(
+                  leading: const Icon(
+                    Icons.delete_outline,
+                    color: Color(0xFFEF4444),
+                  ),
+                  title: const Text(
+                    'Remove Photo',
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFFEF4444),
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.of(bottomSheetContext).pop();
+                    // ✅ Use captured bloc reference
+                    profileBloc.add(DeleteProfilePhoto());
+                  },
+                ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickAndUploadPhotoWithBloc(
+    BuildContext context,
+    ProfileBloc bloc,
+  ) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'jpeg', 'png'],
+      allowMultiple: false,
+      withData: false,
+    );
+
+    if (result == null || result.files.isEmpty) return;
+
+    final file = result.files.first;
+    final ext = (file.extension ?? '').toLowerCase();
+
+    if (!['jpg', 'jpeg', 'png'].contains(ext)) {
+      _showSnackBar(context, 'Only .jpg and .png files are allowed.');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      _showSnackBar(context, 'File size must not exceed 5 MB.');
+      return;
+    }
+
+    final path = file.path;
+    if (path == null) {
+      _showSnackBar(context, 'Could not access the selected file.');
+      return;
+    }
+
+    // ✅ Use the captured bloc reference directly
+    bloc.add(UploadProfilePhoto(filePath: path));
+  }
+
+  // ─── Build ────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,7 +198,12 @@ class ProfileView extends StatelessWidget {
           ),
         ),
       ),
-      body: BlocBuilder<ProfileBloc, ProfileState>(
+      body: BlocConsumer<ProfileBloc, ProfileState>(
+        listener: (context, state) {
+          if (state.photoError != null) {
+            _showSnackBar(context, state.photoError!);
+          }
+        },
         builder: (context, state) {
           if (state.isLoading) {
             return const Center(child: CircularProgressIndicator());
@@ -50,9 +211,21 @@ class ProfileView extends StatelessWidget {
 
           if (state.error != null) {
             return Center(
-              child: Text(
-                'Error: ${state.error}',
-                style: const TextStyle(color: Colors.red),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    state.error!,
+                    style: const TextStyle(color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () =>
+                        context.read<ProfileBloc>().add(LoadProfile()),
+                    child: const Text('Retry'),
+                  ),
+                ],
               ),
             );
           }
@@ -76,63 +249,119 @@ class ProfileView extends StatelessWidget {
     );
   }
 
+  // ─── Profile header ───────────────────────────────────────────────────────
+
   Widget _buildProfileHeader(BuildContext context, ProfileState state) {
+    final bool hasNetworkPhoto =
+        state.profilePhotoUrl != null && state.profilePhotoUrl!.isNotEmpty;
+
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.only(top: 8, bottom: 24),
       child: Column(
         children: [
-          // Avatar with gold verified badge
-          Stack(
-            children: [
-              Container(
-                width: 110,
-                height: 110,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 4),
-                  image: DecorationImage(
-                    image: AssetImage(state.avatar),
-                    fit: BoxFit.cover,
-                    alignment: Alignment
-                        .topCenter, // Often helps frame portraits better
+          GestureDetector(
+            onTap: () => _showPhotoOptions(context, hasNetworkPhoto),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // Avatar
+                Container(
+                  width: 110,
+                  height: 110,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 4),
+                  ),
+                  child: ClipOval(
+                    child: hasNetworkPhoto
+                        ? Image.network(
+                            state.profilePhotoUrl!,
+                            fit: BoxFit.cover,
+                            alignment: Alignment.topCenter,
+                            errorBuilder: (_, __, ___) =>
+                                Image.asset(state.avatar, fit: BoxFit.cover),
+                          )
+                        : Image.asset(
+                            state.avatar,
+                            fit: BoxFit.cover,
+                            alignment: Alignment.topCenter,
+                          ),
                   ),
                 ),
-              ),
-              Positioned(
-                bottom: -2,
-                right: 0,
-                child: Container(
-                  width: 32,
-                  height: 32,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
+
+                // Upload loading overlay
+                if (state.isUploadingPhoto)
+                  Positioned.fill(
                     child: Container(
-                      width: 26,
-                      height: 26,
                       decoration: const BoxDecoration(
-                        color: Color(0xFFCFAB46),
+                        color: Colors.black38,
                         shape: BoxShape.circle,
                       ),
                       child: const Center(
-                        child: Icon(
-                          Icons.verified_outlined,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
                           color: Colors.white,
-                          size: 18,
                         ),
                       ),
                     ),
                   ),
+
+                // Gold verified badge (bottom-right)
+                // Positioned(
+                //   bottom: -2,
+                //   right: 0,
+                //   child: Container(
+                //     width: 32,
+                //     height: 32,
+                //     decoration: const BoxDecoration(
+                //       color: Colors.white,
+                //       shape: BoxShape.circle,
+                //     ),
+                //     child: Center(
+                //       child: Container(
+                //         width: 26,
+                //         height: 26,
+                //         decoration: const BoxDecoration(
+                //           color: Color(0xFFCFAB46),
+                //           shape: BoxShape.circle,
+                //         ),
+                //         child: const Center(
+                //           child: Icon(
+                //             Icons.verified_outlined,
+                //             color: Colors.white,
+                //             size: 18,
+                //           ),
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                // ),
+
+                // Camera badge (bottom-left)
+                Positioned(
+                  bottom: -2,
+                  left: 0,
+                  child: Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFCFA644),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                    child: const Icon(
+                      Icons.camera_alt_outlined,
+                      color: Colors.white,
+                      size: 16,
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           const SizedBox(height: 16),
 
-          // Name
           Text(
             state.name,
             style: const TextStyle(
@@ -144,41 +373,41 @@ class ProfileView extends StatelessWidget {
           ),
           const SizedBox(height: 8),
 
-          // GOLD MEMBER outlined badge below name
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             decoration: BoxDecoration(
-              color: const Color(
-                0xFF58B814,
-              ).withValues(alpha: 0.10), // 10% opacity green
+              color: const Color(0xFF58B814).withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(24),
             ),
-            child: const Text(
-              'GOLD MEMBER',
-              style: TextStyle(
+            child: Text(
+              state.membershipType,
+              style: const TextStyle(
                 fontFamily: 'Manrope',
-                color: Color(0xFFCDA751), // Exact gold
+                color: Color(0xFFCDA751),
                 fontSize: 14,
-                fontWeight: FontWeight.w800, // Extra Bold
+                fontWeight: FontWeight.w800,
                 letterSpacing: 0.7,
-                height: 1.5, // 21px line height for 14px text
+                height: 1.5,
               ),
             ),
           ),
 
           const SizedBox(height: 12),
-          Text(
-            'Member since ${state.memberSince}',
-            style: const TextStyle(
-              color: Color(0xFF64748B),
-              fontSize: 15,
-              letterSpacing: -0.3,
+          if (state.memberSince.isNotEmpty)
+            Text(
+              'Member since ${state.memberSince}',
+              style: const TextStyle(
+                color: Color(0xFF64748B),
+                fontSize: 15,
+                letterSpacing: -0.3,
+              ),
             ),
-          ),
         ],
       ),
     );
   }
+
+  // ─── Wellness pass card ───────────────────────────────────────────────────
 
   Widget _buildWellnessPassCard(BuildContext context, ProfileState state) {
     return Container(
@@ -191,7 +420,6 @@ class ProfileView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // TOP: gold-to-green gradient with title + spa leaf icon
           Container(
             width: double.infinity,
             height: 110,
@@ -234,13 +462,8 @@ class ProfileView extends StatelessWidget {
               ],
             ),
           ),
-
-          // BOTTOM: white section — credits left, gold Manage button right
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 24,
-            ), // Reduced padding to prevent line wrapping
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -263,7 +486,7 @@ class ProfileView extends StatelessWidget {
                         style: const TextStyle(
                           fontFamily: 'Poppins',
                           color: Color(0xFF1E293B),
-                          fontSize: 18, // Reduced to prevent wrapping
+                          fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -306,6 +529,8 @@ class ProfileView extends StatelessWidget {
     );
   }
 
+  // ─── History card ─────────────────────────────────────────────────────────
+
   Widget _buildHistoryCard(BuildContext context, ProfileState state) {
     return GestureDetector(
       onTap: () {
@@ -327,20 +552,20 @@ class ProfileView extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: const Color(0xFFF2F7E6), // Light greenish yellow
+                color: const Color(0xFFF2F7E6),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
                 Icons.restore,
-                color: Color(0xFFCFA644), // Gold color
+                color: Color(0xFFCFA644),
                 size: 28,
               ),
             ),
             const SizedBox(width: 16),
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'My Bookings & History',
                   style: TextStyle(
                     fontFamily: 'Poppins',
@@ -349,10 +574,13 @@ class ProfileView extends StatelessWidget {
                     color: Color(0xFF1E293B),
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
-                  '24 visits',
-                  style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
+                  '${state.totalVisits} visits',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF94A3B8),
+                  ),
                 ),
               ],
             ),
@@ -361,6 +589,8 @@ class ProfileView extends StatelessWidget {
       ),
     );
   }
+
+  // ─── Account settings ─────────────────────────────────────────────────────
 
   Widget _buildAccountSettingsSection(BuildContext context) {
     return Column(
@@ -463,25 +693,27 @@ class ProfileView extends StatelessWidget {
     );
   }
 
+  // ─── Legal / logout / version ─────────────────────────────────────────────
+
   Widget _buildLegalLinks() {
     return Padding(
       padding: const EdgeInsets.only(top: 24, bottom: 16),
       child: Column(
-        children: [
+        children: const [
           Text(
             'Terms &\nConditions',
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               color: Color(0xFF64748B),
               fontSize: 14,
               fontWeight: FontWeight.w400,
               height: 1.3,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(
             'Privacy Policy',
-            style: const TextStyle(
+            style: TextStyle(
               color: Color(0xFF64748B),
               fontSize: 14,
               fontWeight: FontWeight.w400,
@@ -504,11 +736,11 @@ class ProfileView extends StatelessWidget {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFCFA644), // Gold explicitly
+          backgroundColor: const Color(0xFFCFA644),
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30), // Pill shape
+            borderRadius: BorderRadius.circular(30),
           ),
           elevation: 0,
         ),
@@ -520,7 +752,7 @@ class ProfileView extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 8, bottom: 24),
       child: Text(
-        'Tapovana Wellness v2.4.0',
+        'Tapovana Wellness v${state.appVersion}',
         style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
       ),
     );

@@ -24,7 +24,7 @@ class Navigation extends StatelessWidget {
       appBar: shouldShowAppBar
           ? const CustomAppBar(
               greetingMessage: "Good Morning",
-              userName: "Shelton Coutinho",
+              userName: "User",
             )
           : null,
       // 2. The body is simply the shell itself

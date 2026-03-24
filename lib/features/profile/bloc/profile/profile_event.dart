@@ -24,4 +24,15 @@ class UpdateProfile extends ProfileEvent {
   List<Object> get props => [name, email, avatar];
 }
 
+class UploadProfilePhoto extends ProfileEvent {
+  final String filePath;
+
+  const UploadProfilePhoto({required this.filePath});
+
+  @override
+  List<Object> get props => [filePath];
+}
+
+class DeleteProfilePhoto extends ProfileEvent {}
+
 class Logout extends ProfileEvent {}
