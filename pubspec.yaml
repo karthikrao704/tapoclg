@@ -114,6 +114,10 @@ flutter:
       fonts:
         - asset: assets/fonts/Poppins-Medium.ttf
           weight: 500
+    - family: HeadLand
+      fonts:
+        - asset: assets/fonts/headland/HeadlandOne-Regular.ttf
+          weight: 400
 
 flutter_launcher_icons:
   android: true

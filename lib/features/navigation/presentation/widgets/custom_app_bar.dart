@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import '../../../../core/storage/local_database.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -68,7 +69,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           Text(
             getGreeting(),
             // Inherits size 14, w500, secondaryText color
-            style: theme.textTheme.labelLarge,
+            style: AppFonts.headland(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF6F7894),
+            ),
+
+            //Color(0xFF6F7894);
           ),
           FutureBuilder<String?>(
             future: LocalDatabase.getUserName(),
@@ -77,7 +84,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               return Text(
                 name,
                 // Inherits size 20, bold, primaryText color
-                style: theme.textTheme.titleLarge,
+                style: AppFonts.headland(
+                  fontSize: 19,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF3D3D3D),
+                ),
               );
             },
           ),
@@ -86,29 +97,23 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
       // Notifications Icon
       actions: [
-        Padding(
-          padding: const EdgeInsets.only(right: 8.0),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                // Uses the outline color for the subtle circular border
-                border: Border.all(color: theme.colorScheme.outline),
-              ),
-              child: IconButton(
-                icon: Icon(
-                  Icons.notifications_none,
-                  // Uses onSurface (primaryText) to match the dark text color
-                  color: theme.colorScheme.onSurface,
-                ),
-                onPressed: () {
-                  _handleNotificationTap();
-                },
-              ),
+        IconButton(
+          icon: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              border: Border.all(color: const Color(0xFFD9A04B), width: 1.5),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.notifications_outlined,
+              color: Color(0xFFD9A04B),
+              size: 20,
             ),
           ),
+          onPressed: () {},
         ),
+        const SizedBox(width: 8),
       ],
     );
   }

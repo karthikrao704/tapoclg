@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'bloc/more_bloc.dart';
 import 'models/more_models.dart';
 
@@ -21,14 +22,12 @@ class _MoreView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F7F2),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 254),
       body: BlocBuilder<MoreBloc, MoreState>(
         builder: (context, state) {
           if (state.isLoading) {
             return const Center(
-              child: CircularProgressIndicator(
-                color: Color(0xFFD9A04B),
-              ),
+              child: CircularProgressIndicator(color: Color(0xFFD9A04B)),
             );
           }
 
@@ -46,8 +45,9 @@ class _MoreView extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () =>
-                        context.read<MoreBloc>().add(const RefreshMoreContent()),
+                    onPressed: () => context.read<MoreBloc>().add(
+                      const RefreshMoreContent(),
+                    ),
                     child: const Text('Retry'),
                   ),
                 ],
@@ -71,14 +71,16 @@ class _MoreView extends StatelessWidget {
                       const SizedBox(height: 8),
                       if (state.featuredWorkshop != null)
                         _FeaturedWorkshopSection(
-                            workshop: state.featuredWorkshop!),
+                          workshop: state.featuredWorkshop!,
+                        ),
                       const SizedBox(height: 28),
                       if (state.vedicPackages.isNotEmpty)
                         _VedicPackagesSection(packages: state.vedicPackages),
                       const SizedBox(height: 28),
                       if (state.educationalCourses.isNotEmpty)
                         _EducationalCoursesSection(
-                            courses: state.educationalCourses),
+                          courses: state.educationalCourses,
+                        ),
                       const SizedBox(height: 28),
                       if (state.blogPosts.isNotEmpty)
                         _WellnessBlogSection(posts: state.blogPosts),
@@ -96,18 +98,18 @@ class _MoreView extends StatelessWidget {
 
   SliverAppBar _buildAppBar(BuildContext context) {
     return SliverAppBar(
-      backgroundColor: const Color(0xFFF9F7F2),
+      backgroundColor: const Color.fromARGB(255, 253, 253, 252),
       floating: true,
       snap: true,
       elevation: 0,
       scrolledUnderElevation: 0,
-      title: const Text(
+      title: Text(
         'Explore more',
-        style: TextStyle(
-          fontFamily: 'Poppins',
+        overflow: TextOverflow.ellipsis,
+        style: AppFonts.headland(
           fontSize: 22,
-          fontWeight: FontWeight.w600,
-          color: Color(0xFF1E293B),
+          fontWeight: FontWeight.w400,
+          color: const Color(0xFF3D3D3D),
         ),
       ),
       actions: [
@@ -205,7 +207,9 @@ class _FeaturedWorkshopSection extends StatelessWidget {
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: const Color(0xFFF9F7F2),
                             borderRadius: BorderRadius.circular(8),
@@ -274,7 +278,9 @@ class _FeaturedWorkshopSection extends StatelessWidget {
                             foregroundColor: Colors.white,
                             elevation: 0,
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 28, vertical: 12),
+                              horizontal: 28,
+                              vertical: 12,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),
@@ -437,11 +443,7 @@ class _PackageImagePlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (imagePath != null) {
-      return Image.asset(
-        imagePath!,
-        fit: BoxFit.cover,
-        width: double.infinity,
-      );
+      return Image.asset(imagePath!, fit: BoxFit.cover, width: double.infinity);
     }
     return Container(
       height: 140,
@@ -600,11 +602,7 @@ class _CourseRow extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(
-            Icons.chevron_right,
-            color: Color(0xFFCBD5E1),
-            size: 22,
-          ),
+          const Icon(Icons.chevron_right, color: Color(0xFFCBD5E1), size: 22),
         ],
       ),
     );
@@ -687,15 +685,15 @@ class _BlogCard extends StatelessWidget {
                 height: imageHeight,
                 width: double.infinity,
                 child: post.imagePath != null
-                    ? Image.asset(
-                        post.imagePath!,
-                        fit: BoxFit.fill,
-                      )
+                    ? Image.asset(post.imagePath!, fit: BoxFit.fill)
                     : Container(
                         color: const Color(0xFFD0C4B0),
                         child: const Center(
-                          child: Icon(Icons.spa_outlined,
-                              size: 36, color: Color(0xFF907060)),
+                          child: Icon(
+                            Icons.spa_outlined,
+                            size: 36,
+                            color: Color(0xFF907060),
+                          ),
                         ),
                       ),
               ),

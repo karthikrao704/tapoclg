@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'package:tapovana_mobile_app/features/services/presentation/components/categories_buttons.dart';
 import 'package:tapovana_mobile_app/features/services/presentation/components/custom_search_bar.dart';
 import 'package:tapovana_mobile_app/features/services/presentation/screens/service_list_section.dart';
@@ -43,18 +44,33 @@ class _ServiceScreenState extends State<ServiceScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Wellness Services'),
-        actions: [
-          Container(
-            decoration: BoxDecoration(
-              color: theme.primaryColor.withAlpha(60),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(Icons.notifications_none, color: theme.primaryColor),
+        title: Text(
+          'Wellness Services',
+          style: AppFonts.headland(
+            fontSize: 22,
+            fontWeight: FontWeight.w400,
+            color: const Color(0xFF3D3D3D),
           ),
+        ),
+        actions: [
+          IconButton(
+            icon: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                border: Border.all(color: const Color(0xFFD9A04B), width: 1.5),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.notifications_outlined,
+                color: Color(0xFFD9A04B),
+                size: 20,
+              ),
+            ),
+            onPressed: () {},
+          ),
+          const SizedBox(width: 8),
         ],
-        actionsPadding: const EdgeInsets.only(right: 16.0),
       ),
       // 1. Replace SingleChildScrollView with NestedScrollView
       body: NestedScrollView(
@@ -67,7 +83,7 @@ class _ServiceScreenState extends State<ServiceScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 16.0),
+                    const SizedBox(height: 4.0),
                     const CustomSearchBar(),
                     const SizedBox(height: 16.0),
                     Text("Categories", style: theme.textTheme.titleMedium),
@@ -132,7 +148,7 @@ class _ServiceScreenState extends State<ServiceScreen>
                     Tab(text: "Offers"),
                   ],
                 ),
-                backgroundColor: theme.scaffoldBackgroundColor,
+                backgroundColor: Colors.white,
               ),
             ),
           ];

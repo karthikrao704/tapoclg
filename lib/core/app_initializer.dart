@@ -8,10 +8,7 @@ class InitResult {
   final bool dotenvLoaded;
   final String? errorMessage;
 
-  const InitResult({
-    required this.dotenvLoaded,
-    this.errorMessage,
-  });
+  const InitResult({required this.dotenvLoaded, this.errorMessage});
 }
 
 /// Centralized initialization logic
@@ -35,7 +32,9 @@ class AppInitializer {
       }
 
       debugPrint('✅ AppInitializer: .env loaded successfully');
-      debugPrint('✅ AppInitializer: Token starts with ${token.substring(0, 10)}...');
+      debugPrint(
+        '✅ AppInitializer: Token starts with ${token.substring(0, 10)}...',
+      );
 
       // ✅ Step 2: Initialize other services here if needed
       // e.g., Firebase, Analytics, SharedPreferences, etc.
@@ -43,10 +42,7 @@ class AppInitializer {
       return const InitResult(dotenvLoaded: true);
     } catch (e) {
       debugPrint('❌ AppInitializer Error: $e');
-      return InitResult(
-        dotenvLoaded: false,
-        errorMessage: e.toString(),
-      );
+      return InitResult(dotenvLoaded: false, errorMessage: e.toString());
     }
   }
 }

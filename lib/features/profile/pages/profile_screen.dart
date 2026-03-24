@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'package:tapovana_mobile_app/features/auth/bloc/auth/auth_cubit.dart';
 import 'package:tapovana_mobile_app/features/bookings/presentation/pages/my_bookings_page.dart';
 import '../bloc/profile/profile_bloc.dart';
@@ -31,24 +32,13 @@ class ProfileView extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: false,
-        titleSpacing: 8,
-        title: const Text(
-          'My Profile',
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            color: Color(0xFF333333),
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1.0),
-          child: Container(
-            color: Colors.grey.withValues(alpha: 0.2),
-            height: 1.0,
+        title: Text(
+          ' Profile',
+          overflow: TextOverflow.ellipsis,
+          style: AppFonts.headland(
+            fontSize: 22,
+            fontWeight: FontWeight.w400,
+            color: const Color(0xFF3D3D3D),
           ),
         ),
       ),
@@ -559,13 +549,9 @@ class ProfileView extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFD4AF37),
               foregroundColor: Colors.white,
-              minimumSize: const Size(0, 36), 
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 8,
-              ), 
-              tapTargetSize: MaterialTapTargetSize
-                  .shrinkWrap, 
+              minimumSize: const Size(0, 36),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: const Text('Logout'),
           ),
