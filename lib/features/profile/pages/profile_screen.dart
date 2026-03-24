@@ -559,6 +559,13 @@ class ProfileView extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFD4AF37),
               foregroundColor: Colors.white,
+              minimumSize: const Size(0, 36), 
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8,
+              ), 
+              tapTargetSize: MaterialTapTargetSize
+                  .shrinkWrap, 
             ),
             child: const Text('Logout'),
           ),
