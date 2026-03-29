@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:tapovana_mobile_app/features/appointments/presentation/pages/appointment_booking_page.dart';
 import 'package:tapovana_mobile_app/features/bookings/presentation/widgets/future_booking_card.dart';
 import 'package:tapovana_mobile_app/features/bookings/presentation/widgets/upcoming_booking_card.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 class MyBookingsPage extends StatefulWidget {
   const MyBookingsPage({super.key});
@@ -29,7 +31,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: AppColors.tertiaryColor,
 
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -39,11 +41,11 @@ class _MyBookingsPageState extends State<MyBookingsPage>
           icon: const Icon(Icons.arrow_back, color: Color(0xFF333333)),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           "My Bookings",
-          style: TextStyle(
+          style: AppFonts.headland(
             fontSize: 20,
-            color: Colors.black,
+            color: AppTheme.primaryText,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -58,20 +60,18 @@ class _MyBookingsPageState extends State<MyBookingsPage>
 
               indicatorSize: TabBarIndicatorSize.label,
 
-              indicatorColor: const Color(0xFFC9A14A),
+              indicatorColor: AppColors.primaryColor,
               dividerColor: Colors.transparent,
-              labelColor: const Color(0xFFC9A14A),
-              unselectedLabelColor: const Color(0xFF848484),
+              labelColor: AppColors.primaryColor,
+              unselectedLabelColor: AppColors.primaryBlack40,
 
               labelPadding: const EdgeInsets.symmetric(horizontal: 16),
               padding: EdgeInsets.zero,
 
-              labelStyle: const TextStyle(
-                fontWeight: FontWeight.w600,
+              labelStyle: AppFonts.poppinsSemiBold(
                 fontSize: 15,
               ),
-              unselectedLabelStyle: const TextStyle(
-                fontWeight: FontWeight.w600,
+              unselectedLabelStyle: AppFonts.poppinsSemiBold(
                 fontSize: 15,
               ),
 
@@ -100,25 +100,23 @@ class _MyBookingsPageState extends State<MyBookingsPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "IMMEDIATE NEXT",
-            style: TextStyle(
+            style: AppFonts.poppinsSemiBold(
               fontSize: 12.5,
               letterSpacing: 1.2,
-              color: Color(0xFFC9A14A),
-              fontWeight: FontWeight.w600,
+              color: AppColors.primaryColor,
             ),
           ),
           const SizedBox(height: 12),
           const UpcomingBookingCard(),
           const SizedBox(height: 35),
-          const Text(
+          Text(
             "FUTURE APPOINTMENTS",
-            style: TextStyle(
+            style: AppFonts.poppinsSemiBold(
               fontSize: 13,
               letterSpacing: 1.2,
-              color: Color(0xFFC9A14A),
-              fontWeight: FontWeight.w600,
+              color: AppColors.primaryColor,
             ),
           ),
           const SizedBox(height: 12),
@@ -141,12 +139,12 @@ class _MyBookingsPageState extends State<MyBookingsPage>
   }
 
   Widget _buildCompletedTab() {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.only(top: 80),
+        padding: const EdgeInsets.only(top: 80),
         child: Text(
           "No completed bookings yet",
-          style: TextStyle(color: Colors.grey),
+          style: AppFonts.poppinsRegular(color: AppColors.primaryBlack40),
         ),
       ),
     );

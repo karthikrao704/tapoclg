@@ -9,6 +9,9 @@ import 'package:tapovana_mobile_app/features/auth/bloc/data_entry/data_entry_eve
 import 'package:tapovana_mobile_app/features/auth/bloc/data_entry/data_entry_state.dart';
 import 'package:tapovana_mobile_app/features/auth/data/auth_api_repository.dart';
 import 'package:tapovana_mobile_app/features/auth/domain/entities/app_user.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 class DataEntryPage extends StatefulWidget {
   final String email;
@@ -139,13 +142,12 @@ class _DataEntryPageState extends State<DataEntryPage> {
                     const SizedBox(height: 30),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const [
+                      children: [
                         Text(
                           "STEP 1 OF 4",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
+                          style: AppFonts.poppinsSemiBold(
                             fontSize: 14,
-                            color: Color(0xFF6B7280),
+                            color: AppTheme.secondaryText,
                           ),
                         ),
                         Text(
@@ -168,21 +170,21 @@ class _DataEntryPageState extends State<DataEntryPage> {
                       ),
                     ),
                     const SizedBox(height: 35),
-                    const Text(
+                    Text(
                       "Tell us about yourself",
-                      style: TextStyle(
+                      style: AppFonts.headland(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF111827),
+                        color: AppTheme.primaryText,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       "We use this information to personalize your "
                       "wellness journey at Topovan Life Space.",
-                      style: TextStyle(
+                      style: AppFonts.poppinsRegular(
                         fontSize: 16.5,
-                        color: Color.fromARGB(255, 71, 75, 84),
+                        color: AppColors.primaryBlack40,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -205,11 +207,10 @@ class _DataEntryPageState extends State<DataEntryPage> {
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
+                              children: [
                                 Text(
                                   "Privacy first",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
+                                  style: AppFonts.poppinsSemiBold(
                                     fontSize: 14,
                                   ),
                                 ),
@@ -273,10 +274,9 @@ class _DataEntryPageState extends State<DataEntryPage> {
                     ],
 
                     // Name
-                    const Text(
+                    Text(
                       "Name",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
+                      style: AppFonts.poppinsSemiBold(
                         fontSize: 16,
                       ),
                     ),
@@ -298,10 +298,9 @@ class _DataEntryPageState extends State<DataEntryPage> {
                     const SizedBox(height: 28),
 
                     // Gender
-                    const Text(
+                    Text(
                       "Gender",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
+                      style: AppFonts.poppinsSemiBold(
                         fontSize: 16,
                       ),
                     ),
@@ -319,10 +318,9 @@ class _DataEntryPageState extends State<DataEntryPage> {
                     const SizedBox(height: 30),
 
                     // City
-                    const Text(
+                    Text(
                       "CITY OR ZIP CODE",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
+                      style: AppFonts.poppinsSemiBold(
                         fontSize: 15.5,
                         letterSpacing: 1,
                       ),
@@ -440,8 +438,8 @@ class _DataEntryPageState extends State<DataEntryPage> {
                                     }
                                   },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFC9A14A),
-                              foregroundColor: Colors.white,
+                              backgroundColor: AppColors.primaryColor,
+                              foregroundColor: AppColors.white,
                               elevation: 3,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
@@ -452,16 +450,13 @@ class _DataEntryPageState extends State<DataEntryPage> {
                                     width: 24,
                                     height: 24,
                                     child: CircularProgressIndicator(
-                                      color: Colors.white,
+                                      color: AppColors.white,
                                       strokeWidth: 2.5,
                                     ),
                                   )
-                                : const Text(
+                                : Text(
                                     "Continue →",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                    style: AppFonts.poppinsSemiBold(fontSize: 18),
                                   ),
                           ),
                         );

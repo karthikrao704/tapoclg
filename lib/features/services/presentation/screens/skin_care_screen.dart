@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 // --- DATA MODEL ---
 class SkinCareItem {
@@ -64,23 +67,28 @@ class SkinCareScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor, // Main Background
         appBar: AppBar(
-          title: const Text('Skin Care'),
+          title: Text(
+            'Skin Care',
+            style: AppFonts.headland(color: AppTheme.primaryText, fontSize: 20),
+          ),
           centerTitle: true,
           actions: [
             IconButton(
               icon: Icon(
                 Icons.search,
-                color: theme.colorScheme.primary,
+                color: AppColors.primaryColor,
               ), // Active Icons
               onPressed: () {},
             ),
           ],
           bottom: TabBar(
-            labelColor: theme.colorScheme.primary, // Primary Actions/Active
+            labelColor: AppColors.primaryColor, // Primary Actions/Active
             unselectedLabelColor:
-                theme.textTheme.bodySmall?.color, // Secondary Grey
+                AppTheme.secondaryText, // Secondary Grey
             dividerColor: Colors.transparent,
-            indicatorColor: theme.colorScheme.primary,
+            indicatorColor: AppColors.primaryColor,
+            labelStyle: AppFonts.poppinsSemiBold(fontSize: 14),
+            unselectedLabelStyle: AppFonts.poppinsRegular(fontSize: 14),
             isScrollable: true,
             tabAlignment: TabAlignment.center,
             tabs: const [
@@ -131,24 +139,23 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
+          style: AppFonts.poppinsSemiBold(
+            color: AppTheme.primaryText,
+            fontSize: 20,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           subtitle,
-          style: theme.textTheme.labelLarge?.copyWith(
-            color: theme.textTheme.bodySmall?.color, // Secondary Grey Text
+          style: AppFonts.poppinsSemiBold(
+            color: AppTheme.secondaryText, // Secondary Grey Text
+            fontSize: 14,
             letterSpacing: 2.0, // Spaced out for the specific design look
-            fontWeight: FontWeight.w600,
           ),
         ),
       ],
@@ -194,8 +201,9 @@ class SkinCareCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         item.title,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
+                        style: AppFonts.poppinsSemiBold(
+                          color: AppTheme.primaryText,
+                          fontSize: 16,
                         ), // Primary Dark Text
                       ),
                     ),
@@ -208,11 +216,9 @@ class SkinCareCard extends StatelessWidget {
                 // Description
                 Text(
                   item.description,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme
-                        .textTheme
-                        .bodySmall
-                        ?.color, // Secondary Grey Text mapping
+                  style: AppFonts.poppinsRegular(
+                    color: AppTheme.secondaryText, // Secondary Grey Text mapping
+                    fontSize: 14,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -227,9 +233,9 @@ class SkinCareCard extends StatelessWidget {
                   children: [
                     Text(
                       item.price,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        color: theme.colorScheme.primary, // Price highlighted
-                        fontWeight: FontWeight.bold,
+                      style: AppFonts.poppinsSemiBold(
+                        color: AppColors.primaryColor, // Price highlighted
+                        fontSize: 20,
                       ),
                     ),
                     ElevatedButton(
@@ -274,9 +280,9 @@ class _DurationBadge extends StatelessWidget {
       ),
       child: Text(
         duration,
-        style: theme.textTheme.labelMedium?.copyWith(
-          color: theme.textTheme.bodySmall?.color,
-          fontWeight: FontWeight.w600,
+        style: AppFonts.poppinsSemiBold(
+          color: AppTheme.secondaryText,
+          fontSize: 12,
         ),
       ),
     );
@@ -307,17 +313,18 @@ class _BenefitsBox extends StatelessWidget {
         children: [
           Text(
             'BENEFITS',
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: theme.colorScheme.onSecondary, // Olive mapping
-              fontWeight: FontWeight.bold,
+            style: AppFonts.poppinsSemiBold(
+              color: AppTheme.primaryText, // Olive mapping
+              fontSize: 10,
               letterSpacing: 1.0,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             benefitsText,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSecondary.withAlpha(200),
+            style: AppFonts.poppinsRegular(
+              color: AppTheme.secondaryText,
+              fontSize: 12,
             ),
           ),
         ],

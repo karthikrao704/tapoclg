@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 
 class AppointmentCard extends StatelessWidget {
   final String month;
@@ -22,7 +25,6 @@ class AppointmentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
 
     return Card(
       child: InkWell(
@@ -31,10 +33,8 @@ class AppointmentCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
-            // Mapping: Main Background
-            color: theme.colorScheme.tertiary,
-            // Mapping: Borders/Dividers
-            border: Border.all(color: theme.colorScheme.outline.withAlpha(77)),
+            color: const Color(0xFFF9F9F9),
+            border: Border.all(color: const Color(0xFFF1F1F1)),
             borderRadius: BorderRadius.circular(16.0),
           ),
           child: Row(
@@ -47,9 +47,9 @@ class AppointmentCard extends StatelessWidget {
                   vertical: 12.0,
                 ),
                 decoration: BoxDecoration(
-                  color: theme.scaffoldBackgroundColor,
+                  color: AppColors.white,
                   border: Border.all(
-                    color: theme.colorScheme.outline.withAlpha(77),
+                    color: const Color(0xFFF1F1F1),
                   ),
                   borderRadius: BorderRadius.circular(12.0),
                 ),
@@ -59,17 +59,18 @@ class AppointmentCard extends StatelessWidget {
                     Text(
                       month.toUpperCase(),
                       // Mapping: Special Card Text (Olive) used for the gold/olive text tone
-                      style: theme.textTheme.labelLarge?.copyWith(
-                        color: theme.colorScheme.onSecondary,
-                        fontWeight: FontWeight.bold,
+                      style: AppFonts.poppinsBold(
+                        fontSize: 13,
+                        color: AppTheme.wellnessTipText,
                       ),
                     ),
                     const SizedBox(height: 4.0),
                     Text(
                       day,
                       // Mapping: Primary Dark Text (Headers)
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
+                      style: AppFonts.poppinsBold(
+                        fontSize: 22,
+                        color: AppTheme.primaryText,
                       ),
                     ),
                   ],
@@ -87,8 +88,9 @@ class AppointmentCard extends StatelessWidget {
                     Text(
                       title,
                       // Mapping: Primary Dark Text
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
+                      style: AppFonts.poppinsSemiBold(
+                        fontSize: 16,
+                        color: AppTheme.primaryText,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -97,7 +99,10 @@ class AppointmentCard extends StatelessWidget {
                     Text(
                       'with $doctorName',
                       // Mapping: Secondary Grey Text
-                      style: theme.textTheme.bodySmall,
+                      style: AppFonts.poppinsRegular(
+                        fontSize: 14,
+                        color: AppTheme.secondaryText,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -117,29 +122,32 @@ class AppointmentCard extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             // Mapping: Special Card Bg (Light Green)
-                            color: theme.colorScheme.secondary,
+                            color: AppTheme.wellnessTipBg,
                             borderRadius: BorderRadius.circular(12.0),
                           ),
                           child: Text(
                             time,
                             // Mapping: Special Card Text (Olive)
-                            style: theme.textTheme.labelMedium?.copyWith(
-                              color: theme.colorScheme.onSecondary,
-                              fontWeight: FontWeight.w600,
+                            style: AppFonts.poppinsSemiBold(
+                              fontSize: 12,
+                              color: AppTheme.wellnessTipText,
                             ),
                           ),
                         ),
 
                         Text(
                           '•',
-                          // Mapping: Secondary Grey Text
-                          style: theme.textTheme.bodySmall,
+                          style: AppFonts.poppinsRegular(
+                            fontSize: 12,
+                            color: AppTheme.secondaryText,
+                          ),
                         ),
-
                         Text(
                           room,
-                          // Mapping: Secondary Grey Text
-                          style: theme.textTheme.bodySmall,
+                          style: AppFonts.poppinsRegular(
+                            fontSize: 12,
+                            color: AppTheme.secondaryText,
+                          ),
                         ),
                       ],
                     ),
@@ -153,7 +161,7 @@ class AppointmentCard extends StatelessWidget {
               Icon(
                 Icons.chevron_right_rounded,
                 // Mapping: Borders/Dividers (used here for neutral grey icon tint)
-                color: theme.colorScheme.outline,
+                color: AppTheme.outlineColor,
                 size: 28.0,
               ),
             ],

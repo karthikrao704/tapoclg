@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tapovana_mobile_app/core/routing/route_constants.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -46,16 +48,15 @@ class _WelcomePageState extends State<WelcomePage> {
                     child: ElevatedButton(
                       onPressed: () => context.push(RouteConstants.signup),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFC9A14A),
-                        foregroundColor: Colors.white,
+                        backgroundColor: AppColors.primaryColor,
+                        foregroundColor: AppColors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         "Create Account",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w600),
+                        style: AppFonts.poppinsSemiBold(fontSize: 16),
                       ),
                     ),
                   ),
@@ -70,29 +71,28 @@ class _WelcomePageState extends State<WelcomePage> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: !isCreateSelected
-                            ? const Color(0xFFC9A14A)
-                            : Colors.white,
+                            ? AppColors.primaryColor
+                            : AppColors.white,
                         foregroundColor: !isCreateSelected
-                            ? Colors.white
-                            : const Color(0xFFC9A14A),
+                            ? AppColors.white
+                            : AppColors.primaryColor,
                         elevation: !isCreateSelected ? 3 : 0,
-                        side: const BorderSide(color: Color(0xFFC9A14A)),
+                        side: const BorderSide(color: AppColors.primaryColor),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         "Log In",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w500),
+                        style: AppFonts.poppinsMedium(fontSize: 16),
                       ),
                     ),
                   ),
                   const SizedBox(height: 30),
-                  const Text(
+                  Text(
                     "By continuing, you agree to our Terms of Service and Privacy Policy.",
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                    style: AppFonts.poppinsRegular(fontSize: 12, color: AppColors.primaryBlack40),
                   ),
                   const SizedBox(height: 10),
                 ],

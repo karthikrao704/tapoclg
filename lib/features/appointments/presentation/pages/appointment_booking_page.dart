@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'package:tapovana_mobile_app/features/appointments/presentation/widgets/calender_widget.dart';
 //import 'package:tapovana_mobile_app/features/bookings/presentation/pages/my_bookings_page.dart';
 
@@ -19,14 +22,14 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
       backgroundColor: const Color(0xFFFFFFFF),
 
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         elevation: 0,
         centerTitle: true,
-        leading: const Icon(Icons.arrow_back, color: Colors.black),
-        title: const Text(
+        leading: const Icon(Icons.arrow_back, color: AppTheme.primaryText),
+        title: Text(
           "Book Appointment",
-          style: TextStyle(
-            color: Colors.black,
+          style: AppFonts.headland(
+            color: AppTheme.primaryText,
             fontWeight: FontWeight.w600,
             fontSize: 19,
           ),
@@ -184,25 +187,24 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
             /// ESTIMATED TOTAL
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
+              children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       "ESTIMATED TOTAL",
-                      style: TextStyle(
+                      style: AppFonts.poppinsRegular(
                         fontSize: 10,
                         letterSpacing: 1,
-                        color: Colors.grey,
+                        color: AppColors.primaryBlack40,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       "₹1200.00",
-                      style: TextStyle(
+                      style: AppFonts.poppinsSemiBold(
                         fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFFC9A14A),
+                        color: AppColors.primaryColor,
                       ),
                     ),
                   ],
@@ -211,7 +213,7 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
                 Text(
                   "Oct 5, 2023\n10:30 AM (60 min)",
                   textAlign: TextAlign.right,
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                  style: AppFonts.poppinsRegular(fontSize: 12, color: AppColors.primaryBlack40),
                 ),
               ],
             ),
@@ -243,13 +245,12 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
 
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
+                  children: [
                     Text(
                       "Confirm Booking",
-                      style: TextStyle(
+                      style: AppFonts.poppinsSemiBold(
                         fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: AppColors.white,
                       ),
                     ),
 
@@ -328,10 +329,10 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
 
           Text(
             name,
-            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+            style: AppFonts.poppinsSemiBold(fontSize: 16),
           ),
 
-          Text(role, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+          Text(role, style: AppFonts.poppinsRegular(fontSize: 11, color: AppColors.primaryBlack40)),
         ],
       ),
     );
@@ -353,7 +354,7 @@ class SectionTitle extends StatelessWidget {
         const SizedBox(width: 8),
         Text(
           title,
-          style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w600),
+          style: AppFonts.poppinsSemiBold(fontSize: 19),
         ),
       ],
     );
@@ -408,9 +409,8 @@ class TimeSlot extends StatelessWidget {
         ),
         child: Text(
           time,
-          style: TextStyle(
+          style: AppFonts.poppinsMedium(
             fontSize: 16,
-            fontWeight: FontWeight.w500,
             color: textColor,
           ),
         ),

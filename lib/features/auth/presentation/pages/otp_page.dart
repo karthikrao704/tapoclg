@@ -12,6 +12,9 @@ import 'package:tapovana_mobile_app/features/auth/bloc/otp/otp_event.dart';
 import 'package:tapovana_mobile_app/features/auth/bloc/otp/otp_state.dart';
 import 'package:tapovana_mobile_app/features/auth/data/auth_api_repository.dart';
 import 'package:tapovana_mobile_app/features/auth/domain/entities/app_user.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 enum OtpType { emailSignup, emailLogin2FA, googleLogin2FA }
 
@@ -115,18 +118,19 @@ class _OtpPageState extends State<OtpPage> {
                     const SizedBox(height: 120),
                     Image.asset('assets/logo/logo.png', width: 200),
                     const SizedBox(height: 20),
-                    const Text(
+                    Text(
                       "Confirm Your Code",
-                      style: TextStyle(
+                      style: AppFonts.headland(
                         fontSize: 22,
                         fontWeight: FontWeight.w600,
+                        color: AppTheme.primaryText,
                       ),
                     ),
                     const SizedBox(height: 10),
                     Text(
                       "Enter the code we sent to ${widget.email}",
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.grey),
+                      style: AppFonts.poppinsRegular(color: AppColors.primaryBlack40),
                     ),
                     const SizedBox(height: 40),
 
@@ -241,8 +245,8 @@ class _OtpPageState extends State<OtpPage> {
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFC9A14A),
-          foregroundColor: Colors.white,
+          backgroundColor: AppColors.primaryColor,
+          foregroundColor: AppColors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -252,11 +256,11 @@ class _OtpPageState extends State<OtpPage> {
                 width: 24,
                 height: 24,
                 child: CircularProgressIndicator(
-                  color: Colors.white,
+                  color: AppColors.white,
                   strokeWidth: 2.5,
                 ),
               )
-            : const Text("Verify", style: TextStyle(fontSize: 18)),
+            : Text("Verify", style: AppFonts.poppinsSemiBold(fontSize: 18)),
       ),
     );
   }

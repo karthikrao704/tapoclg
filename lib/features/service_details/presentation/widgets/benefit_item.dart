@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 class BenefitItem extends StatelessWidget {
   final String title;
@@ -18,10 +21,10 @@ class BenefitItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
 
-          const Icon(
+          Icon(
             Icons.check_circle_outline,
             size: 25,
-            color: Color(0xFFC9A14A),
+            color: AppColors.primaryColor,
           ),
 
           const SizedBox(width: 10),
@@ -33,8 +36,8 @@ class BenefitItem extends StatelessWidget {
 
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
+                  style: AppFonts.poppinsSemiBold(
+                    color: AppTheme.primaryText,
                     fontSize: 19,
                   ),
                 ),
@@ -43,9 +46,9 @@ class BenefitItem extends StatelessWidget {
 
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: AppFonts.poppinsRegular(
                     fontSize: 15,
-                    color: Color(0xFF6B7280),
+                    color: AppTheme.secondaryText,
                   ),
                 ),
               ],

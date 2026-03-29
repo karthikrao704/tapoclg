@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'package:tapovana_mobile_app/features/services/presentation/components/categories_buttons.dart';
 import 'package:tapovana_mobile_app/features/services/presentation/components/custom_search_bar.dart';
@@ -48,8 +50,7 @@ class _ServiceScreenState extends State<ServiceScreen>
           'Wellness Services',
           style: AppFonts.headland(
             fontSize: 22,
-            fontWeight: FontWeight.w400,
-            color: const Color(0xFF3D3D3D),
+            color: AppTheme.primaryText,
           ),
         ),
         actions: [
@@ -58,12 +59,12 @@ class _ServiceScreenState extends State<ServiceScreen>
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                border: Border.all(color: const Color(0xFFD9A04B), width: 1.5),
+                border: Border.all(color: AppColors.primaryColor, width: 1.5),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.notifications_outlined,
-                color: Color(0xFFD9A04B),
+                color: AppColors.primaryColor,
                 size: 20,
               ),
             ),
@@ -86,7 +87,7 @@ class _ServiceScreenState extends State<ServiceScreen>
                     const SizedBox(height: 4.0),
                     const CustomSearchBar(),
                     const SizedBox(height: 16.0),
-                    Text("Categories", style: theme.textTheme.titleMedium),
+                    Text("Categories", style: AppFonts.poppinsSemiBold(fontSize: 18, color: AppTheme.primaryText)),
                     const SizedBox(height: 8.0),
                     CategoriesSection(
                       categories: const [
@@ -132,12 +133,8 @@ class _ServiceScreenState extends State<ServiceScreen>
                   dividerColor: Colors.transparent,
                   labelColor: theme.colorScheme.primary,
                   unselectedLabelColor: theme.colorScheme.outline,
-                  labelStyle: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                  unselectedLabelStyle: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.normal,
-                  ),
+                  labelStyle: AppFonts.poppinsSemiBold(fontSize: 14),
+                  unselectedLabelStyle: AppFonts.poppinsRegular(fontSize: 14),
                   isScrollable: false,
                   padding: EdgeInsets.zero,
                   labelPadding: const EdgeInsets.symmetric(horizontal: 8.0),

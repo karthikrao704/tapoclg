@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 class ServiceCardWidget extends StatelessWidget {
   final String title;
@@ -16,7 +19,7 @@ class ServiceCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: const [
           BoxShadow(
@@ -57,8 +60,8 @@ class ServiceCardWidget extends StatelessWidget {
                 /// TITLE
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
+                  style: AppFonts.poppinsSemiBold(
+                    color: AppTheme.primaryText,
                     fontSize: 16,
                   ),
                 ),
@@ -68,10 +71,9 @@ class ServiceCardWidget extends StatelessWidget {
                 /// PRICE
                 Text(
                   price,
-                  style: const TextStyle(
-                    color: Color(0xFFC9A14A),
+                  style: AppFonts.poppinsSemiBold(
+                    color: AppColors.primaryColor,
                     fontSize: 14,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],

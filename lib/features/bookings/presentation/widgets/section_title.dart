@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 class SectionTitle extends StatelessWidget {
   final IconData icon;
@@ -18,18 +20,17 @@ class SectionTitle extends StatelessWidget {
         Icon(
           icon,
           size: 18,
-          color: const Color(0xFFC9A14A),
+          color: AppColors.primaryColor,
         ),
 
         const SizedBox(width: 6),
 
         Text(
           title,
-          style: const TextStyle(
+          style: AppFonts.poppinsSemiBold(
             fontSize: 12,
             letterSpacing: 1.2,
-            color: Color(0xFFC9A14A),
-            fontWeight: FontWeight.w600,
+            color: AppColors.primaryColor,
           ),
         ),
       ],

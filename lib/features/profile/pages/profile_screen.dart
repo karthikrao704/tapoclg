@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'package:tapovana_mobile_app/features/auth/bloc/auth/auth_cubit.dart';
 import 'package:tapovana_mobile_app/features/bookings/presentation/pages/my_bookings_page.dart';
@@ -66,7 +68,7 @@ class ProfileView extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: const Color(0xFFCFA644),
+        backgroundColor: AppColors.primaryColor,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
@@ -102,14 +104,11 @@ class ProfileView extends StatelessWidget {
               ListTile(
                 leading: const Icon(
                   Icons.upload_rounded,
-                  color: Color(0xFFCFA644),
+                  color: AppColors.primaryColor,
                 ),
                 title: Text(
                   hasPhoto ? 'Change Photo' : 'Upload Photo',
-                  style: const TextStyle(
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: AppFonts.poppinsMedium(),
                 ),
                 onTap: () {
                   Navigator.of(bottomSheetContext).pop();
@@ -123,12 +122,10 @@ class ProfileView extends StatelessWidget {
                     Icons.delete_outline,
                     color: Color(0xFFEF4444),
                   ),
-                  title: const Text(
+                  title: Text(
                     'Remove Photo',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFFEF4444),
+                    style: AppFonts.poppinsMedium(
+                      color: const Color(0xFFEF4444),
                     ),
                   ),
                   onTap: () {
@@ -194,7 +191,7 @@ class ProfileView extends StatelessWidget {
           style: AppFonts.headland(
             fontSize: 22,
             fontWeight: FontWeight.w400,
-            color: const Color(0xFF3D3D3D),
+            color: AppTheme.primaryText,
           ),
         ),
       ),
@@ -346,7 +343,7 @@ class ProfileView extends StatelessWidget {
                     width: 30,
                     height: 30,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFCFA644),
+                      color: AppColors.primaryColor,
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 2),
                     ),
@@ -364,11 +361,9 @@ class ProfileView extends StatelessWidget {
 
           Text(
             state.name,
-            style: const TextStyle(
-              fontFamily: 'Poppins',
+            style: AppFonts.poppinsMedium(
               fontSize: 24,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF111827),
+              color: AppTheme.primaryText,
             ),
           ),
           const SizedBox(height: 8),
@@ -381,11 +376,9 @@ class ProfileView extends StatelessWidget {
             ),
             child: Text(
               state.membershipType,
-              style: const TextStyle(
-                fontFamily: 'Manrope',
-                color: Color(0xFFCDA751),
+              style: AppFonts.poppinsSemiBold(
+                color: AppColors.primaryColor,
                 fontSize: 14,
-                fontWeight: FontWeight.w800,
                 letterSpacing: 0.7,
                 height: 1.5,
               ),
@@ -396,8 +389,8 @@ class ProfileView extends StatelessWidget {
           if (state.memberSince.isNotEmpty)
             Text(
               'Member since ${state.memberSince}',
-              style: const TextStyle(
-                color: Color(0xFF64748B),
+              style: AppFonts.poppinsRegular(
+                color: AppTheme.secondaryText,
                 fontSize: 15,
                 letterSpacing: -0.3,
               ),
@@ -437,16 +430,14 @@ class ProfileView extends StatelessWidget {
             child: Stack(
               clipBehavior: Clip.hardEdge,
               children: [
-                const Positioned(
+                Positioned(
                   left: 20,
                   top: 40,
                   child: Text(
                     'Premium Wellness Pass',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      color: Colors.white,
+                    style: AppFonts.poppinsMedium(
+                      color: AppColors.white,
                       fontSize: 18,
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -471,30 +462,27 @@ class ProfileView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'AVAILABLE CREDITS',
-                        style: TextStyle(
-                          color: Color(0xFF64748B),
+                        style: AppFonts.poppinsSemiBold(
+                          color: AppTheme.secondaryText,
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
                           letterSpacing: 0.5,
                         ),
                       ),
                       const SizedBox(height: 6),
                       Text(
                         '${state.availableCredits} Credits remaining',
-                        style: const TextStyle(
-                          fontFamily: 'Poppins',
-                          color: Color(0xFF1E293B),
+                        style: AppFonts.poppinsSemiBold(
+                          color: AppTheme.primaryText,
                           fontSize: 18,
-                          fontWeight: FontWeight.w600,
                         ),
                       ),
                       const SizedBox(height: 6),
                       Text(
                         'Next renewal: ${state.nextRenewal}',
-                        style: const TextStyle(
-                          color: Color(0xFF94A3B8),
+                        style: AppFonts.poppinsRegular(
+                          color: AppColors.primaryBlack40,
                           fontSize: 13,
                         ),
                       ),
@@ -505,7 +493,7 @@ class ProfileView extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFC5A335),
+                    backgroundColor: AppColors.primaryColor,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 24,
@@ -516,9 +504,9 @@ class ProfileView extends StatelessWidget {
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
+                  child: Text(
                     'Manage',
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                    style: AppFonts.poppinsSemiBold(fontSize: 16),
                   ),
                 ),
               ],
@@ -557,7 +545,7 @@ class ProfileView extends StatelessWidget {
               ),
               child: const Icon(
                 Icons.restore,
-                color: Color(0xFFCFA644),
+                color: AppColors.primaryColor,
                 size: 28,
               ),
             ),
@@ -565,21 +553,19 @@ class ProfileView extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'My Bookings & History',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
+                  style: AppFonts.poppinsRegular(
                     fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    color: Color(0xFF1E293B),
+                    color: AppTheme.primaryText,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   '${state.totalVisits} visits',
-                  style: const TextStyle(
+                  style: AppFonts.poppinsRegular(
                     fontSize: 13,
-                    color: Color(0xFF94A3B8),
+                    color: AppColors.primaryBlack40,
                   ),
                 ),
               ],
@@ -596,14 +582,13 @@ class ProfileView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 20, top: 16, bottom: 8),
+        Padding(
+          padding: const EdgeInsets.only(left: 20, top: 16, bottom: 8),
           child: Text(
             'ACCOUNT SETTINGS',
-            style: TextStyle(
+            style: AppFonts.poppinsSemiBold(
               fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF64748B),
+              color: AppTheme.secondaryText,
               letterSpacing: 0.8,
             ),
           ),
@@ -665,13 +650,12 @@ class ProfileView extends StatelessWidget {
             vertical: 0,
           ),
           minVerticalPadding: 0,
-          leading: Icon(icon, color: const Color(0xFFC5A335), size: 24),
+          leading: Icon(icon, color: AppColors.primaryColor, size: 24),
           title: Text(
             title,
-            style: const TextStyle(
+            style: AppFonts.poppinsMedium(
               fontSize: 15,
-              color: Color(0xFF1E293B),
-              fontWeight: FontWeight.w500,
+              color: AppTheme.primaryText,
             ),
           ),
           trailing: const Icon(
@@ -699,24 +683,22 @@ class ProfileView extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 24, bottom: 16),
       child: Column(
-        children: const [
+        children: [
           Text(
             'Terms &\nConditions',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Color(0xFF64748B),
+            style: AppFonts.poppinsRegular(
+              color: AppTheme.secondaryText,
               fontSize: 14,
-              fontWeight: FontWeight.w400,
               height: 1.3,
             ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             'Privacy Policy',
-            style: TextStyle(
-              color: Color(0xFF64748B),
+            style: AppFonts.poppinsRegular(
+              color: AppTheme.secondaryText,
               fontSize: 14,
-              fontWeight: FontWeight.w400,
             ),
           ),
         ],
@@ -731,12 +713,12 @@ class ProfileView extends StatelessWidget {
       child: ElevatedButton.icon(
         onPressed: () => _showLogoutDialog(context),
         icon: const Icon(Icons.logout_rounded, size: 24, color: Colors.white),
-        label: const Text(
+        label: Text(
           'Logout',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          style: AppFonts.poppinsSemiBold(fontSize: 18),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFCFA644),
+          backgroundColor: AppColors.primaryColor,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
@@ -753,7 +735,7 @@ class ProfileView extends StatelessWidget {
       padding: const EdgeInsets.only(top: 8, bottom: 24),
       child: Text(
         'Tapovana Wellness v${state.appVersion}',
-        style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+        style: AppFonts.poppinsRegular(color: AppColors.primaryBlack40, fontSize: 13),
       ),
     );
   }

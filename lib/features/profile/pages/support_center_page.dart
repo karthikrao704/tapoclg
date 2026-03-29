@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 class SupportCenterPage extends StatelessWidget {
   const SupportCenterPage({super.key});
@@ -45,10 +48,10 @@ class _SupportCenterViewState extends State<SupportCenterView> {
         ),
         centerTitle: false,
         titleSpacing: 0,
-        title: const Text(
+        title: Text(
           'Support Center',
-          style: TextStyle(
-            color: Color(0xFF333333),
+          style: AppFonts.headland(
+            color: AppTheme.primaryText,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -64,20 +67,19 @@ class _SupportCenterViewState extends State<SupportCenterView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header Section
-            const Text(
+            Text(
               'How can we help you\ntoday?',
-              style: TextStyle(
-                color: Color(0xFF1E293B),
+              style: AppFonts.poppinsSemiBold(
+                color: AppTheme.primaryText,
                 fontSize: 24,
-                fontWeight: FontWeight.w700,
                 height: 1.3,
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Search our knowledge base or get in touch with\nour wellness experts.',
-              style: TextStyle(
-                color: Color(0xFF64748B),
+              style: AppFonts.poppinsRegular(
+                color: AppTheme.secondaryText,
                 fontSize: 15,
                 height: 1.4,
               ),
@@ -112,12 +114,11 @@ class _SupportCenterViewState extends State<SupportCenterView> {
             const SizedBox(height: 32),
 
             // Contact Information Section
-            const Text(
+            Text(
               'Contact Information',
-              style: TextStyle(
-                color: Color(0xFF1E293B),
+              style: AppFonts.poppinsSemiBold(
+                color: AppTheme.primaryText,
                 fontSize: 18,
-                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 16),
@@ -147,11 +148,11 @@ class _SupportCenterViewState extends State<SupportCenterView> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: TextField(
         controller: _searchController,
-        decoration: const InputDecoration(
-          icon: Icon(Icons.search, color: Color(0xFFCDA751), size: 24),
+        decoration: InputDecoration(
+          icon: const Icon(Icons.search, color: AppColors.primaryColor, size: 24),
           hintText: 'Search for topics, guides...',
-          hintStyle: TextStyle(
-            color: Color(0xFF94A3B8),
+          hintStyle: AppFonts.poppinsRegular(
+            color: AppColors.primaryBlack40,
             fontSize: 15,
           ),
           border: InputBorder.none,
@@ -191,7 +192,7 @@ class _SupportCenterViewState extends State<SupportCenterView> {
                 ),
                 child: Icon(
                   icon,
-                  color: const Color(0xFFCDA751),
+                  color: AppColors.primaryColor,
                   size: 24,
                 ),
               ),
@@ -202,17 +203,16 @@ class _SupportCenterViewState extends State<SupportCenterView> {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
-                        color: Color(0xFF1E293B),
+                      style: AppFonts.poppinsSemiBold(
+                        color: AppTheme.primaryText,
                         fontSize: 16,
-                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: const TextStyle(
-                        color: Color(0xFF64748B),
+                      style: AppFonts.poppinsRegular(
+                        color: AppTheme.secondaryText,
                         fontSize: 13,
                         height: 1.3,
                       ),
@@ -248,33 +248,31 @@ class _SupportCenterViewState extends State<SupportCenterView> {
             children: [
               const Icon(Icons.rate_review_outlined, color: Color(0xFFCDA751), size: 24),
               const SizedBox(width: 8),
-              const Text(
+              Text(
                 'Feedback Section',
-                style: TextStyle(
-                  color: Color(0xFF1E293B),
+                style: AppFonts.poppinsSemiBold(
+                  color: AppTheme.primaryText,
                   fontSize: 18,
-                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Your experience matters. Tell us how we can improve Tapovana Wellness.',
-            style: TextStyle(
-              color: Color(0xFF64748B),
+            style: AppFonts.poppinsRegular(
+              color: AppTheme.secondaryText,
               fontSize: 14,
               height: 1.4,
             ),
           ),
           const SizedBox(height: 20),
           
-          const Text(
+          Text(
             'Subject',
-            style: TextStyle(
-              color: Color(0xFF1E293B),
+            style: AppFonts.poppinsSemiBold(
+              color: AppTheme.primaryText,
               fontSize: 14,
-              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 8),
@@ -285,9 +283,9 @@ class _SupportCenterViewState extends State<SupportCenterView> {
             ),
             child: TextField(
               controller: _subjectController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: 'e.g., App Improvement, Class Suggestion',
-                hintStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                hintStyle: AppFonts.poppinsRegular(color: AppColors.primaryBlack40, fontSize: 14),
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),
@@ -295,12 +293,11 @@ class _SupportCenterViewState extends State<SupportCenterView> {
           ),
           const SizedBox(height: 20),
 
-          const Text(
+          Text(
             'Message',
-            style: TextStyle(
-              color: Color(0xFF1E293B),
+            style: AppFonts.poppinsSemiBold(
+              color: AppTheme.primaryText,
               fontSize: 14,
-              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 8),
@@ -312,9 +309,9 @@ class _SupportCenterViewState extends State<SupportCenterView> {
             child: TextField(
               controller: _descriptionController,
               maxLines: 4,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: "How can we help or what's on your mind?",
-                hintStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                hintStyle: AppFonts.poppinsRegular(color: AppColors.primaryBlack40, fontSize: 14),
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),
@@ -327,7 +324,7 @@ class _SupportCenterViewState extends State<SupportCenterView> {
             height: 50,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFCDA751),
+                backgroundColor: AppColors.primaryColor,
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
@@ -335,11 +332,10 @@ class _SupportCenterViewState extends State<SupportCenterView> {
                 ),
               ),
               onPressed: () {},
-              child: const Text(
+              child: Text(
                 'Submit Request',
-                style: TextStyle(
+                style: AppFonts.poppinsSemiBold(
                   fontSize: 16,
-                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -356,14 +352,14 @@ class _SupportCenterViewState extends State<SupportCenterView> {
           icon: Icons.email_outlined,
           title: 'Email Us',
           subtitle: 'support@tapovana.com',
-          iconColor: const Color(0xFFCDA751),
+          iconColor: AppColors.primaryColor,
         ),
         const SizedBox(height: 12),
         _buildContactTile(
           icon: Icons.call_outlined,
           title: 'Call Us',
           subtitle: '+1 (800) TAPOVANA',
-          iconColor: const Color(0xFFCDA751),
+          iconColor: AppColors.primaryColor,
         ),
         const SizedBox(height: 12),
         _buildContactTile(
@@ -396,17 +392,16 @@ class _SupportCenterViewState extends State<SupportCenterView> {
             const SizedBox(height: 8),
             Text(
               title,
-              style: const TextStyle(
-                color: Color(0xFF1E293B),
+              style: AppFonts.poppinsSemiBold(
+                color: AppTheme.primaryText,
                 fontSize: 15,
-                fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: const TextStyle(
-                color: Color(0xFF64748B),
+              style: AppFonts.poppinsRegular(
+                color: AppTheme.secondaryText,
                 fontSize: 13,
               ),
             ),
@@ -428,10 +423,9 @@ class _SupportCenterViewState extends State<SupportCenterView> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: Color(0xFF1E293B),
+                  style: AppFonts.poppinsMedium(
+                    color: AppTheme.primaryText,
                     fontSize: 16,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 const Icon(
@@ -480,20 +474,19 @@ class _SupportCenterViewState extends State<SupportCenterView> {
               padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
               child: Column(
                 children: [
-                  const Text(
+                  Text(
                     'Tapovana Community',
-                    style: TextStyle(
-                      color: Color(0xFFCDA751),
+                    style: AppFonts.poppinsSemiBold(
+                      color: AppColors.primaryColor,
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Join 50,000+ members on their journey to\npeace.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Color(0xFF475569),
+                    style: AppFonts.poppinsRegular(
+                      color: const Color(0xFF475569), // Slate 600
                       fontSize: 13,
                       height: 1.4,
                     ),

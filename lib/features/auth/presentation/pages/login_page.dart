@@ -8,6 +8,9 @@ import 'package:tapovana_mobile_app/features/auth/bloc/login/login_bloc.dart';
 import 'package:tapovana_mobile_app/features/auth/bloc/login/login_event.dart';
 import 'package:tapovana_mobile_app/features/auth/bloc/login/login_state.dart';
 import 'package:tapovana_mobile_app/features/auth/data/auth_api_repository.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -86,30 +89,27 @@ class _LoginPageState extends State<LoginPage> {
                         const SizedBox(height: 15),
                         Image.asset('assets/logo/logo.png', width: 190),
                         const SizedBox(height: 10),
-                        const Text(
+                        Text(
                           "Log In",
-                          style: TextStyle(
+                          style: AppFonts.headland(
                             fontSize: 24,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black,
+                            color: AppTheme.primaryText,
                           ),
                         ),
                         const SizedBox(height: 8),
-                        const Text(
+                        Text(
                           "Welcome back to your sanctuary",
-                          style: TextStyle(color: Colors.grey, fontSize: 14),
+                          style: AppFonts.poppinsRegular(color: AppColors.primaryBlack40, fontSize: 14),
                         ),
                         const SizedBox(height: 40),
 
                         // Email
-                        const Align(
+                        Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
                             "Email",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                            ),
+                            style: AppFonts.poppinsSemiBold(fontSize: 14),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -117,12 +117,12 @@ class _LoginPageState extends State<LoginPage> {
                           controller: emailController,
                           decoration: InputDecoration(
                             hintText: "your@email.com",
-                            hintStyle: const TextStyle(
-                              color: Color(0xFFBDBDBD),
+                            hintStyle: AppFonts.poppinsRegular(
+                              color: AppColors.primaryBlack40,
                               fontSize: 14,
                             ),
                             filled: true,
-                            fillColor: Colors.white,
+                            fillColor: AppColors.backgroundColor,
                             contentPadding: const EdgeInsets.symmetric(
                               horizontal: 16,
                               vertical: 14,
@@ -144,14 +144,11 @@ class _LoginPageState extends State<LoginPage> {
                         const SizedBox(height: 30),
 
                         // Password
-                        const Align(
+                        Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
                             "Password",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                            ),
+                            style: AppFonts.poppinsSemiBold(fontSize: 14),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -160,11 +157,11 @@ class _LoginPageState extends State<LoginPage> {
                           obscureText: _obscurePassword,
                           decoration: InputDecoration(
                             hintText: "••••••••",
-                            hintStyle: const TextStyle(
-                              color: Color(0xFFBDBDBD),
+                            hintStyle: AppFonts.poppinsRegular(
+                              color: AppColors.primaryBlack40,
                             ),
                             filled: true,
-                            fillColor: Colors.white,
+                            fillColor: AppColors.backgroundColor,
                             contentPadding: const EdgeInsets.symmetric(
                               horizontal: 16,
                               vertical: 14,
@@ -231,8 +228,8 @@ class _LoginPageState extends State<LoginPage> {
                                         );
                                       },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFC9A14A),
-                                  foregroundColor: Colors.white,
+                                  backgroundColor: AppColors.primaryColor,
+                                  foregroundColor: AppColors.white,
                                   elevation: 3,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20),
@@ -243,16 +240,13 @@ class _LoginPageState extends State<LoginPage> {
                                         width: 24,
                                         height: 24,
                                         child: CircularProgressIndicator(
-                                          color: Colors.white,
+                                          color: AppColors.white,
                                           strokeWidth: 2.5,
                                         ),
                                       )
-                                    : const Text(
+                                    : Text(
                                         "Sign In",
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                        style: AppFonts.poppinsSemiBold(fontSize: 20),
                                       ),
                               ),
                             );
@@ -262,20 +256,20 @@ class _LoginPageState extends State<LoginPage> {
                         const SizedBox(height: 30),
 
                         // Divider
-                        Row(
-                          children: const [
-                            Expanded(child: Divider()),
+                            Row(
+                          children: [
+                            const Expanded(child: Divider()),
                             Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
                               child: Text(
                                 "OR CONNECT WITH",
-                                style: TextStyle(
+                                style: AppFonts.poppinsMedium(
                                   fontSize: 12,
-                                  color: Colors.grey,
+                                  color: AppColors.primaryBlack40,
                                 ),
                               ),
                             ),
-                            Expanded(child: Divider()),
+                            const Expanded(child: Divider()),
                           ],
                         ),
 
@@ -332,14 +326,13 @@ class _LoginPageState extends State<LoginPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text("Don't have an account? "),
+                            Text("Don't have an account? ", style: AppFonts.poppinsRegular()),
                             GestureDetector(
                               onTap: () => context.push(RouteConstants.signup),
-                              child: const Text(
+                              child: Text(
                                 "Sign Up",
-                                style: TextStyle(
-                                  color: Color(0xFFC9A14A),
-                                  fontWeight: FontWeight.w600,
+                                style: AppFonts.poppinsSemiBold(
+                                  color: AppColors.primaryColor,
                                 ),
                               ),
                             ),

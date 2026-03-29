@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CalendarWidget extends StatefulWidget {
@@ -45,10 +47,10 @@ class _CalendarWidgetState extends State<CalendarWidget> {
           titleCentered: true,
         ),
 
-        calendarStyle: const CalendarStyle(
-          todayDecoration: BoxDecoration(color: Colors.transparent),
-          defaultTextStyle: TextStyle(fontSize: 13),
-          weekendTextStyle: TextStyle(fontSize: 13),
+        calendarStyle: CalendarStyle(
+          todayDecoration: const BoxDecoration(color: Colors.transparent),
+          defaultTextStyle: AppFonts.poppinsRegular(fontSize: 13),
+          weekendTextStyle: AppFonts.poppinsRegular(fontSize: 13),
         ),
 
         calendarBuilders: CalendarBuilders(
@@ -63,9 +65,8 @@ class _CalendarWidgetState extends State<CalendarWidget> {
               alignment: Alignment.center,
               child: Text(
                 '${date.day}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
+                style: AppFonts.poppinsSemiBold(
+                  color: AppColors.white,
                 ),
               ),
             );
@@ -78,9 +79,8 @@ class _CalendarWidgetState extends State<CalendarWidget> {
               alignment: Alignment.center,
               child: Text(
                 '${date.day}',
-                style: const TextStyle(
+                style: AppFonts.poppinsSemiBold(
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
                 ),
               ),
             );
@@ -91,7 +91,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
             return Container(
               margin: const EdgeInsets.all(6),
               alignment: Alignment.center,
-              child: Text('${date.day}', style: const TextStyle(fontSize: 13)),
+              child: Text('${date.day}', style: AppFonts.poppinsRegular(fontSize: 13)),
             );
           },
         ),

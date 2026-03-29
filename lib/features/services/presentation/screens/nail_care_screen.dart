@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 // --- DATA MODEL ---
 class NailCareItem {
@@ -66,23 +69,28 @@ class NailCareScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor, // Main Background
         appBar: AppBar(
-          title: const Text('Nail Care'),
+          title: Text(
+            'Nail Care',
+            style: AppFonts.headland(color: AppTheme.primaryText, fontSize: 20),
+          ),
           centerTitle: true,
           actions: [
             IconButton(
               icon: Icon(
                 Icons.search,
-                color: theme.colorScheme.primary,
+                color: AppColors.primaryColor,
               ), // Active Icons
               onPressed: () {},
             ),
           ],
           bottom: TabBar(
-            labelColor: theme.colorScheme.primary, // Primary Actions/Active
+            labelColor: AppColors.primaryColor, // Primary Actions/Active
             unselectedLabelColor:
-                theme.textTheme.bodySmall?.color, // Secondary Grey Text
+                AppTheme.secondaryText, // Secondary Grey Text
             dividerColor: Colors.transparent, // Remove default divider
-            indicatorColor: theme.colorScheme.primary,
+            indicatorColor: AppColors.primaryColor,
+            labelStyle: AppFonts.poppinsSemiBold(fontSize: 14),
+            unselectedLabelStyle: AppFonts.poppinsRegular(fontSize: 14),
             tabAlignment: TabAlignment.center,
             tabs: const [
               Tab(text: 'All Services'),
@@ -166,19 +174,15 @@ class NailCareCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         item.title,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ), // Primary Dark Text
+                        style: AppFonts.poppinsSemiBold(color: AppTheme.primaryText, fontSize: 16), // Primary Dark Text
                       ),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       item.price,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: theme
-                            .colorScheme
-                            .primary, // Mapped active/primary color
-                        fontWeight: FontWeight.bold,
+                      style: AppFonts.poppinsSemiBold(
+                        color: AppColors.primaryColor, // Mapped active/primary color
+                        fontSize: 16,
                       ),
                     ),
                   ],
@@ -191,26 +195,23 @@ class NailCareCard extends StatelessWidget {
                     Icon(
                       Icons.access_time,
                       size: 14,
-                      color: theme
-                          .textTheme
-                          .bodySmall
-                          ?.color, // Secondary Grey Text
+                      color: AppColors.primaryBlack40, // Secondary Grey Text
                     ),
                     const SizedBox(width: 4),
                     Text(
                       item.duration,
-                      style: theme.textTheme.bodySmall, // Secondary Grey Text
+                      style: AppFonts.poppinsRegular(color: AppColors.primaryBlack40, fontSize: 12), // Secondary Grey Text
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: Text(
                         '•',
-                        style: theme.textTheme.bodySmall, // Secondary Grey Text
+                        style: AppFonts.poppinsRegular(color: AppColors.primaryBlack40, fontSize: 12), // Secondary Grey Text
                       ),
                     ),
                     Text(
                       item.featureTag,
-                      style: theme.textTheme.bodySmall, // Secondary Grey Text
+                      style: AppFonts.poppinsRegular(color: AppColors.primaryBlack40, fontSize: 12), // Secondary Grey Text
                     ),
                   ],
                 ),
@@ -219,12 +220,7 @@ class NailCareCard extends StatelessWidget {
                 // Description
                 Text(
                   item.description,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme
-                        .textTheme
-                        .bodySmall
-                        ?.color, // Utilizing secondary grey for body text
-                  ),
+                  style: AppFonts.poppinsRegular(color: AppTheme.secondaryText, fontSize: 14),
                 ),
                 const SizedBox(height: 16),
 
@@ -264,10 +260,10 @@ class _BestsellerBadge extends StatelessWidget {
       ),
       child: Text(
         'BESTSELLER',
-        style: theme.textTheme.labelSmall?.copyWith(
+        style: AppFonts.poppinsSemiBold(
           color:
-              theme.colorScheme.primary, // Primary color mapping for attention
-          fontWeight: FontWeight.bold,
+              AppColors.primaryColor, // Primary color mapping for attention
+          fontSize: 10,
           letterSpacing: 0.5,
         ),
       ),

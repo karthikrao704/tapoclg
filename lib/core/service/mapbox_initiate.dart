@@ -80,7 +80,7 @@ class MapboxPlace {
         : city;
 
     
-    final dropdownDisplay = postalCode != null && postalCode!.isNotEmpty
+    final dropdownDisplay = postalCode != null && postalCode.isNotEmpty
         ? '$city ($postalCode), $countryName'
         : display;
 

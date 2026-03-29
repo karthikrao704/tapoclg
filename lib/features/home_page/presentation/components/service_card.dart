@@ -1,6 +1,9 @@
 // lib/presentation/widgets/service_card.dart
 
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 
 class ServiceCard extends StatelessWidget {
   final String imagePath;
@@ -20,10 +23,6 @@ class ServiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Cache the theme and text scaler for cleaner code
-    final theme = Theme.of(context);
-    final textScaler = MediaQuery.textScalerOf(context);
-
     // Removed the fixed height SizedBox to allow dynamic vertical growth
     return InkWell(
       onTap: onTap,
@@ -58,22 +57,15 @@ class ServiceCard extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.onPrimary.withAlpha(200),
-                    borderRadius: BorderRadius.circular(10),
+                    color: AppColors.tagBackground,
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     tagLabel,
-                    // Fallback to text theme so scaling applies naturally
-                    style:
-                        theme.textTheme.labelSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: theme.colorScheme.primary,
-                        ) ??
-                        TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: theme.colorScheme.primary,
-                        ),
+                    style: AppFonts.poppinsSemiBold(
+                      fontSize: 12,
+                      color: AppTheme.wellnessTipText,
+                    ),
                   ),
                 ),
               ),
@@ -86,7 +78,13 @@ class ServiceCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(serviceName, style: theme.textTheme.titleMedium),
+                Text(
+                  serviceName,
+                  style: AppFonts.poppinsSemiBold(
+                    fontSize: 16,
+                    color: AppTheme.primaryText,
+                  ),
+                ),
                 const SizedBox(height: 6),
                 Row(
                   // Align to start in case the duration text wraps to two lines
@@ -95,13 +93,19 @@ class ServiceCard extends StatelessWidget {
                     Icon(
                       Icons.access_time,
                       // Scale the icon proportionally to the system font size
-                      size: textScaler.scale(16),
-                      color: theme.colorScheme.onSurface,
+                      size: 16,
+                      color: AppColors.primaryBlack40,
                     ),
                     const SizedBox(width: 4),
                     // Expanded prevents horizontal overflow by pushing long text to the next line
                     Expanded(
-                      child: Text(duration, style: theme.textTheme.bodySmall),
+                      child: Text(
+                        duration,
+                        style: AppFonts.poppinsRegular(
+                          fontSize: 13,
+                          color: AppColors.primaryBlack40,
+                        ),
+                      ),
                     ),
                   ],
                 ),

@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import '../bloc/privacy_security/privacy_security_bloc.dart';
 import '../bloc/privacy_security/privacy_security_event.dart';
 import '../bloc/privacy_security/privacy_security_state.dart';
@@ -53,10 +56,10 @@ class PrivacySecurityView extends StatelessWidget {
           ),
           centerTitle: false,
           titleSpacing: 0,
-          title: const Text(
+          title: Text(
             'Privacy & Security',
-            style: TextStyle(
-              color: Color(0xFF333333),
+            style: AppFonts.headland(
+              color: AppTheme.primaryText,
               fontSize: 20,
               fontWeight: FontWeight.w600,
             ),
@@ -84,7 +87,7 @@ class PrivacySecurityView extends StatelessWidget {
                       subtitle: '',
                       icon: Icons.lock_outline,
                       iconBackColor: const Color(0xFFFDFBF4),
-                      iconColor: const Color(0xFFCDA751),
+                      iconColor: AppColors.primaryColor,
                       onTap: () => _showChangePasswordDialog(context),
                     ),
                     _buildSwitchItem(
@@ -92,7 +95,7 @@ class PrivacySecurityView extends StatelessWidget {
                       subtitle: 'Adds an extra layer of security',
                       icon: Icons.security,
                       iconBackColor: const Color(0xFFFDFBF4),
-                      iconColor: const Color(0xFFCDA751),
+                      iconColor: AppColors.primaryColor,
                       value: state.twoFactorAuth,
                       onChanged: (val) {
                         context.read<PrivacySecurityBloc>().add(
@@ -112,7 +115,7 @@ class PrivacySecurityView extends StatelessWidget {
                       subtitle: '',
                       icon: Icons.key_outlined,
                       iconBackColor: const Color(0xFFFDFBF4),
-                      iconColor: const Color(0xFFCDA751),
+                      iconColor: AppColors.primaryColor,
                       onTap: () {}, // Navigate or show modal
                     ),
                     _buildActionItem(
@@ -120,7 +123,7 @@ class PrivacySecurityView extends StatelessWidget {
                       subtitle: '',
                       icon: Icons.file_download_outlined,
                       iconBackColor: const Color(0xFFFDFBF4),
-                      iconColor: const Color(0xFFCDA751),
+                      iconColor: AppColors.primaryColor,
                       onTap: () {}, // Trigger data download action
                     ),
                     _buildActionItem(
@@ -149,10 +152,9 @@ class PrivacySecurityView extends StatelessWidget {
       padding: const EdgeInsets.only(left: 4, bottom: 16),
       child: Text(
         title,
-        style: const TextStyle(
-          color: Color(0xFF1E293B),
+        style: AppFonts.poppinsSemiBold(
+          color: AppTheme.primaryText,
           fontSize: 18,
-          fontWeight: FontWeight.w700,
         ),
       ),
     );
@@ -217,18 +219,17 @@ class PrivacySecurityView extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: TextStyle(
+                        style: AppFonts.poppinsMedium(
                           color: titleColor,
                           fontSize: 15,
-                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       if (hasSubtitle) ...[
                         const SizedBox(height: 4),
                         Text(
                           subtitle,
-                          style: const TextStyle(
-                            color: Color(0xFF94A3B8), // Muted grey
+                          style: AppFonts.poppinsRegular(
+                            color: AppColors.primaryBlack40,
                             fontSize: 12,
                           ),
                         ),
@@ -285,18 +286,17 @@ class PrivacySecurityView extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
-                        color: Color(0xFF1E293B),
+                      style: AppFonts.poppinsMedium(
+                        color: AppTheme.primaryText,
                         fontSize: 15,
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     if (hasSubtitle) ...[
                       const SizedBox(height: 4),
                       Text(
                         subtitle,
-                        style: const TextStyle(
-                          color: Color(0xFF94A3B8),
+                        style: AppFonts.poppinsRegular(
+                          color: AppColors.primaryBlack40,
                           fontSize: 12,
                         ),
                       ),
@@ -309,7 +309,7 @@ class PrivacySecurityView extends StatelessWidget {
                 height: 24,
                 child: CupertinoSwitch(
                   value: value,
-                  activeTrackColor: const Color(0xFFCDA751),
+                  activeTrackColor: AppColors.primaryColor,
                   inactiveTrackColor: const Color(0xFFE2E8F0),
                   onChanged: onChanged,
                 ),
@@ -336,7 +336,7 @@ class PrivacySecurityView extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Change Password', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        title: Text('Change Password', style: AppFonts.poppinsSemiBold(fontSize: 18)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -366,7 +366,7 @@ class PrivacySecurityView extends StatelessWidget {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFCDA751),
+              backgroundColor: AppColors.primaryColor,
               foregroundColor: Colors.white,
             ),
             onPressed: () {
