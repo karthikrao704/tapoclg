@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/widgets/notification_bell.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import '../../../../core/storage/local_database.dart';
 
@@ -106,22 +107,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
 
       actions: [
-        IconButton(
-          icon: Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: AppColors.notificationBg,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.notifications_outlined,
-              color: AppColors.primaryColor,
-              size: 20,
-            ),
-          ),
-          onPressed: () {},
-        ),
+        const NotificationBell(),
         const SizedBox(width: 8),
       ],
     );

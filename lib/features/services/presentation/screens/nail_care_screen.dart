@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
+import 'package:tapovana_mobile_app/core/widgets/secondary_app_bar.dart';
 
 // --- DATA MODEL ---
 class NailCareItem {
@@ -68,26 +69,12 @@ class NailCareScreen extends StatelessWidget {
       length: 4,
       child: Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor, // Main Background
-        appBar: AppBar(
-          title: Text(
-            'Nail Care',
-            style: AppFonts.headland(color: AppTheme.primaryText, fontSize: 20),
-          ),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              icon: Icon(
-                Icons.search,
-                color: AppColors.primaryColor,
-              ), // Active Icons
-              onPressed: () {},
-            ),
-          ],
+        appBar: SecondaryAppBar(
+          title: 'Nail Care',
           bottom: TabBar(
-            labelColor: AppColors.primaryColor, // Primary Actions/Active
-            unselectedLabelColor:
-                AppTheme.secondaryText, // Secondary Grey Text
-            dividerColor: Colors.transparent, // Remove default divider
+            labelColor: AppColors.primaryColor,
+            unselectedLabelColor: AppTheme.secondaryText,
+            dividerColor: Colors.transparent,
             indicatorColor: AppColors.primaryColor,
             labelStyle: AppFonts.poppinsSemiBold(fontSize: 14),
             unselectedLabelStyle: AppFonts.poppinsRegular(fontSize: 14),

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'package:tapovana_mobile_app/features/services/presentation/components/categories_buttons.dart';
 import 'package:tapovana_mobile_app/features/services/presentation/components/custom_search_bar.dart';
 import 'package:tapovana_mobile_app/features/services/presentation/screens/service_list_section.dart';
 import 'package:tapovana_mobile_app/features/services/presentation/screens/service_grid_section.dart';
+import 'package:tapovana_mobile_app/core/widgets/notification_bell.dart';
 
 class ServiceScreen extends StatefulWidget {
   const ServiceScreen({super.key});
@@ -54,20 +54,8 @@ class _ServiceScreenState extends State<ServiceScreen>
           ),
         ),
         actions: [
-          IconButton(
-            icon: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.primaryColor, width: 1.5),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                Icons.notifications_outlined,
-                color: AppColors.primaryColor,
-                size: 20,
-              ),
-            ),
+          NotificationBell(
+            size: 40,
             onPressed: () {},
           ),
           const SizedBox(width: 8),

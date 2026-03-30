@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
+import 'package:tapovana_mobile_app/core/widgets/secondary_app_bar.dart';
 
 class SupportCenterPage extends StatelessWidget {
   const SupportCenterPage({super.key});
@@ -39,23 +40,11 @@ class _SupportCenterViewState extends State<SupportCenterView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF333333)),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+      appBar: SecondaryAppBar(
+        title: 'Support Center',
         centerTitle: false,
         titleSpacing: 0,
-        title: Text(
-          'Support Center',
-          style: AppFonts.headland(
-            color: AppTheme.primaryText,
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        showSearch: false,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
           child: Container(color: const Color(0xFFF1F5F9), height: 1.0),

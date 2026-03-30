@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
+import 'package:tapovana_mobile_app/core/widgets/secondary_app_bar.dart';
 
 // --- DATA MODEL ---
 class StylingItem {
@@ -65,21 +66,8 @@ class StylingMakeoverScreen extends StatelessWidget {
       length: 3,
       child: Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor, // Main Background
-        appBar: AppBar(
-          title: Text(
-            'Styling & Makeover',
-            style: AppFonts.headland(color: AppTheme.primaryText, fontSize: 20),
-          ),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              icon: Icon(
-                Icons.search,
-                color: AppColors.primaryColor,
-              ), // Active Icons
-              onPressed: () {},
-            ),
-          ],
+        appBar: const SecondaryAppBar(
+          title: 'Styling & Makeover',
         ),
         body: Column(
           children: [
