@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 
 class CustomButton extends StatelessWidget {
   final IconData? icon;
@@ -16,34 +19,33 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    // Fetch the text scaler to adjust the icon size dynamically
-    final textScaler = MediaQuery.textScalerOf(context);
-
     // 1. Resolve colors based on your theme mappings
     final bgColor = isPrimary
-        ? theme.colorScheme.primary
-        : theme.colorScheme.surface;
+        ? AppColors.primaryColor
+        : AppColors.white;
 
     final contentColor = isPrimary
-        ? theme.colorScheme.onPrimary
-        : theme.colorScheme.onSurface;
+        ? AppColors.white
+        : AppTheme.primaryText;
 
     // 2. Fetch base text style directly from the theme
-    final textStyle = theme.textTheme.labelLarge?.copyWith(color: contentColor);
+    final textStyle = AppFonts.poppinsSemiBold(
+      fontSize: 16,
+      color: contentColor,
+    );
 
     return Material(
       color: bgColor,
       // 3. Use shape to apply both the border radius and the conditional outline
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(16),
         side: isPrimary
             ? BorderSide.none
-            : BorderSide(color: theme.colorScheme.outline, width: 1.0),
+            : BorderSide(color: const Color(0xFFF1F1F1), width: 1.5),
       ),
       child: InkWell(
         onTap: onPressed,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(16),
         // Replaced SizedBox with ConstrainedBox to allow vertical growth
         child: ConstrainedBox(
           constraints: const BoxConstraints(
@@ -62,7 +64,7 @@ class CustomButton extends StatelessWidget {
                 if (icon != null) ...[
                   Icon(
                     icon,
-                    size: textScaler.scale(18), // Scaled dynamically
+                    size: 18, // Fixed size for consistency with design
                     color: contentColor,
                   ),
                   const SizedBox(width: 8),

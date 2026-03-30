@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'package:tapovana_mobile_app/features/service_details/presentation/pages/service_details_page.dart';
 
 // --- DATA MODEL ---
@@ -62,23 +65,28 @@ class BodyCareScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor, // Main Background
         appBar: AppBar(
-          title: const Text('Body Care'),
+          title: Text(
+            'Body Care',
+            style: AppFonts.headland(color: AppTheme.primaryText, fontSize: 20),
+          ),
           centerTitle: true,
           actions: [
             IconButton(
               icon: Icon(
                 Icons.search,
-                color: theme.colorScheme.primary,
+                color: AppColors.primaryColor,
               ), // Active Icons
               onPressed: () {},
             ),
           ],
           bottom: TabBar(
-            labelColor: theme.colorScheme.primary, // Primary Actions/Active
+            labelColor: AppColors.primaryColor, // Primary Actions/Active
             dividerColor: Colors.transparent,
             unselectedLabelColor:
-                theme.textTheme.bodySmall?.color, // Secondary Grey Text
-            indicatorColor: theme.colorScheme.primary,
+                AppTheme.secondaryText, // Secondary Grey Text
+            indicatorColor: AppColors.primaryColor,
+            labelStyle: AppFonts.poppinsSemiBold(fontSize: 14),
+            unselectedLabelStyle: AppFonts.poppinsRegular(fontSize: 14),
             tabs: const [
               Tab(text: 'Massages'),
               Tab(text: 'Facials'),
@@ -132,21 +140,17 @@ class WellnessHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context); // Always use Theme.of(context)
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: theme.textTheme.titleLarge, // Primary Dark Text (Headers)
+          style: AppFonts.poppinsSemiBold(color: AppTheme.primaryText, fontSize: 20), // Primary Dark Text (Headers)
         ),
         const SizedBox(height: 8),
         Text(
           subtitle,
-          style: theme
-              .textTheme
-              .bodyMedium, // Supporting text based on theme mapping
+          style: AppFonts.poppinsRegular(color: AppTheme.secondaryText, fontSize: 14), // Supporting text based on theme mapping
         ),
       ],
     );
@@ -200,15 +204,14 @@ class ServiceCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         service.title,
-                        style: theme.textTheme.titleMedium, // Primary Dark Text
+                        style: AppFonts.poppinsSemiBold(color: AppTheme.primaryText, fontSize: 16), // Primary Dark Text
                       ),
                     ),
                     Text(
                       service.price,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: theme
-                            .colorScheme
-                            .primary, // Price highlighted with primary color
+                      style: AppFonts.poppinsSemiBold(
+                        color: AppColors.primaryColor, // Price highlighted with primary color
+                        fontSize: 16,
                       ),
                     ),
                   ],
@@ -221,12 +224,12 @@ class ServiceCard extends StatelessWidget {
                     Icon(
                       Icons.access_time,
                       size: 16,
-                      color: theme.textTheme.bodySmall?.color, // Secondary Grey
+                      color: AppColors.primaryBlack40, // Secondary Grey
                     ),
                     const SizedBox(width: 4),
                     Text(
                       service.duration,
-                      style: theme.textTheme.bodySmall, // Secondary Grey Text
+                      style: AppFonts.poppinsRegular(color: AppColors.primaryBlack40, fontSize: 13), // Secondary Grey Text
                     ),
                   ],
                 ),
@@ -235,7 +238,7 @@ class ServiceCard extends StatelessWidget {
                 // Description
                 Text(
                   service.description,
-                  style: theme.textTheme.bodyMedium, // Standard body text
+                  style: AppFonts.poppinsRegular(color: AppTheme.secondaryText, fontSize: 14), // Standard body text
                 ),
                 const SizedBox(height: 16),
 

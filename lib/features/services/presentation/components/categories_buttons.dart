@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 /// Simple data model to hold category information
 class CategoryData {
@@ -58,8 +61,6 @@ class _CategoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
@@ -73,7 +74,7 @@ class _CategoryItem extends StatelessWidget {
             height: 72,
             decoration: BoxDecoration(
               color: isSelected
-                  ? theme.primaryColor.withAlpha(50)
+                  ? AppColors.primaryColor.withAlpha(50)
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(20),
             ),
@@ -82,7 +83,7 @@ class _CategoryItem extends StatelessWidget {
               child: SvgPicture.asset(
                 category.icon,
                 colorFilter: ColorFilter.mode(
-                  theme.primaryColor,
+                  AppColors.primaryColor,
                   BlendMode.srcIn,
                 ),
               ),
@@ -91,11 +92,9 @@ class _CategoryItem extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             category.title,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              // You can map the active text color here if needed,
-              // currently defaulting to bodyMedium standard color
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-            ),
+            style: isSelected
+                ? AppFonts.poppinsSemiBold(color: AppTheme.primaryText)
+                : AppFonts.poppinsRegular(color: AppTheme.secondaryText),
           ),
         ],
       ),

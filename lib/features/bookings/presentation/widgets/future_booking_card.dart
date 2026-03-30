@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 class FutureBookingCard extends StatelessWidget {
   final String title;
@@ -33,7 +36,7 @@ class FutureBookingCard extends StatelessWidget {
             height: 72,
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: Color.fromARGB(255, 255, 254, 251),
+              color: AppColors.white,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Image.asset(
@@ -52,8 +55,7 @@ class FutureBookingCard extends StatelessWidget {
 
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
+                  style: AppFonts.poppinsSemiBold(
                     fontSize: 17
                   ),
                 ),
@@ -62,8 +64,8 @@ class FutureBookingCard extends StatelessWidget {
 
                 Text(
                   time,
-                  style: const TextStyle(
-                    color: Colors.grey,
+                  style: AppFonts.poppinsRegular(
+                    color: AppColors.primaryBlack40,
                     fontSize: 14,
                   ),
                 ),
@@ -71,22 +73,22 @@ class FutureBookingCard extends StatelessWidget {
                 const SizedBox(height: 4),
 
                 Row(
-                  children: const [
+                  children: [
 
                     Text(
                       "Reschedule",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 216, 160, 38),
+                      style: AppFonts.poppinsRegular(
+                        color: AppColors.primaryColor,
                         fontSize: 12.5,
                       ),
                     ),
 
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
 
                     Text(
                       "Cancel",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 88, 87, 87),
+                      style: AppFonts.poppinsRegular(
+                        color: AppTheme.secondaryText,
                         fontSize: 12.5,
                       ),
                     ),
@@ -99,13 +101,9 @@ class FutureBookingCard extends StatelessWidget {
           /// STATUS
           Text(
             status,
-            style: TextStyle(
+            style: AppFonts.poppinsSemiBold(
               fontSize: 11,
-              color: status == "CONFIRMED"
-                  ? Color(0xFFC9A14A)
-                  : Color(0xFFC9A14A),
-
-              fontWeight: FontWeight.w600,
+              color: AppColors.primaryColor,
             ),
           ),
         ],

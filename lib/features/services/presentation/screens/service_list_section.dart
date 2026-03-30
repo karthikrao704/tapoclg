@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tapovana_mobile_app/core/routing/route_constants.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 // --- Data Model ---
 class CardItem {
@@ -66,7 +69,12 @@ class ListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(title: const Text('Services')),
+      appBar: AppBar(
+        title: Text(
+          'Services',
+          style: AppFonts.headland(color: AppTheme.primaryText, fontSize: 20),
+        ),
+      ),
       body: ListView.separated(
         padding: const EdgeInsets.all(16.0),
         itemCount: _mockCategories.length,
@@ -135,25 +143,26 @@ class _CategoryCard extends StatelessWidget {
               children: [
                 Text(
                   item.overline,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: theme.colorScheme.onSecondary,
-                    letterSpacing: 1.5,
-                    fontWeight: FontWeight.bold,
+                  style: AppFonts.poppinsSemiBold(
+                    color: AppColors.primaryColor,
+                    fontSize: 12,
+                    letterSpacing: 2.0,
                   ),
                 ),
                 const SizedBox(height: 4.0),
                 Text(
                   item.title,
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
+                  style: AppFonts.poppinsSemiBold(
+                    color: AppColors.white,
+                    fontSize: 20,
                   ),
                 ),
                 const SizedBox(height: 2.0),
                 Text(
                   item.subtitle,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.white.withAlpha(85),
+                  style: AppFonts.poppinsRegular(
+                    color: AppColors.white.withAlpha(200),
+                    fontSize: 13,
                   ),
                 ),
               ],

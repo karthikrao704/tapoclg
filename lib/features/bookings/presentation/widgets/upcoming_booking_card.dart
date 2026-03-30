@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 class UpcomingBookingCard extends StatefulWidget {
   const UpcomingBookingCard({super.key});
@@ -51,11 +54,10 @@ class _UpcomingBookingCardState extends State<UpcomingBookingCard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
 
-                    const Text(
+                    Text(
                       "Deep Tissue Revive",
-                      style: TextStyle(
+                      style: AppFonts.poppinsSemiBold(
                         fontSize: 22,
-                        fontWeight: FontWeight.w600,
                       ),
                     ),
 
@@ -63,15 +65,14 @@ class _UpcomingBookingCardState extends State<UpcomingBookingCard> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color:Color.fromARGB(255, 254, 246, 230),
+                        color:const Color.fromARGB(255, 254, 246, 230),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: const Text(
+                      child: Text(
                         "CONFIRMED",
-                        style: TextStyle(
+                        style: AppFonts.poppinsSemiBold(
                           fontSize: 11,
-                          color:const Color(0xFFC9A14A),
-                          fontWeight: FontWeight.w600,
+                          color: AppColors.primaryColor,
                         ),
                       ),
                     ),
@@ -85,20 +86,20 @@ class _UpcomingBookingCardState extends State<UpcomingBookingCard> {
 
                 /// DATE
                 Row(
-                  children: const [
-                    Icon(
+                  children: [
+                    const Icon(
                       Icons.calendar_today_outlined,
                       size: 14,
-                      color: Color(0xFFC9A14A),
+                      color: AppColors.primaryColor,
                     ),
 
-                    SizedBox(width: 6),
+                    const SizedBox(width: 6),
 
                     Text(
                       "Monday, Oct 24 • 10:00 AM",
-                      style: TextStyle(
+                      style: AppFonts.poppinsRegular(
                         fontSize: 14,
-                        color: Color.fromARGB(255, 96, 103, 120),
+                        color: AppTheme.secondaryText,
                       ),
                     ),
                   ],
@@ -108,20 +109,20 @@ class _UpcomingBookingCardState extends State<UpcomingBookingCard> {
 
                 /// THERAPIST
                 Row(
-                  children: const [
-                    Icon(
+                  children: [
+                    const Icon(
                       Icons.person_outline,
                       size: 14,
-                      color: Color(0xFFC9A14A),
+                      color: AppColors.primaryColor,
                     ),
 
-                    SizedBox(width: 6),
+                    const SizedBox(width: 6),
 
                     Text(
                       "Therapist: Sarah Jennings",
-                      style: TextStyle(
+                      style: AppFonts.poppinsRegular(
                         fontSize: 14,
-                        color: Color.fromARGB(255, 96, 103, 120),
+                        color: AppTheme.secondaryText,
                       ),
                     ),
                   ],
@@ -146,20 +147,19 @@ class _UpcomingBookingCardState extends State<UpcomingBookingCard> {
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: isRescheduleSelected
-                    ? const Color(0xFFC9A14A)
-                    : Colors.white,
+                    ? AppColors.primaryColor
+                    : AppColors.white,
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
-                  color: const Color(0xFFC9A14A),
+                  color: AppColors.primaryColor,
                 ),
               ),
               child: Text(
                 "Reschedule",
-                style: TextStyle(
+                style: AppFonts.poppinsSemiBold(
                   color: isRescheduleSelected
-                      ? Colors.white
-                      : const Color(0xFFC9A14A),
-                  fontWeight: FontWeight.w600,
+                      ? AppColors.white
+                      : AppColors.primaryColor,
                 ),
               ),
             ),
@@ -181,20 +181,19 @@ class _UpcomingBookingCardState extends State<UpcomingBookingCard> {
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: !isRescheduleSelected
-                        ? const Color(0xFFC9A14A)
-                        : Colors.white,
+                        ? AppColors.primaryColor
+                        : AppColors.white,
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
-                      color: const Color(0xFFC9A14A),
+                      color: AppColors.primaryColor,
                     ),
                   ),
                   child: Text(
                     "Cancel",
-                    style: TextStyle(
+                    style: AppFonts.poppinsSemiBold(
                       color: !isRescheduleSelected
-                          ? Colors.white
-                          : const Color(0xFFC9A14A),
-                      fontWeight: FontWeight.w600,
+                          ? AppColors.white
+                          : AppColors.primaryColor,
                     ),
                   ),
                 ),

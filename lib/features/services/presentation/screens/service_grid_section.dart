@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 // --- Data Model ---
 class ServiceItem {
@@ -49,7 +52,7 @@ const List<ServiceItem> _mockServices = [
 
 // --- Main Grid Widget ---
 class ServiceGridSection extends StatelessWidget {
-  const ServiceGridSection({Key? key}) : super(key: key);
+  const ServiceGridSection({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +67,12 @@ class ServiceGridSection extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(title: const Text('Services')),
+      appBar: AppBar(
+        title: Text(
+          'Services',
+          style: AppFonts.headland(color: AppTheme.primaryText, fontSize: 20),
+        ),
+      ),
       body: GridView.builder(
         padding: const EdgeInsets.all(16.0),
         // 3. Use MaxCrossAxisExtent for responsive column counts
@@ -129,7 +137,7 @@ class _ServiceCard extends StatelessWidget {
                     child: Icon(
                       item.isFavorite ? Icons.star : Icons.star_border,
                       size: 20.0,
-                      color: theme.colorScheme.primary,
+                      color: AppColors.primaryColor,
                     ),
                   ),
                 ),
@@ -148,16 +156,18 @@ class _ServiceCard extends StatelessWidget {
                     item.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                    style: AppFonts.poppinsSemiBold(
+                      color: AppTheme.primaryText,
+                      fontSize: 14,
                       height: 1.2,
                     ),
                   ),
                   const SizedBox(height: 6.0),
                   Text(
                     item.durationAndCategory,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withOpacity(0.6),
+                    style: AppFonts.poppinsRegular(
+                      color: AppTheme.secondaryText,
+                      fontSize: 12,
                     ),
                   ),
                   const Spacer(),
@@ -166,14 +176,14 @@ class _ServiceCard extends StatelessWidget {
                     children: [
                       Text(
                         item.price,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: theme.colorScheme.primary,
-                          fontWeight: FontWeight.bold,
+                        style: AppFonts.poppinsSemiBold(
+                          color: AppColors.primaryColor,
+                          fontSize: 14,
                         ),
                       ),
                       Container(
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.primary,
+                          color: AppColors.primaryColor,
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                         child: InkWell(
@@ -181,11 +191,11 @@ class _ServiceCard extends StatelessWidget {
                             // Add to cart logic
                           },
                           borderRadius: BorderRadius.circular(8.0),
-                          child: Padding(
-                            padding: const EdgeInsets.all(6.0),
+                          child: const Padding(
+                            padding: EdgeInsets.all(6.0),
                             child: Icon(
                               Icons.add,
-                              color: theme.colorScheme.onPrimary,
+                              color: Colors.white,
                               size: 20.0,
                             ),
                           ),

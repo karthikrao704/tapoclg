@@ -1,6 +1,7 @@
 // lib/presentation/theme/app_theme.dart
 
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 class AppTheme {
   // --- Core Colors ---
@@ -47,29 +48,25 @@ class AppTheme {
 
       // Typography / Text Theme (Scaled Dynamically)
       textTheme: TextTheme(
-        titleLarge: TextStyle(
+        titleLarge: AppFonts.headland(
           fontSize: 20 * scaleFactor,
           fontWeight: FontWeight.bold,
           color: primaryText,
         ),
-        titleMedium: TextStyle(
+        titleMedium: AppFonts.poppinsSemiBold(
           fontSize: 16 * scaleFactor,
-          fontWeight: FontWeight.w700,
           color: primaryText,
         ),
-        bodyMedium: TextStyle(
+        bodyMedium: AppFonts.poppinsRegular(
           fontSize: 14 * scaleFactor,
-          fontWeight: FontWeight.w400,
           color: primaryText,
         ),
-        bodySmall: TextStyle(
+        bodySmall: AppFonts.poppinsRegular(
           fontSize: 13 * scaleFactor,
-          fontWeight: FontWeight.w400,
           color: secondaryText,
         ),
-        labelLarge: TextStyle(
+        labelLarge: AppFonts.poppinsMedium(
           fontSize: 14 * scaleFactor,
-          fontWeight: FontWeight.w500,
           color: secondaryText,
         ),
       ),

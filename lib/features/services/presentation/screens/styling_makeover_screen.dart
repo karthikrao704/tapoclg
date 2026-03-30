@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 // --- DATA MODEL ---
 class StylingItem {
@@ -63,13 +66,16 @@ class StylingMakeoverScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor, // Main Background
         appBar: AppBar(
-          title: const Text('Styling & Makeover'),
+          title: Text(
+            'Styling & Makeover',
+            style: AppFonts.headland(color: AppTheme.primaryText, fontSize: 20),
+          ),
           centerTitle: true,
           actions: [
             IconButton(
               icon: Icon(
                 Icons.search,
-                color: theme.colorScheme.primary,
+                color: AppColors.primaryColor,
               ), // Active Icons
               onPressed: () {},
             ),
@@ -85,11 +91,13 @@ class StylingMakeoverScreen extends StatelessWidget {
 
             // Tab Bar
             TabBar(
-              labelColor: theme.colorScheme.primary, // Primary Actions/Active
+              labelColor: AppColors.primaryColor, // Primary Actions/Active
               unselectedLabelColor:
-                  theme.textTheme.bodySmall?.color, // Secondary Grey Text
+                  AppTheme.secondaryText, // Secondary Grey Text
               dividerColor: Colors.transparent, // Remove default divider
-              indicatorColor: theme.colorScheme.primary,
+              indicatorColor: AppColors.primaryColor,
+              labelStyle: AppFonts.poppinsSemiBold(fontSize: 14),
+              unselectedLabelStyle: AppFonts.poppinsRegular(fontSize: 14),
               tabs: const [
                 Tab(text: 'Makeup'),
                 Tab(text: 'Bridal Makeover'),
@@ -160,8 +168,6 @@ class _HeroBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Container(
       height: 160,
       width: double.infinity,
@@ -193,18 +199,18 @@ class _HeroBanner extends StatelessWidget {
           children: [
             Text(
               'COUTURE BEAUTY',
-              style: theme.textTheme.labelMedium?.copyWith(
-                color: theme.colorScheme.primary, // Highlight accent
+              style: AppFonts.poppinsSemiBold(
+                color: AppColors.primaryColor, // Highlight accent
+                fontSize: 12,
                 letterSpacing: 2.0,
-                fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               'Styling & Makeover',
-              style: theme.textTheme.headlineSmall?.copyWith(
+              style: AppFonts.poppinsSemiBold(
                 color: Colors.white,
-                fontWeight: FontWeight.bold,
+                fontSize: 24,
               ),
             ),
           ],
@@ -237,9 +243,9 @@ class _FilterDropdownChip extends StatelessWidget {
         children: [
           Text(
             label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: theme.textTheme.bodyMedium?.color, // Standard text color
-              fontWeight: FontWeight.bold,
+            style: AppFonts.poppinsSemiBold(
+              color: AppTheme.primaryText, // Standard text color
+              fontSize: 10,
               letterSpacing: 0.5,
             ),
           ),
@@ -247,7 +253,7 @@ class _FilterDropdownChip extends StatelessWidget {
           Icon(
             Icons.keyboard_arrow_down,
             size: 14,
-            color: theme.textTheme.bodySmall?.color, // Secondary Grey
+            color: AppTheme.secondaryText, // Secondary Grey
           ),
         ],
       ),
@@ -304,9 +310,9 @@ class StylingCard extends StatelessWidget {
                       ),
                       child: Text(
                         item.categoryTag,
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: theme.colorScheme.onPrimary,
-                          fontWeight: FontWeight.bold,
+                        style: AppFonts.poppinsSemiBold(
+                          color: Colors.white,
+                          fontSize: 10,
                         ),
                       ),
                     ),
@@ -325,9 +331,9 @@ class StylingCard extends StatelessWidget {
                       ),
                       child: Text(
                         item.durationTag,
-                        style: theme.textTheme.labelSmall?.copyWith(
+                        style: AppFonts.poppinsSemiBold(
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
                         ),
                       ),
                     ),
@@ -351,17 +357,18 @@ class StylingCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         item.title,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
+                        style: AppFonts.poppinsSemiBold(
+                          color: AppTheme.primaryText,
+                          fontSize: 16,
                         ), // Primary Dark Text
                       ),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       item.price,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: theme.colorScheme.primary, // Price mapping
-                        fontWeight: FontWeight.bold,
+                      style: AppFonts.poppinsSemiBold(
+                        color: AppColors.primaryColor, // Price mapping
+                        fontSize: 16,
                       ),
                     ),
                   ],
@@ -371,9 +378,10 @@ class StylingCard extends StatelessWidget {
                 // Description
                 Text(
                   item.description,
-                  style: theme.textTheme.bodyMedium?.copyWith(
+                  style: AppFonts.poppinsRegular(
                     color:
-                        theme.textTheme.bodySmall?.color, // Secondary Grey Text
+                        AppTheme.secondaryText, // Secondary Grey Text
+                    fontSize: 14,
                   ),
                 ),
                 const SizedBox(height: 16),

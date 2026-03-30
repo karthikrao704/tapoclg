@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import '../bloc/personal_info/personal_info_bloc.dart';
 import '../bloc/personal_info/personal_info_event.dart';
 import '../bloc/personal_info/personal_info_state.dart';
@@ -140,10 +143,10 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
           ),
           centerTitle: false,
           titleSpacing: 0,
-          title: const Text(
+          title: Text(
             'Personal Information',
-            style: TextStyle(
-              color: Color(0xFF333333),
+            style: AppFonts.headland(
+              color: AppTheme.primaryText,
               fontSize: 20,
               fontWeight: FontWeight.w600,
             ),
@@ -207,14 +210,13 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
       padding: const EdgeInsets.only(left: 4, bottom: 16),
       child: Row(
         children: [
-          Icon(icon, color: const Color(0xFFCDA751), size: 24),
+          Icon(icon, color: AppColors.primaryColor, size: 24),
           const SizedBox(width: 8),
           Text(
             title,
-            style: const TextStyle(
-              color: Color(0xFF1E293B),
+            style: AppFonts.poppinsSemiBold(
+              color: AppTheme.primaryText,
               fontSize: 17,
-              fontWeight: FontWeight.w700,
             ),
           ),
         ],
@@ -236,10 +238,9 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
         children: [
           Text(
             label,
-            style: const TextStyle(
-              color: Color(0xFFCDA751),
+            style: AppFonts.poppinsSemiBold(
+              color: AppColors.primaryColor,
               fontSize: 11,
-              fontWeight: FontWeight.w700,
               letterSpacing: 0.5,
             ),
           ),
@@ -247,17 +248,16 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
             controller: controller,
             keyboardType: keyboardType,
             readOnly: readOnly,
-            style: TextStyle(
-              color: readOnly ? const Color(0xFF94A3B8) : const Color(0xFF1E293B),
+            style: AppFonts.poppinsMedium(
+              color: readOnly ? AppColors.primaryBlack40 : AppTheme.primaryText,
               fontSize: 16,
-              fontWeight: FontWeight.w500,
             ),
             decoration: InputDecoration(
               isDense: true,
               contentPadding: const EdgeInsets.only(top: 6, bottom: 4),
               border: InputBorder.none,
               hintText: hintText,
-              hintStyle: const TextStyle(color: Color(0xFFB0BEC5), fontSize: 15),
+              hintStyle: AppFonts.poppinsRegular(color: const Color(0xFFB0BEC5), fontSize: 15),
               suffixIcon: readOnly
                   ? const Icon(Icons.lock_outline, size: 16, color: Color(0xFFCBD5E1))
                   : null,
@@ -343,7 +343,7 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
             ),
           ),
           child: AlertDialog(
-            title: const Text('Select Year', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+            title: Text('Select Year', style: AppFonts.poppinsSemiBold(fontSize: 18)),
             content: SizedBox(
               width: 300,
               height: 300,
@@ -379,7 +379,7 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Select Month', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+          title: Text('Select Month', style: AppFonts.poppinsSemiBold(fontSize: 18)),
           content: SizedBox(
             width: 300,
             child: GridView.builder(
@@ -442,10 +442,9 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
           children: [
             Text(
               label,
-              style: const TextStyle(
-                color: Color(0xFFCDA751),
+              style: AppFonts.poppinsSemiBold(
+                color: AppColors.primaryColor,
                 fontSize: 11,
-                fontWeight: FontWeight.w700,
                 letterSpacing: 0.5,
               ),
             ),
@@ -453,18 +452,17 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
               controller: controller,
               readOnly: true,
               enabled: false,
-              style: const TextStyle(
-                color: Color(0xFF1E293B),
+              style: AppFonts.poppinsMedium(
+                color: AppTheme.primaryText,
                 fontSize: 16,
-                fontWeight: FontWeight.w500,
               ),
               decoration: InputDecoration(
                 isDense: true,
                 contentPadding: const EdgeInsets.only(top: 6, bottom: 4),
                 border: InputBorder.none,
                 hintText: hintText,
-                hintStyle: const TextStyle(color: Color(0xFFB0BEC5), fontSize: 15),
-                suffixIcon: const Icon(Icons.calendar_today_outlined, size: 18, color: Color(0xFFCDA751)),
+                hintStyle: AppFonts.poppinsRegular(color: const Color(0xFFB0BEC5), fontSize: 15),
+                suffixIcon: const Icon(Icons.calendar_today_outlined, size: 18, color: AppColors.primaryColor),
                 suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
               ),
             ),
@@ -501,20 +499,18 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
-                    color: Color(0xFFCDA751),
+                  style: AppFonts.poppinsSemiBold(
+                    color: AppColors.primaryColor,
                     fontSize: 11,
-                    fontWeight: FontWeight.w700,
                     letterSpacing: 0.5,
                   ),
                 ),
                 TextField(
                   controller: controller,
                   maxLines: null,
-                  style: const TextStyle(
-                    color: Color(0xFF1E293B),
+                  style: AppFonts.poppinsMedium(
+                    color: AppTheme.primaryText,
                     fontSize: 15,
-                    fontWeight: FontWeight.w500,
                     height: 1.4,
                   ),
                   decoration: InputDecoration(
@@ -522,7 +518,7 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
                     contentPadding: const EdgeInsets.only(top: 6, bottom: 4),
                     border: InputBorder.none,
                     hintText: hintText,
-                    hintStyle: const TextStyle(color: Color(0xFFB0BEC5), fontSize: 14),
+                    hintStyle: AppFonts.poppinsRegular(color: const Color(0xFFB0BEC5), fontSize: 14),
                   ),
                 ),
               ],
@@ -551,12 +547,12 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
                 onPressed: state.isSaving ? null : () => Navigator.of(context).pop(),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: const BorderSide(color: Color(0xFFCDA751), width: 1.5),
+                  side: const BorderSide(color: AppColors.primaryColor, width: 1.5),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text(
+                child: Text(
                   'Cancel',
-                  style: TextStyle(color: Color(0xFFCDA751), fontSize: 16, fontWeight: FontWeight.w600),
+                  style: AppFonts.poppinsSemiBold(color: AppColors.primaryColor, fontSize: 16),
                 ),
               ),
             ),
@@ -582,7 +578,7 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
                             ));
                       },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFCDA751),
+                  backgroundColor: AppColors.primaryColor,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -594,9 +590,9 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                       )
-                    : const Text(
+                    : Text(
                         'Save Changes',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        style: AppFonts.poppinsSemiBold(fontSize: 16),
                       ),
               ),
             ),

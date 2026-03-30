@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'package:tapovana_mobile_app/features/appointments/presentation/pages/appointment_booking_page.dart';
 import 'package:tapovana_mobile_app/features/service_details/presentation/widgets/benefit_item.dart';
 import 'package:tapovana_mobile_app/features/service_details/presentation/widgets/service_card_widget.dart';
@@ -11,24 +14,24 @@ class ServiceDetailsPage extends StatelessWidget {
     
 
     return Scaffold(  
-      backgroundColor: const Color(0xFFFFFFFF),
+      backgroundColor: AppColors.white,
 
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           "Service Details",
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w600,
+          style: AppFonts.headland(
+            color: AppTheme.primaryText,
+            fontSize: 20,
           ),
         ),
-        leading: const Icon(Icons.arrow_back, color: Colors.black),
-        actions: const [
+        leading: Icon(Icons.arrow_back, color: AppTheme.primaryText),
+        actions: [
           Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: Icon(Icons.share_outlined, color: Colors.black),
+            padding: const EdgeInsets.only(right: 16),
+            child: Icon(Icons.share_outlined, color: AppTheme.primaryText),
           )
         ],
       ),
@@ -65,30 +68,28 @@ class ServiceDetailsPage extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFC9A14A),
+                      color: AppColors.primaryColor,
                       borderRadius: BorderRadius.circular(1),
                     ),
-                    child: const Text(
+                    child: Text(
                       "SIGNATURE TREATMENT",
-                      style: TextStyle(
+                      style: AppFonts.poppinsSemiBold(
                         color: Colors.white,
                         fontSize: 13,
-                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                 ),
 
                 /// TITLE
-                const Positioned(
+                Positioned(
                   left: 20,
                   bottom: 30,
                   child: Text(
                     "Swedish Massage",
-                    style: TextStyle(
+                    style: AppFonts.poppinsSemiBold(
                       color: Colors.white,
                       fontSize: 30,
-                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -118,23 +119,22 @@ class ServiceDetailsPage extends StatelessWidget {
 
                         /// DURATION
                         Column(
-                          children: const [
+                          children: [
                             Icon(Icons.access_time,
-                                color: Color(0xFFC9A14A), size: 26),
-                            SizedBox(height: 2),
+                                color: AppColors.primaryColor, size: 26),
+                            const SizedBox(height: 2),
                             Text(
                               "DURATION",
-                              style: TextStyle(
+                              style: AppFonts.poppinsRegular(
                                 fontSize: 13,
-                                color: Colors.grey,
-                                fontWeight: FontWeight.w500,
+                                color: AppColors.primaryBlack40,
                               ),
                             ),
-                            SizedBox(height: 1),
+                            const SizedBox(height: 1),
                             Text(
                               "60 Minutes",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
+                              style: AppFonts.poppinsSemiBold(
+                                color: AppTheme.primaryText,
                                 fontSize: 18,
                               ),
                             ),
@@ -149,23 +149,22 @@ class ServiceDetailsPage extends StatelessWidget {
 
                         /// PRICE
                         Column(
-                          children: const [
+                          children: [
                             Icon(Icons.payments_outlined,
-                                color: Color(0xFFC9A14A), size: 26),
-                            SizedBox(height: 2),
+                                color: AppColors.primaryColor, size: 26),
+                            const SizedBox(height: 2),
                             Text(
                               "STARTING PRICE",
-                              style: TextStyle(
+                              style: AppFonts.poppinsRegular(
                                 fontSize: 13,
-                                color: Colors.grey,
-                                fontWeight: FontWeight.w500,
+                                color: AppColors.primaryBlack40,
                               ),
                             ),
-                            SizedBox(height: 1),
+                            const SizedBox(height: 1),
                             Text(
                               "₹500.00",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
+                              style: AppFonts.poppinsSemiBold(
+                                color: AppTheme.primaryText,
                                 fontSize: 18,
                               ),
                             ),
@@ -199,10 +198,10 @@ class ServiceDetailsPage extends StatelessWidget {
 
                     const SizedBox(height: 8),
 
-                    const Text(
+                    Text(
                       "Our Swedish Massage is the foundation of relaxation therapy. Using long, gliding strokes in the direction of blood returning to the heart, this classic treatment is designed to relax the entire body. Beyond relaxation, it is exceptionally beneficial for increasing the level of oxygen in the blood, decreasing muscle toxins, and improving circulation.",
-                      style: TextStyle(
-                        color: Color(0xFF6B7280),
+                      style: AppFonts.poppinsRegular(
+                        color: AppTheme.secondaryText,
                         height: 1.5,
                         fontSize: 17
                       ),
@@ -252,10 +251,10 @@ class ServiceDetailsPage extends StatelessWidget {
                     const SizedBox(height: 24),
 
                     /// YOU MIGHT ALSO LIKE
-                    const Text(
+                    Text(
                       "You might also like",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
+                      style: AppFonts.poppinsSemiBold(
+                        color: AppTheme.primaryText,
                         fontSize: 22,
                       ),
                     ),
@@ -308,7 +307,7 @@ class ServiceDetailsPage extends StatelessWidget {
                     },
                 
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFC9A14A),
+                      backgroundColor: AppColors.primaryColor,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(7),
@@ -317,13 +316,13 @@ class ServiceDetailsPage extends StatelessWidget {
                 
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.calendar_month_outlined, size: 25),
-                      SizedBox(width: 8),
+                    children: [
+                      const Icon(Icons.calendar_month_outlined, size: 25),
+                      const SizedBox(width: 8),
                       Text(
                         "Book Appointment",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
+                        style: AppFonts.poppinsSemiBold(
+                          color: Colors.white,
                           fontSize: 17,
                         ),
                       ),
@@ -357,15 +356,14 @@ Widget expectItem(int number, String text) {
           height: 33,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: const Color(0xFFC9A14A),
+            color: AppColors.primaryColor,
             borderRadius: BorderRadius.circular(11), // square with rounded edges
           ),
           child: Text(
             number.toString(),
-            style: const TextStyle(
+            style: AppFonts.poppinsSemiBold(
               color: Colors.white,
               fontSize: 13,
-              fontWeight: FontWeight.w600,
             ),
           ),
         ),
@@ -376,9 +374,9 @@ Widget expectItem(int number, String text) {
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(
+            style: AppFonts.poppinsRegular(
               fontSize: 18,
-              color: Color(0xFF6B7280),
+              color: AppTheme.secondaryText,
               height: 1.5,
             ),
           ),
@@ -396,7 +394,7 @@ Widget sectionHeader(String title) {
         width: 35,
         height: 1.5,
         decoration: BoxDecoration(
-          color: const Color(0xFFC9A14A),
+          color: AppColors.primaryColor,
           borderRadius: BorderRadius.circular(2),
         ),
       ),
@@ -405,9 +403,9 @@ Widget sectionHeader(String title) {
 
       Text(
         title,
-        style: const TextStyle(
+        style: AppFonts.poppinsSemiBold(
+          color: AppTheme.primaryText,
           fontSize: 26,
-          fontWeight: FontWeight.w700,
         ),
       ),
     ],

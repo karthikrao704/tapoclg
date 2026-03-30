@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'package:tapovana_mobile_app/features/profile/bloc/notification_setting/notification_settings_bloc.dart';
 import 'package:tapovana_mobile_app/features/profile/bloc/notification_setting/notification_settings_event.dart';
 import 'package:tapovana_mobile_app/features/profile/bloc/notification_setting/notification_settings_state.dart';
@@ -33,10 +36,10 @@ class NotificationSettingsView extends StatelessWidget {
         ),
         centerTitle: false,
         titleSpacing: 0,
-        title: const Text(
+        title: Text(
           'Notification Settings',
-          style: TextStyle(
-            color: Color(0xFF333333),
+          style: AppFonts.headland(
+            color: AppTheme.primaryText,
             fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
@@ -56,7 +59,7 @@ class NotificationSettingsView extends StatelessWidget {
             return Center(
               child: Text(
                 'Error: ${state.error}',
-                style: const TextStyle(color: Colors.red),
+                style: AppFonts.poppinsRegular(color: Colors.red),
               ),
             );
           }
@@ -179,16 +182,15 @@ class NotificationSettingsView extends StatelessWidget {
         children: [
           Icon(
             icon,
-            color: const Color(0xFFCDA751), // Gold Orange
+            color: AppColors.primaryColor,
             size: 24,
           ),
           const SizedBox(width: 8),
           Text(
             title,
-            style: const TextStyle(
-              color: Color(0xFF1E293B),
+            style: AppFonts.poppinsSemiBold(
+              color: AppTheme.primaryText,
               fontSize: 17,
-              fontWeight: FontWeight.w700,
             ),
           ),
         ],
@@ -237,18 +239,17 @@ class NotificationSettingsView extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
-                        color: Color(0xFF1E293B),
+                      style: AppFonts.poppinsMedium(
+                        color: AppTheme.primaryText,
                         fontSize: 16,
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     if (hasSubtitle) ...[
                       const SizedBox(height: 4),
                       Text(
                         subtitle,
-                        style: const TextStyle(
-                          color: Color(0xFF64748B),
+                        style: AppFonts.poppinsRegular(
+                          color: AppColors.primaryBlack40,
                           fontSize: 13,
                         ),
                       ),
@@ -261,7 +262,7 @@ class NotificationSettingsView extends StatelessWidget {
                 height: 24, // Control the switch height appropriately
                 child: CupertinoSwitch(
                   value: value,
-                  activeTrackColor: const Color(0xFFCDA751), // Gold Orange
+                  activeTrackColor: AppColors.primaryColor,
                   inactiveTrackColor: const Color(0xFFE2E8F0),
                   onChanged: onChanged,
                 ),

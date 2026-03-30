@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'bloc/more_bloc.dart';
 import 'models/more_models.dart';
@@ -109,7 +111,7 @@ class _MoreView extends StatelessWidget {
         style: AppFonts.headland(
           fontSize: 22,
           fontWeight: FontWeight.w400,
-          color: const Color(0xFF3D3D3D),
+          color: AppTheme.primaryText,
         ),
       ),
       actions: [
@@ -147,15 +149,13 @@ class _FeaturedWorkshopSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
             'Featured Workshop',
-            style: TextStyle(
-              fontFamily: 'Poppins',
+            style: AppFonts.poppinsSemiBold(
               fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF1E293B),
+              color: AppTheme.primaryText,
             ),
           ),
         ),
@@ -197,11 +197,9 @@ class _FeaturedWorkshopSection extends StatelessWidget {
                       children: [
                         Text(
                           workshop.tag,
-                          style: const TextStyle(
-                            fontFamily: 'Manrope',
+                          style: AppFonts.poppinsSemiBold(
                             fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFFD9A04B),
+                            color: AppColors.primaryColor,
                             letterSpacing: 0.8,
                           ),
                         ),
@@ -216,11 +214,9 @@ class _FeaturedWorkshopSection extends StatelessWidget {
                           ),
                           child: Text(
                             workshop.date,
-                            style: const TextStyle(
-                              fontFamily: 'Poppins',
+                            style: AppFonts.poppinsMedium(
                               fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF64748B),
+                              color: AppTheme.secondaryText,
                             ),
                           ),
                         ),
@@ -231,11 +227,9 @@ class _FeaturedWorkshopSection extends StatelessWidget {
                     // Title
                     Text(
                       workshop.title,
-                      style: const TextStyle(
-                        fontFamily: 'Poppins',
+                      style: AppFonts.poppinsSemiBold(
                         fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF1E293B),
+                        color: AppTheme.primaryText,
                         height: 1.25,
                       ),
                     ),
@@ -244,10 +238,9 @@ class _FeaturedWorkshopSection extends StatelessWidget {
                     // Description
                     Text(
                       workshop.description,
-                      style: const TextStyle(
-                        fontFamily: 'Manrope',
+                      style: AppFonts.poppinsRegular(
                         fontSize: 13,
-                        color: Color(0xFF64748B),
+                        color: AppTheme.secondaryText,
                         height: 1.5,
                       ),
                     ),
@@ -264,10 +257,9 @@ class _FeaturedWorkshopSection extends StatelessWidget {
                         const SizedBox(width: 6),
                         Text(
                           '${workshop.time} • ${workshop.duration}',
-                          style: const TextStyle(
-                            fontFamily: 'Manrope',
+                          style: AppFonts.poppinsRegular(
                             fontSize: 13,
-                            color: Color(0xFF94A3B8),
+                            color: AppColors.primaryBlack40,
                           ),
                         ),
                         const Spacer(),
@@ -285,12 +277,10 @@ class _FeaturedWorkshopSection extends StatelessWidget {
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Join',
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
+                            style: AppFonts.poppinsSemiBold(
                               fontSize: 14,
-                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -327,16 +317,15 @@ class _WorkshopImagePlaceholder extends StatelessWidget {
       height: 200,
       width: double.infinity,
       color: const Color(0xFFE8E0D0),
-      child: const Column(
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.image_outlined, size: 48, color: Color(0xFFB0A090)),
-          SizedBox(height: 8),
+          const Icon(Icons.image_outlined, size: 48, color: Color(0xFFB0A090)),
+          const SizedBox(height: 8),
           Text(
             'Workshop Image',
-            style: TextStyle(
-              fontFamily: 'Manrope',
-              color: Color(0xFFB0A090),
+            style: AppFonts.poppinsRegular(
+              color: const Color(0xFFB0A090),
               fontSize: 13,
             ),
           ),
@@ -358,15 +347,13 @@ class _VedicPackagesSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
             'Vedic Life Packages',
-            style: TextStyle(
-              fontFamily: 'Poppins',
+            style: AppFonts.poppinsSemiBold(
               fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF1E293B),
+              color: AppTheme.primaryText,
             ),
           ),
         ),
@@ -413,21 +400,18 @@ class _PackageCard extends StatelessWidget {
         const SizedBox(height: 10),
         Text(
           package.title,
-          style: const TextStyle(
-            fontFamily: 'Poppins',
+          style: AppFonts.poppinsSemiBold(
             fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF1E293B),
+            color: AppTheme.primaryText,
             height: 1.3,
           ),
         ),
         const SizedBox(height: 2),
         Text(
           package.subtitle,
-          style: const TextStyle(
-            fontFamily: 'Manrope',
+          style: AppFonts.poppinsRegular(
             fontSize: 12,
-            color: Color(0xFF94A3B8),
+            color: AppColors.primaryBlack40,
           ),
         ),
       ],
@@ -449,16 +433,15 @@ class _PackageImagePlaceholder extends StatelessWidget {
       height: 140,
       width: double.infinity,
       color: const Color(0xFFD8E8C8),
-      child: const Column(
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.nature_outlined, size: 36, color: Color(0xFF90A880)),
-          SizedBox(height: 6),
+          const Icon(Icons.nature_outlined, size: 36, color: Color(0xFF90A880)),
+          const SizedBox(height: 6),
           Text(
             'Package Image',
-            style: TextStyle(
-              fontFamily: 'Manrope',
-              color: Color(0xFF90A880),
+            style: AppFonts.poppinsRegular(
+              color: const Color(0xFF90A880),
               fontSize: 11,
             ),
           ),
@@ -485,24 +468,20 @@ class _EducationalCoursesSection extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Educational Courses',
-                style: TextStyle(
-                  fontFamily: 'Poppins',
+                style: AppFonts.poppinsSemiBold(
                   fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1E293B),
+                  color: AppTheme.primaryText,
                 ),
               ),
               TextButton(
                 onPressed: () {},
-                child: const Text(
+                child: Text(
                   'VIEW ALL',
-                  style: TextStyle(
-                    fontFamily: 'Manrope',
+                  style: AppFonts.poppinsSemiBold(
                     fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFFD9A04B),
+                    color: AppColors.primaryColor,
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -583,20 +562,17 @@ class _CourseRow extends StatelessWidget {
               children: [
                 Text(
                   course.title,
-                  style: const TextStyle(
-                    fontFamily: 'Poppins',
+                  style: AppFonts.poppinsMedium(
                     fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF1E293B),
+                    color: AppTheme.primaryText,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   '${course.lessons} • ${course.level}',
-                  style: const TextStyle(
-                    fontFamily: 'Manrope',
+                  style: AppFonts.poppinsRegular(
                     fontSize: 12,
-                    color: Color(0xFF94A3B8),
+                    color: AppColors.primaryBlack40,
                   ),
                 ),
               ],
@@ -626,15 +602,13 @@ class _WellnessBlogSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
             'Wellness Blog',
-            style: TextStyle(
-              fontFamily: 'Poppins',
+            style: AppFonts.poppinsSemiBold(
               fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF1E293B),
+              color: AppTheme.primaryText,
             ),
           ),
         ),
@@ -702,11 +676,9 @@ class _BlogCard extends StatelessWidget {
             // Category label below image
             Text(
               post.category,
-              style: const TextStyle(
-                fontFamily: 'Manrope',
+              style: AppFonts.poppinsSemiBold(
                 fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFFD9A04B),
+                color: AppColors.primaryColor,
                 letterSpacing: 0.6,
               ),
             ),
@@ -714,11 +686,9 @@ class _BlogCard extends StatelessWidget {
             // Title below category
             Text(
               post.title,
-              style: const TextStyle(
-                fontFamily: 'Poppins',
+              style: AppFonts.poppinsSemiBold(
                 fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF1E293B),
+                color: AppTheme.primaryText,
                 height: 1.3,
               ),
             ),

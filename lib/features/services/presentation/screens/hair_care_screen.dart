@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 // --- DATA MODEL ---
 class HairCareItem {
@@ -68,11 +71,14 @@ class HairCareScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Hair Care'),
+        title: Text(
+          'Hair Care',
+          style: AppFonts.headland(color: AppTheme.primaryText, fontSize: 20),
+        ),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.search, color: theme.colorScheme.primary),
+            icon: Icon(Icons.search, color: AppColors.primaryColor),
             onPressed: () {},
           ),
         ],
@@ -137,19 +143,17 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
         color: isActive
-            ? theme.colorScheme.primary
-            : theme.colorScheme.primary.withAlpha(50),
+            ? AppColors.primaryColor
+            : AppColors.primaryColor.withAlpha(50),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: isActive
-              ? theme.colorScheme.primary
-              : theme.colorScheme.primary.withAlpha(80),
+              ? AppColors.primaryColor
+              : AppColors.primaryColor.withAlpha(80),
         ),
       ),
       child: Row(
@@ -157,11 +161,11 @@ class _FilterChip extends StatelessWidget {
         children: [
           Text(
             label,
-            style: theme.textTheme.labelLarge?.copyWith(
+            style: AppFonts.poppinsSemiBold(
               color: isActive
-                  ? theme.colorScheme.onPrimary
-                  : theme.textTheme.bodyMedium?.color,
-              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                  ? Colors.white
+                  : AppTheme.primaryText,
+              fontSize: 14,
             ),
           ),
           if (hasDropdown) ...[
@@ -169,7 +173,7 @@ class _FilterChip extends StatelessWidget {
             Icon(
               Icons.keyboard_arrow_down,
               size: 16,
-              color: theme.textTheme.bodySmall?.color,
+              color: AppTheme.secondaryText,
             ),
           ],
         ],
@@ -183,8 +187,6 @@ class _PromoBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Container(
       // Replaced fixed height with BoxConstraints for text scaling safety
       constraints: const BoxConstraints(minHeight: 140),
@@ -213,19 +215,19 @@ class _PromoBanner extends StatelessWidget {
             Text(
               'EXCLUSIVE EXPERIENCE',
               textAlign: TextAlign.center,
-              style: theme.textTheme.labelMedium?.copyWith(
+              style: AppFonts.poppinsSemiBold(
                 color: Colors.white,
+                fontSize: 12,
                 letterSpacing: 2.0,
-                fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               'Premium Hair Rituals',
               textAlign: TextAlign.center,
-              style: theme.textTheme.headlineSmall?.copyWith(
+              style: AppFonts.poppinsSemiBold(
                 color: Colors.white,
-                fontWeight: FontWeight.bold,
+                fontSize: 24,
               ),
             ),
           ],
@@ -275,17 +277,18 @@ class HairCareCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         item.title,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
+                        style: AppFonts.poppinsSemiBold(
+                          color: AppTheme.primaryText,
+                          fontSize: 16,
                         ),
                       ),
                     ),
                     const SizedBox(width: 16),
                     Text(
                       item.price,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.bold,
+                      style: AppFonts.poppinsSemiBold(
+                        color: AppColors.primaryColor,
+                        fontSize: 16,
                       ),
                     ),
                   ],
@@ -295,8 +298,9 @@ class HairCareCard extends StatelessWidget {
                 // Description
                 Text(
                   item.description,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.textTheme.bodySmall?.color,
+                  style: AppFonts.poppinsRegular(
+                    color: AppTheme.secondaryText,
+                    fontSize: 14,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -320,10 +324,10 @@ class HairCareCard extends StatelessWidget {
                           Icon(
                             Icons.access_time,
                             size: 16,
-                            color: theme.textTheme.bodySmall?.color,
+                            color: AppColors.primaryBlack40,
                           ),
                           const SizedBox(width: 4),
-                          Text(item.duration, style: theme.textTheme.bodySmall),
+                          Text(item.duration, style: AppFonts.poppinsRegular(color: AppColors.primaryBlack40, fontSize: 13)),
                         ],
                       ),
 

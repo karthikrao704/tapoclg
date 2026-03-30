@@ -3,6 +3,9 @@ import 'package:tapovana_mobile_app/features/home_page/presentation/components/a
 import 'package:tapovana_mobile_app/features/home_page/presentation/components/custom_button.dart';
 import 'package:tapovana_mobile_app/features/home_page/presentation/components/service_card.dart';
 import 'package:tapovana_mobile_app/features/home_page/presentation/components/tip_card.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -13,7 +16,7 @@ class HomeScreen extends StatelessWidget {
       // Main UI Body
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -35,14 +38,18 @@ class HomeScreen extends StatelessWidget {
                   Expanded(
                     child: Text(
                       "Featured Services",
-                      style: Theme.of(context).textTheme.titleLarge,
+                      style: AppFonts.poppinsSemiBold(
+                        fontSize: 22,
+                        color: AppTheme.primaryText,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    "View All",
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
+                    "View all",
+                    style: AppFonts.poppinsSemiBold(
+                      fontSize: 14,
+                      color: AppColors.primaryColor,
                     ),
                   ),
                 ],
@@ -80,7 +87,10 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 30),
               Text(
                 "Upcoming Appointments",
-                style: Theme.of(context).textTheme.titleLarge,
+                style: AppFonts.poppinsSemiBold(
+                  fontSize: 22,
+                  color: AppTheme.primaryText,
+                ),
               ),
               const SizedBox(height: 10),
               const AppointmentCard(

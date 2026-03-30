@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
+import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
+import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import '../../../../core/storage/local_database.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -17,7 +19,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
 
     String getGreeting() {
       final hour = DateTime.now().hour;
@@ -40,7 +41,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: theme.colorScheme.secondary, width: 2),
+              border: Border.all(color: AppColors.primaryColor.withAlpha(50), width: 1.5),
             ),
             child: FutureBuilder<String?>(
               future: LocalDatabase.getProfilePhotoUrl(),
@@ -82,10 +83,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         children: [
           Text(
             getGreeting(),
-            style: AppFonts.headland(
+            style: AppFonts.poppinsRegular(
               fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xFF6F7894),
+              color: AppTheme.secondaryText,
             ),
           ),
           FutureBuilder<String?>(
@@ -97,7 +97,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 style: AppFonts.headland(
                   fontSize: 19,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF3D3D3D),
+                  color: AppTheme.primaryText,
                 ),
               );
             },
@@ -108,15 +108,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         IconButton(
           icon: Container(
-            width: 40,
-            height: 40,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
-              border: Border.all(color: const Color(0xFFD9A04B), width: 1.5),
+              color: AppColors.notificationBg,
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
               Icons.notifications_outlined,
-              color: Color(0xFFD9A04B),
+              color: AppColors.primaryColor,
               size: 20,
             ),
           ),

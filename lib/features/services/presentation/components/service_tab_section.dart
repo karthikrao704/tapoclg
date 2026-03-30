@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 class ServicesTabSection extends StatelessWidget {
   const ServicesTabSection({super.key});
@@ -28,12 +29,8 @@ class ServicesTabSection extends StatelessWidget {
             unselectedLabelColor: theme.colorScheme.outline, // Or bodySmall color
             
             // Fetching your text styles
-            labelStyle: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-            unselectedLabelStyle: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.normal,
-            ),
+            labelStyle: AppFonts.poppinsSemiBold(fontSize: 16),
+            unselectedLabelStyle: AppFonts.poppinsRegular(fontSize: 16),
             
             // If the tabs get squished on small screens, set isScrollable: true
             isScrollable: false, 
