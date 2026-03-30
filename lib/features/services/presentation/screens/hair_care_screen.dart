@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
+import 'package:tapovana_mobile_app/core/widgets/secondary_app_bar.dart';
 
 // --- DATA MODEL ---
 class HairCareItem {
@@ -70,18 +71,8 @@ class HairCareScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: Text(
-          'Hair Care',
-          style: AppFonts.headland(color: AppTheme.primaryText, fontSize: 20),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.search, color: AppColors.primaryColor),
-            onPressed: () {},
-          ),
-        ],
+      appBar: const SecondaryAppBar(
+        title: 'Hair Care',
       ),
       body: Column(
         children: [

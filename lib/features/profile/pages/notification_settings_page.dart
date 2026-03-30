@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
+import 'package:tapovana_mobile_app/core/widgets/secondary_app_bar.dart';
 import 'package:tapovana_mobile_app/features/profile/bloc/notification_setting/notification_settings_bloc.dart';
 import 'package:tapovana_mobile_app/features/profile/bloc/notification_setting/notification_settings_event.dart';
 import 'package:tapovana_mobile_app/features/profile/bloc/notification_setting/notification_settings_state.dart';
@@ -27,23 +28,11 @@ class NotificationSettingsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF333333)),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+      appBar: SecondaryAppBar(
+        title: 'Notification Settings',
         centerTitle: false,
         titleSpacing: 0,
-        title: Text(
-          'Notification Settings',
-          style: AppFonts.headland(
-            color: AppTheme.primaryText,
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        showSearch: false,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
           child: Container(color: const Color(0xFFF1F5F9), height: 1.0),

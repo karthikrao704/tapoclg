@@ -3,6 +3,7 @@ import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'package:tapovana_mobile_app/features/service_details/presentation/pages/service_details_page.dart';
+import 'package:tapovana_mobile_app/core/widgets/secondary_app_bar.dart';
 
 // --- DATA MODEL ---
 class ServiceItem {
@@ -64,26 +65,12 @@ class BodyCareScreen extends StatelessWidget {
       length: 4,
       child: Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor, // Main Background
-        appBar: AppBar(
-          title: Text(
-            'Body Care',
-            style: AppFonts.headland(color: AppTheme.primaryText, fontSize: 20),
-          ),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              icon: Icon(
-                Icons.search,
-                color: AppColors.primaryColor,
-              ), // Active Icons
-              onPressed: () {},
-            ),
-          ],
+        appBar: SecondaryAppBar(
+          title: 'Body Care',
           bottom: TabBar(
-            labelColor: AppColors.primaryColor, // Primary Actions/Active
+            labelColor: AppColors.primaryColor,
             dividerColor: Colors.transparent,
-            unselectedLabelColor:
-                AppTheme.secondaryText, // Secondary Grey Text
+            unselectedLabelColor: AppTheme.secondaryText,
             indicatorColor: AppColors.primaryColor,
             labelStyle: AppFonts.poppinsSemiBold(fontSize: 14),
             unselectedLabelStyle: AppFonts.poppinsRegular(fontSize: 14),

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
+import 'package:tapovana_mobile_app/core/widgets/notification_bell.dart';
 import 'bloc/more_bloc.dart';
 import 'models/more_models.dart';
 
@@ -109,26 +110,14 @@ class _MoreView extends StatelessWidget {
         'Explore more',
         overflow: TextOverflow.ellipsis,
         style: AppFonts.headland(
-          fontSize: 22,
+          fontSize: 20,
           fontWeight: FontWeight.w400,
           color: AppTheme.primaryText,
         ),
       ),
       actions: [
-        IconButton(
-          icon: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              border: Border.all(color: const Color(0xFFD9A04B), width: 1.5),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.notifications_outlined,
-              color: Color(0xFFD9A04B),
-              size: 20,
-            ),
-          ),
+        NotificationBell(
+          size: 40,
           onPressed: () {},
         ),
         const SizedBox(width: 8),
