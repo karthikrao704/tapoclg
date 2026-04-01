@@ -30,9 +30,13 @@ class _MyBookingsPageState extends State<MyBookingsPage>
 
   @override
   Widget build(BuildContext context) {
+    // 1. Establish screen dimensions for responsive scaling
+    final size = MediaQuery.sizeOf(context);
+    final isSmallScreen = size.height < 650;
+    final hPadding = size.width * 0.05;
+
     return Scaffold(
       backgroundColor: AppColors.tertiaryColor,
-
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -44,40 +48,37 @@ class _MyBookingsPageState extends State<MyBookingsPage>
         title: Text(
           "My Bookings",
           style: AppFonts.headland(
-            fontSize: 20,
+            fontSize: isSmallScreen ? 18 : 20,
             color: AppTheme.primaryText,
             fontWeight: FontWeight.w600,
           ),
         ),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
+          // Adjusted preferred size slightly for tighter screens
+          preferredSize: Size.fromHeight(isSmallScreen ? 42 : 48),
           child: Container(
             color: Colors.white,
             child: TabBar(
               controller: _tabController,
-
               indicatorWeight: 3.0,
-
               indicatorSize: TabBarIndicatorSize.label,
-
               indicatorColor: AppColors.primaryColor,
               dividerColor: Colors.transparent,
               labelColor: AppColors.primaryColor,
               unselectedLabelColor: AppColors.primaryBlack40,
-
-              labelPadding: const EdgeInsets.symmetric(horizontal: 16),
+              labelPadding: EdgeInsets.symmetric(
+                horizontal: isSmallScreen ? 12 : 16,
+              ),
               padding: EdgeInsets.zero,
-
+              // 2. Scaled TabBar typography
               labelStyle: AppFonts.poppinsSemiBold(
-                fontSize: 15,
+                fontSize: isSmallScreen ? 13 : 15,
               ),
               unselectedLabelStyle: AppFonts.poppinsSemiBold(
-                fontSize: 15,
+                fontSize: isSmallScreen ? 13 : 15,
               ),
-
               splashFactory: NoSplash.splashFactory,
               overlayColor: WidgetStateProperty.all(Colors.transparent),
-
               tabs: const [
                 Tab(text: "Upcoming"),
                 Tab(text: "Completed"),
@@ -86,48 +87,59 @@ class _MyBookingsPageState extends State<MyBookingsPage>
           ),
         ),
       ),
-
       body: TabBarView(
         controller: _tabController,
-        children: [_buildUpcomingTab(), _buildCompletedTab()],
+        children: [
+          _buildUpcomingTab(isSmallScreen, hPadding),
+          _buildCompletedTab(isSmallScreen),
+        ],
       ),
     );
   }
 
-  Widget _buildUpcomingTab() {
+  // 3. Passed the responsive variables down into the sub-trees
+  Widget _buildUpcomingTab(bool isSmallScreen, double hPadding) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.symmetric(
+        horizontal: hPadding,
+        vertical: isSmallScreen ? 12 : 16,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             "IMMEDIATE NEXT",
             style: AppFonts.poppinsSemiBold(
-              fontSize: 12.5,
+              fontSize: isSmallScreen ? 11 : 12.5,
               letterSpacing: 1.2,
               color: AppColors.primaryColor,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: isSmallScreen ? 8 : 12),
+
+          // NOTE: Ensure this external widget also uses Expanded/Flexible internally!
           const UpcomingBookingCard(),
-          const SizedBox(height: 35),
+
+          SizedBox(height: isSmallScreen ? 24 : 35),
           Text(
             "FUTURE APPOINTMENTS",
             style: AppFonts.poppinsSemiBold(
-              fontSize: 13,
+              fontSize: isSmallScreen ? 11 : 13,
               letterSpacing: 1.2,
               color: AppColors.primaryColor,
             ),
           ),
-          const SizedBox(height: 12),
-          FutureBookingCard(
+          SizedBox(height: isSmallScreen ? 8 : 12),
+
+          // NOTE: Ensure this external widget also uses Expanded/Flexible internally!
+          const FutureBookingCard(
             title: "Vedic Aromatherapy",
             time: "Nov 02 • 02:30 PM",
             status: "PENDING",
             icon: "assets/bookings/leaf.png",
           ),
-          const SizedBox(height: 12),
-          FutureBookingCard(
+          SizedBox(height: isSmallScreen ? 8 : 12),
+          const FutureBookingCard(
             title: "Private Yoga Session",
             time: "Nov 15 • 08:00 AM",
             status: "CONFIRMED",
@@ -138,13 +150,16 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
-  Widget _buildCompletedTab() {
+  Widget _buildCompletedTab(bool isSmallScreen) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.only(top: 80),
+        padding: EdgeInsets.only(top: isSmallScreen ? 50 : 80),
         child: Text(
           "No completed bookings yet",
-          style: AppFonts.poppinsRegular(color: AppColors.primaryBlack40),
+          style: AppFonts.poppinsRegular(
+            color: AppColors.primaryBlack40,
+            fontSize: isSmallScreen ? 13 : 15,
+          ),
         ),
       ),
     );

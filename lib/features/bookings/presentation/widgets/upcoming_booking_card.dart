@@ -12,196 +12,219 @@ class UpcomingBookingCard extends StatefulWidget {
 
 class _UpcomingBookingCardState extends State<UpcomingBookingCard> {
   bool isRescheduleSelected = true;
+
   @override
   Widget build(BuildContext context) {
+    // 1. Establish breakpoints for dynamic scaling
+    final size = MediaQuery.sizeOf(context);
+    final isSmallScreen = size.height < 650 || size.width < 360;
 
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(
-            blurRadius: 6,
-            color: Colors.black12,
-          )
-        ],
+        boxShadow: const [BoxShadow(blurRadius: 6, color: Colors.black12)],
       ),
-
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           /// IMAGE
           ClipRRect(
             borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(6),
+              top: Radius.circular(
+                12,
+              ), // Adjusted to match outer container radius visually
             ),
             child: Image.asset(
               "assets/bookings/deeptissue.png",
-              height: 200,
+              // 2. Responsive image height to prevent dominating small screens
+              height: isSmallScreen ? 140 : 200,
               width: double.infinity,
               fit: BoxFit.cover,
             ),
           ),
 
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-
-                    Text(
-                      "Deep Tissue Revive",
-                      style: AppFonts.poppinsSemiBold(
-                        fontSize: 22,
+                    // 3. Wrapped Title in Expanded to prevent horizontal collision with the badge
+                    Expanded(
+                      child: Text(
+                        "Deep Tissue Revive",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppFonts.poppinsSemiBold(
+                          fontSize: isSmallScreen ? 18 : 22,
+                        ),
                       ),
                     ),
-
+                    const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isSmallScreen ? 8 : 10,
+                        vertical: isSmallScreen ? 3 : 4,
+                      ),
                       decoration: BoxDecoration(
-                        color:const Color.fromARGB(255, 254, 246, 230),
+                        color: const Color.fromARGB(255, 254, 246, 230),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         "CONFIRMED",
                         style: AppFonts.poppinsSemiBold(
-                          fontSize: 11,
+                          fontSize: isSmallScreen ? 10 : 11,
                           color: AppColors.primaryColor,
                         ),
                       ),
                     ),
                   ],
                 ),
+                SizedBox(height: isSmallScreen ? 8 : 10),
 
-                const SizedBox(height: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    /// DATE
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.calendar_today_outlined,
+                          size: isSmallScreen ? 14 : 16,
+                          color: AppColors.primaryColor,
+                        ),
+                        SizedBox(width: isSmallScreen ? 6 : 8),
+                        Expanded(
+                          // Safety wrap for long dates on max system font scaling
+                          child: Text(
+                            "Monday, Oct 24 • 10:00 AM",
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppFonts.poppinsRegular(
+                              fontSize: isSmallScreen ? 13 : 14,
+                              color: AppTheme.secondaryText,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: isSmallScreen ? 6 : 8),
 
-                /// DATE
+                    /// THERAPIST
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.person_outline,
+                          size: isSmallScreen ? 14 : 16,
+                          color: AppColors.primaryColor,
+                        ),
+                        SizedBox(width: isSmallScreen ? 6 : 8),
+                        Expanded(
+                          // Safety wrap for long names
+                          child: Text(
+                            "Therapist: Sarah Jennings",
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppFonts.poppinsRegular(
+                              fontSize: isSmallScreen ? 13 : 14,
+                              color: AppTheme.secondaryText,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(height: isSmallScreen ? 20 : 27),
+
+                /// ACTIONS ROW
                 Row(
                   children: [
-                    const Icon(
-                      Icons.calendar_today_outlined,
-                      size: 14,
-                      color: AppColors.primaryColor,
+                    /// RESCHEDULE
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            isRescheduleSelected = true;
+                          });
+                        },
+                        child: Container(
+                          height: isSmallScreen ? 40 : 46,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: isRescheduleSelected
+                                ? AppColors.primaryColor
+                                : AppColors.white,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: AppColors.primaryColor),
+                          ),
+                          // Optional safety wrapper inside fixed-height containers
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4.0,
+                              ),
+                              child: Text(
+                                "Reschedule",
+                                style: AppFonts.poppinsSemiBold(
+                                  fontSize: isSmallScreen ? 13 : 14,
+                                  color: isRescheduleSelected
+                                      ? AppColors.white
+                                      : AppColors.primaryColor,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
 
-                    const SizedBox(width: 6),
+                    SizedBox(width: isSmallScreen ? 8 : 12),
 
-                    Text(
-                      "Monday, Oct 24 • 10:00 AM",
-                      style: AppFonts.poppinsRegular(
-                        fontSize: 14,
-                        color: AppTheme.secondaryText,
+                    /// CANCEL
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            isRescheduleSelected = false;
+                          });
+                        },
+                        child: Container(
+                          height: isSmallScreen ? 40 : 46,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: !isRescheduleSelected
+                                ? AppColors.primaryColor
+                                : AppColors.white,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: AppColors.primaryColor),
+                          ),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4.0,
+                              ),
+                              child: Text(
+                                "Cancel",
+                                style: AppFonts.poppinsSemiBold(
+                                  fontSize: isSmallScreen ? 13 : 14,
+                                  color: !isRescheduleSelected
+                                      ? AppColors.white
+                                      : AppColors.primaryColor,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
-
-                const SizedBox(height: 6),
-
-                /// THERAPIST
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.person_outline,
-                      size: 14,
-                      color: AppColors.primaryColor,
-                    ),
-
-                    const SizedBox(width: 6),
-
-                    Text(
-                      "Therapist: Sarah Jennings",
-                      style: AppFonts.poppinsRegular(
-                        fontSize: 14,
-                        color: AppTheme.secondaryText,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 27),
-
-  Row(
-    children: [
-
-        /// RESCHEDULE
-        Expanded(
-          child: GestureDetector(
-            onTap: () {
-              setState(() {
-                isRescheduleSelected = true;
-              });
-            },
-            child: Container(
-              height: 46,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: isRescheduleSelected
-                    ? AppColors.primaryColor
-                    : AppColors.white,
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(
-                  color: AppColors.primaryColor,
-                ),
-              ),
-              child: Text(
-                "Reschedule",
-                style: AppFonts.poppinsSemiBold(
-                  color: isRescheduleSelected
-                      ? AppColors.white
-                      : AppColors.primaryColor,
-                ),
-              ),
-            ),
-          ),
-        ),
-
-        const SizedBox(width: 12),
-
-    /// CANCEL
-            Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    isRescheduleSelected = false;
-                  });
-                },
-                child: Container(
-                  height: 46,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: !isRescheduleSelected
-                        ? AppColors.primaryColor
-                        : AppColors.white,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(
-                      color: AppColors.primaryColor,
-                    ),
-                  ),
-                  child: Text(
-                    "Cancel",
-                    style: AppFonts.poppinsSemiBold(
-                      color: !isRescheduleSelected
-                          ? AppColors.white
-                          : AppColors.primaryColor,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-       
               ],
             ),
           ),
@@ -209,5 +232,4 @@ class _UpcomingBookingCardState extends State<UpcomingBookingCard> {
       ),
     );
   }
-
 }

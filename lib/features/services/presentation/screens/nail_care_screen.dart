@@ -65,6 +65,10 @@ class NailCareScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context); // Always use Theme.of(context)
 
+    // 1. Establish breakpoint
+    final size = MediaQuery.sizeOf(context);
+    final isSmallScreen = size.width < 360 || size.height < 650;
+
     return DefaultTabController(
       length: 4,
       child: Scaffold(
@@ -72,13 +76,21 @@ class NailCareScreen extends StatelessWidget {
         appBar: SecondaryAppBar(
           title: 'Nail Care',
           bottom: TabBar(
+            // 2. Make tabs scrollable on narrow screens to prevent horizontal squishing
+            isScrollable: isSmallScreen,
+            tabAlignment: isSmallScreen
+                ? TabAlignment.start
+                : TabAlignment.center,
             labelColor: AppColors.primaryColor,
             unselectedLabelColor: AppTheme.secondaryText,
             dividerColor: Colors.transparent,
             indicatorColor: AppColors.primaryColor,
-            labelStyle: AppFonts.poppinsSemiBold(fontSize: 14),
-            unselectedLabelStyle: AppFonts.poppinsRegular(fontSize: 14),
-            tabAlignment: TabAlignment.center,
+            labelStyle: AppFonts.poppinsSemiBold(
+              fontSize: isSmallScreen ? 12 : 14,
+            ),
+            unselectedLabelStyle: AppFonts.poppinsRegular(
+              fontSize: isSmallScreen ? 12 : 14,
+            ),
             tabs: const [
               Tab(text: 'All Services'),
               Tab(text: 'Manicure'),
@@ -91,12 +103,18 @@ class NailCareScreen extends StatelessWidget {
           children: [
             // All Services Tab Content
             ListView.separated(
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.symmetric(
+                horizontal: size.width * 0.05,
+                vertical: isSmallScreen ? 12.0 : 16.0,
+              ),
               itemCount: _mockNailServices.length,
               separatorBuilder: (context, index) =>
-                  const SizedBox(height: 16.0),
+                  SizedBox(height: isSmallScreen ? 12.0 : 16.0),
               itemBuilder: (context, index) {
-                return NailCareCard(item: _mockNailServices[index]);
+                return NailCareCard(
+                  item: _mockNailServices[index],
+                  isSmallScreen: isSmallScreen,
+                );
               },
             ),
             // Placeholders for other tabs
@@ -114,8 +132,13 @@ class NailCareScreen extends StatelessWidget {
 
 class NailCareCard extends StatelessWidget {
   final NailCareItem item;
+  final bool isSmallScreen;
 
-  const NailCareCard({super.key, required this.item});
+  const NailCareCard({
+    super.key,
+    required this.item,
+    required this.isSmallScreen,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -138,18 +161,23 @@ class NailCareCard extends StatelessWidget {
             children: [
               Image.network(
                 item.imageUrl,
-                height: 200,
+                // 3. Scale image height dynamically
+                height: isSmallScreen ? 150 : 200,
                 width: double.infinity,
                 fit: BoxFit.cover,
               ),
               if (item.isBestseller)
-                const Positioned(top: 12, right: 12, child: _BestsellerBadge()),
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: _BestsellerBadge(isSmallScreen: isSmallScreen),
+                ),
             ],
           ),
 
           // Content Section
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(isSmallScreen ? 12.0 : 16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -161,64 +189,103 @@ class NailCareCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         item.title,
-                        style: AppFonts.poppinsSemiBold(color: AppTheme.primaryText, fontSize: 16), // Primary Dark Text
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppFonts.poppinsSemiBold(
+                          color: AppTheme.primaryText,
+                          fontSize: isSmallScreen ? 14 : 16,
+                          height: 1.2,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       item.price,
                       style: AppFonts.poppinsSemiBold(
-                        color: AppColors.primaryColor, // Mapped active/primary color
-                        fontSize: 16,
+                        color: AppColors.primaryColor,
+                        fontSize: isSmallScreen ? 14 : 16,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: isSmallScreen ? 6 : 8),
 
-                // Metadata Row (Duration & Feature Tag)
-                Row(
+                // 4. Replaced Row with Wrap to prevent right-side clipping on long tags
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 4,
+                  runSpacing: 4,
                   children: [
                     Icon(
                       Icons.access_time,
-                      size: 14,
-                      color: AppColors.primaryBlack40, // Secondary Grey Text
+                      size: isSmallScreen ? 12 : 14,
+                      color: AppColors.primaryBlack40,
                     ),
-                    const SizedBox(width: 4),
                     Text(
                       item.duration,
-                      style: AppFonts.poppinsRegular(color: AppColors.primaryBlack40, fontSize: 12), // Secondary Grey Text
+                      style: AppFonts.poppinsRegular(
+                        color: AppColors.primaryBlack40,
+                        fontSize: isSmallScreen ? 11 : 12,
+                      ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
                       child: Text(
                         '•',
-                        style: AppFonts.poppinsRegular(color: AppColors.primaryBlack40, fontSize: 12), // Secondary Grey Text
+                        style: AppFonts.poppinsRegular(
+                          color: AppColors.primaryBlack40,
+                          fontSize: isSmallScreen ? 11 : 12,
+                        ),
                       ),
                     ),
                     Text(
                       item.featureTag,
-                      style: AppFonts.poppinsRegular(color: AppColors.primaryBlack40, fontSize: 12), // Secondary Grey Text
+                      style: AppFonts.poppinsRegular(
+                        color: AppColors.primaryBlack40,
+                        fontSize: isSmallScreen ? 11 : 12,
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: isSmallScreen ? 8 : 12),
 
                 // Description
                 Text(
                   item.description,
-                  style: AppFonts.poppinsRegular(color: AppTheme.secondaryText, fontSize: 14),
+                  style: AppFonts.poppinsRegular(
+                    color: AppTheme.secondaryText,
+                    fontSize: isSmallScreen ? 13 : 14,
+                    height: 1.4,
+                  ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: isSmallScreen ? 12 : 16),
 
-                // Action Button - Relies on global Elevated Button theme
+                // Action Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      // 5. Responsive minimum height
+                      minimumSize: Size(
+                        double.infinity,
+                        isSmallScreen ? 44 : 50,
+                      ),
+                      padding: EdgeInsets.symmetric(
+                        vertical: isSmallScreen ? 12 : 16,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
                     onPressed: () {
                       // TODO: Implement booking action
                     },
-                    child: const Text('BOOK SERVICE'),
+                    child: Text(
+                      'BOOK SERVICE',
+                      style: AppFonts.poppinsSemiBold(
+                        fontSize: isSmallScreen ? 12 : 14,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -231,26 +298,28 @@ class NailCareCard extends StatelessWidget {
 }
 
 class _BestsellerBadge extends StatelessWidget {
-  const _BestsellerBadge();
+  final bool isSmallScreen;
+
+  const _BestsellerBadge({required this.isSmallScreen});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: EdgeInsets.symmetric(
+        horizontal: isSmallScreen ? 6 : 8,
+        vertical: isSmallScreen ? 2 : 4,
+      ),
       decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor.withAlpha(
-          230,
-        ), // Semi-transparent overlay
+        color: theme.scaffoldBackgroundColor.withAlpha(230),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
         'BESTSELLER',
         style: AppFonts.poppinsSemiBold(
-          color:
-              AppColors.primaryColor, // Primary color mapping for attention
-          fontSize: 10,
+          color: AppColors.primaryColor,
+          fontSize: isSmallScreen ? 9 : 10,
           letterSpacing: 0.5,
         ),
       ),
