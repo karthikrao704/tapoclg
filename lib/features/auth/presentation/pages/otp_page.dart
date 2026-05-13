@@ -130,7 +130,9 @@ class _OtpPageState extends State<OtpPage> {
                     Text(
                       "Enter the code we sent to ${widget.email}",
                       textAlign: TextAlign.center,
-                      style: AppFonts.poppinsRegular(color: AppColors.primaryBlack40),
+                      style: AppFonts.poppinsRegular(
+                        color: AppColors.primaryBlack40,
+                      ),
                     ),
                     const SizedBox(height: 40),
 
@@ -241,12 +243,16 @@ class _OtpPageState extends State<OtpPage> {
   }) {
     return SizedBox(
       width: double.infinity,
-      height: 60,
+      // 1. Removed the strict height limit here
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primaryColor,
           foregroundColor: AppColors.white,
+          // 2. Set a minimum bounds so it defaults to 60px but can grow
+          minimumSize: const Size(double.infinity, 60),
+          // 3. Define explicit vertical padding to structure the text
+          padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),

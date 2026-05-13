@@ -15,7 +15,8 @@ class NotificationSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => NotificationSettingsBloc()..add(LoadNotificationSettings()),
+      create: (context) =>
+          NotificationSettingsBloc()..add(LoadNotificationSettings()),
       child: const NotificationSettingsView(),
     );
   }
@@ -26,6 +27,11 @@ class NotificationSettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 1. Establish breakpoints
+    final size = MediaQuery.sizeOf(context);
+    final isSmallScreen = size.height < 650;
+    final hPadding = size.width * 0.05;
+
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
       appBar: SecondaryAppBar(
@@ -41,7 +47,9 @@ class NotificationSettingsView extends StatelessWidget {
       body: BlocBuilder<NotificationSettingsBloc, NotificationSettingsState>(
         builder: (context, state) {
           if (state.isLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(color: Color(0xFFD9A04B)),
+            );
           }
 
           if (state.error != null) {
@@ -54,108 +62,145 @@ class NotificationSettingsView extends StatelessWidget {
           }
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+            // 2. Relative padding for the outer scroll view
+            padding: EdgeInsets.symmetric(
+              horizontal: hPadding,
+              vertical: isSmallScreen ? 16 : 24,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildSectionHeader(Icons.calendar_today_outlined, 'Appointment Notifications'),
+                _buildSectionHeader(
+                  Icons.calendar_today_outlined,
+                  'Appointment Notifications',
+                  isSmallScreen,
+                ),
                 _buildSwitchGroup([
                   _buildSwitchItem(
                     title: 'Booking Confirmation',
                     subtitle: 'Get notified when your booking is confirmed',
                     value: state.bookingConfirmation,
-                    onChanged: (val) => _updateSetting(context, bookingConfirmation: val),
+                    isSmallScreen: isSmallScreen,
+                    onChanged: (val) =>
+                        _updateSetting(context, bookingConfirmation: val),
                   ),
                   _buildSwitchItem(
                     title: 'Reminders',
                     subtitle: 'Receive alerts for upcoming appointments',
                     value: state.reminders,
+                    isSmallScreen: isSmallScreen,
                     onChanged: (val) => _updateSetting(context, reminders: val),
                   ),
                   _buildSwitchItem(
                     title: 'Reschedule Alerts',
                     subtitle: 'Updates when your session time changes',
                     value: state.rescheduleAlerts,
-                    onChanged: (val) => _updateSetting(context, rescheduleAlerts: val),
+                    isSmallScreen: isSmallScreen,
+                    onChanged: (val) =>
+                        _updateSetting(context, rescheduleAlerts: val),
                     showDivider: false,
                   ),
                 ]),
-                const SizedBox(height: 32),
+                SizedBox(height: isSmallScreen ? 24 : 32),
 
-                _buildSectionHeader(Icons.spa_outlined, 'Program Updates'),
+                _buildSectionHeader(
+                  Icons.spa_outlined,
+                  'Program Updates',
+                  isSmallScreen,
+                ),
                 _buildSwitchGroup([
                   _buildSwitchItem(
                     title: 'Workshops',
                     subtitle: 'New skill-based wellness sessions',
                     value: state.workshops,
+                    isSmallScreen: isSmallScreen,
                     onChanged: (val) => _updateSetting(context, workshops: val),
                   ),
                   _buildSwitchItem(
                     title: 'Programs',
                     subtitle: 'Long-term holistic health tracks',
                     value: state.programs,
+                    isSmallScreen: isSmallScreen,
                     onChanged: (val) => _updateSetting(context, programs: val),
                   ),
                   _buildSwitchItem(
                     title: 'Retreats',
                     subtitle: 'Immersive wellness getaways',
                     value: state.retreats,
+                    isSmallScreen: isSmallScreen,
                     onChanged: (val) => _updateSetting(context, retreats: val),
                     showDivider: false,
                   ),
                 ]),
-                const SizedBox(height: 32),
+                SizedBox(height: isSmallScreen ? 24 : 32),
 
-                _buildSectionHeader(Icons.local_offer_outlined, 'Marketing & Offers'),
+                _buildSectionHeader(
+                  Icons.local_offer_outlined,
+                  'Marketing & Offers',
+                  isSmallScreen,
+                ),
                 _buildSwitchGroup([
                   _buildSwitchItem(
                     title: 'Promotions',
                     subtitle: 'Limited time discounts on services',
                     value: state.promotions,
-                    onChanged: (val) => _updateSetting(context, promotions: val),
+                    isSmallScreen: isSmallScreen,
+                    onChanged: (val) =>
+                        _updateSetting(context, promotions: val),
                   ),
                   _buildSwitchItem(
                     title: 'Benefits',
                     subtitle: 'Exclusive member perks and rewards',
                     value: state.benefits,
+                    isSmallScreen: isSmallScreen,
                     onChanged: (val) => _updateSetting(context, benefits: val),
                   ),
                   _buildSwitchItem(
                     title: 'Seasonal',
                     subtitle: 'Holiday specials and solstice events',
                     value: state.seasonal,
+                    isSmallScreen: isSmallScreen,
                     onChanged: (val) => _updateSetting(context, seasonal: val),
                     showDivider: false,
                   ),
                 ]),
-                const SizedBox(height: 32),
+                SizedBox(height: isSmallScreen ? 24 : 32),
 
-                _buildSectionHeader(Icons.campaign_outlined, 'Notification Channels'),
+                _buildSectionHeader(
+                  Icons.campaign_outlined,
+                  'Notification Channels',
+                  isSmallScreen,
+                ),
                 _buildSwitchGroup([
                   _buildSwitchItem(
                     title: 'Push Notifications',
                     subtitle: '',
                     value: state.pushNotifications,
                     leadingIcon: Icons.notifications_none,
-                    onChanged: (val) => _updateSetting(context, pushNotifications: val),
+                    isSmallScreen: isSmallScreen,
+                    onChanged: (val) =>
+                        _updateSetting(context, pushNotifications: val),
                   ),
                   _buildSwitchItem(
                     title: 'Email Updates',
                     subtitle: '',
                     value: state.emailUpdates,
                     leadingIcon: Icons.mail_outline,
-                    onChanged: (val) => _updateSetting(context, emailUpdates: val),
+                    isSmallScreen: isSmallScreen,
+                    onChanged: (val) =>
+                        _updateSetting(context, emailUpdates: val),
                   ),
                   _buildSwitchItem(
                     title: 'SMS Alerts',
                     subtitle: '',
                     value: state.smsAlerts,
                     leadingIcon: Icons.chat_bubble_outline,
+                    isSmallScreen: isSmallScreen,
                     onChanged: (val) => _updateSetting(context, smsAlerts: val),
                     showDivider: false,
                   ),
                 ]),
-                const SizedBox(height: 32),
+                SizedBox(height: isSmallScreen ? 24 : 32),
               ],
             ),
           );
@@ -164,22 +209,27 @@ class NotificationSettingsView extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(IconData icon, String title) {
+  Widget _buildSectionHeader(IconData icon, String title, bool isSmallScreen) {
     return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 16),
+      padding: EdgeInsets.only(left: 4, bottom: isSmallScreen ? 12 : 16),
       child: Row(
         children: [
           Icon(
             icon,
             color: AppColors.primaryColor,
-            size: 24,
+            size: isSmallScreen ? 20 : 24,
           ),
           const SizedBox(width: 8),
-          Text(
-            title,
-            style: AppFonts.poppinsSemiBold(
-              color: AppTheme.primaryText,
-              fontSize: 17,
+          // 3. Pre-emptively wrapping text in Expanded
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppFonts.poppinsSemiBold(
+                color: AppTheme.primaryText,
+                fontSize: isSmallScreen ? 15 : 17,
+              ),
             ),
           ),
         ],
@@ -194,9 +244,7 @@ class NotificationSettingsView extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
       ),
-      child: Column(
-        children: children,
-      ),
+      child: Column(children: children),
     );
   }
 
@@ -205,22 +253,29 @@ class NotificationSettingsView extends StatelessWidget {
     required String subtitle,
     required bool value,
     required Function(bool) onChanged,
+    required bool isSmallScreen,
     IconData? leadingIcon,
     bool showDivider = true,
   }) {
-    // If there is no subtitle (like in Notification Channels), adjust padding
     final hasSubtitle = subtitle.isNotEmpty;
 
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          padding: EdgeInsets.symmetric(
+            horizontal: isSmallScreen ? 12 : 16,
+            vertical: isSmallScreen ? 12 : 16,
+          ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (leadingIcon != null) ...[
-                Icon(leadingIcon, color: const Color(0xFF94A3B8), size: 24),
-                const SizedBox(width: 16),
+                Icon(
+                  leadingIcon,
+                  color: const Color(0xFF94A3B8),
+                  size: isSmallScreen ? 20 : 24,
+                ),
+                SizedBox(width: isSmallScreen ? 12 : 16),
               ],
               Expanded(
                 child: Column(
@@ -228,18 +283,22 @@ class NotificationSettingsView extends StatelessWidget {
                   children: [
                     Text(
                       title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: AppFonts.poppinsMedium(
                         color: AppTheme.primaryText,
-                        fontSize: 16,
+                        fontSize: isSmallScreen ? 14 : 16,
                       ),
                     ),
                     if (hasSubtitle) ...[
-                      const SizedBox(height: 4),
+                      SizedBox(height: isSmallScreen ? 2 : 4),
                       Text(
                         subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: AppFonts.poppinsRegular(
                           color: AppColors.primaryBlack40,
-                          fontSize: 13,
+                          fontSize: isSmallScreen ? 11 : 13,
                         ),
                       ),
                     ],
@@ -247,8 +306,9 @@ class NotificationSettingsView extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              SizedBox(
-                height: 24, // Control the switch height appropriately
+              // 4. Scaling the CupertinoSwitch so it fits neatly on tight screens
+              Transform.scale(
+                scale: isSmallScreen ? 0.85 : 1.0,
                 child: CupertinoSwitch(
                   value: value,
                   activeTrackColor: AppColors.primaryColor,
@@ -260,12 +320,12 @@ class NotificationSettingsView extends StatelessWidget {
           ),
         ),
         if (showDivider)
-          const Divider(
+          Divider(
             height: 1,
             thickness: 1,
-            color: Color(0xFFF1F5F9),
-            indent: 16,
-            endIndent: 16,
+            color: const Color(0xFFF1F5F9),
+            indent: isSmallScreen ? 12 : 16,
+            endIndent: isSmallScreen ? 12 : 16,
           ),
       ],
     );
@@ -287,20 +347,20 @@ class NotificationSettingsView extends StatelessWidget {
     bool? smsAlerts,
   }) {
     context.read<NotificationSettingsBloc>().add(
-          UpdateNotificationSettings(
-            bookingConfirmation: bookingConfirmation,
-            reminders: reminders,
-            rescheduleAlerts: rescheduleAlerts,
-            workshops: workshops,
-            programs: programs,
-            retreats: retreats,
-            promotions: promotions,
-            benefits: benefits,
-            seasonal: seasonal,
-            pushNotifications: pushNotifications,
-            emailUpdates: emailUpdates,
-            smsAlerts: smsAlerts,
-          ),
-        );
+      UpdateNotificationSettings(
+        bookingConfirmation: bookingConfirmation,
+        reminders: reminders,
+        rescheduleAlerts: rescheduleAlerts,
+        workshops: workshops,
+        programs: programs,
+        retreats: retreats,
+        promotions: promotions,
+        benefits: benefits,
+        seasonal: seasonal,
+        pushNotifications: pushNotifications,
+        emailUpdates: emailUpdates,
+        smsAlerts: smsAlerts,
+      ),
+    );
   }
 }

@@ -60,32 +60,45 @@ class StylingMakeoverScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context); // Always use Theme.of(context)
+    final theme = Theme.of(context);
+
+    // 1. Central breakpoint logic
+    final size = MediaQuery.sizeOf(context);
+    final isSmallScreen = size.width < 360 || size.height < 650;
 
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        backgroundColor: theme.scaffoldBackgroundColor, // Main Background
-        appBar: const SecondaryAppBar(
-          title: 'Styling & Makeover',
-        ),
+        backgroundColor: theme.scaffoldBackgroundColor,
+        appBar: const SecondaryAppBar(title: 'Styling & Makeover'),
         body: Column(
           children: [
             // Static Hero Banner
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: _HeroBanner(),
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: size.width * 0.05,
+                vertical: isSmallScreen ? 4.0 : 8.0,
+              ),
+              child: _HeroBanner(isSmallScreen: isSmallScreen),
             ),
 
             // Tab Bar
             TabBar(
-              labelColor: AppColors.primaryColor, // Primary Actions/Active
-              unselectedLabelColor:
-                  AppTheme.secondaryText, // Secondary Grey Text
-              dividerColor: Colors.transparent, // Remove default divider
+              // 2. Prevent horizontal squeezing on tight phones
+              isScrollable: isSmallScreen,
+              tabAlignment: isSmallScreen
+                  ? TabAlignment.start
+                  : TabAlignment.center,
+              labelColor: AppColors.primaryColor,
+              unselectedLabelColor: AppTheme.secondaryText,
+              dividerColor: Colors.transparent,
               indicatorColor: AppColors.primaryColor,
-              labelStyle: AppFonts.poppinsSemiBold(fontSize: 14),
-              unselectedLabelStyle: AppFonts.poppinsRegular(fontSize: 14),
+              labelStyle: AppFonts.poppinsSemiBold(
+                fontSize: isSmallScreen ? 12 : 14,
+              ),
+              unselectedLabelStyle: AppFonts.poppinsRegular(
+                fontSize: isSmallScreen ? 12 : 14,
+              ),
               tabs: const [
                 Tab(text: 'Makeup'),
                 Tab(text: 'Bridal Makeover'),
@@ -102,11 +115,11 @@ class StylingMakeoverScreen extends StatelessWidget {
                     children: [
                       // Filter Row
                       SizedBox(
-                        height: 50,
+                        height: isSmallScreen ? 40 : 50,
                         child: ListView(
                           scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: size.width * 0.05,
                             vertical: 8.0,
                           ),
                           children: const [
@@ -122,13 +135,17 @@ class StylingMakeoverScreen extends StatelessWidget {
                       // Scrollable List
                       Expanded(
                         child: ListView.separated(
-                          padding: const EdgeInsets.all(16.0),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: size.width * 0.05,
+                            vertical: isSmallScreen ? 8.0 : 16.0,
+                          ),
                           itemCount: _mockStylingServices.length,
                           separatorBuilder: (context, index) =>
-                              const SizedBox(height: 16.0),
+                              SizedBox(height: isSmallScreen ? 12.0 : 16.0),
                           itemBuilder: (context, index) {
                             return StylingCard(
                               item: _mockStylingServices[index],
+                              isSmallScreen: isSmallScreen,
                             );
                           },
                         ),
@@ -152,12 +169,15 @@ class StylingMakeoverScreen extends StatelessWidget {
 // --- REUSABLE WIDGETS ---
 
 class _HeroBanner extends StatelessWidget {
-  const _HeroBanner();
+  final bool isSmallScreen;
+
+  const _HeroBanner({required this.isSmallScreen});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 160,
+      // Scaled hero height
+      height: isSmallScreen ? 120 : 160,
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -170,7 +190,6 @@ class _HeroBanner extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: Container(
-        // Gradient to ensure text pops against any image
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -179,26 +198,38 @@ class _HeroBanner extends StatelessWidget {
             stops: const [0.4, 1.0],
           ),
         ),
-        padding: const EdgeInsets.all(16.0),
-        alignment: Alignment.bottomLeft,
+        padding: EdgeInsets.all(isSmallScreen ? 12.0 : 16.0),
+        // 1. Removed `alignment: Alignment.bottomLeft` from here to let the Column manage the space
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          // 2. Set the Column to push items to the bottom
+          mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'COUTURE BEAUTY',
-              style: AppFonts.poppinsSemiBold(
-                color: AppColors.primaryColor, // Highlight accent
-                fontSize: 12,
-                letterSpacing: 2.0,
+            // 3. Wrapped in Flexible to safely shrink if height runs out
+            Flexible(
+              child: Text(
+                'COUTURE BEAUTY',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppFonts.poppinsSemiBold(
+                  color: AppColors.primaryColor,
+                  fontSize: isSmallScreen ? 10 : 12,
+                  letterSpacing: 2.0,
+                ),
               ),
             ),
             const SizedBox(height: 4),
-            Text(
-              'Styling & Makeover',
-              style: AppFonts.poppinsSemiBold(
-                color: Colors.white,
-                fontSize: 24,
+            // 4. Safely bound the main title to 2 lines max
+            Flexible(
+              child: Text(
+                'Styling & Makeover',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppFonts.poppinsSemiBold(
+                  color: Colors.white,
+                  fontSize: isSmallScreen ? 20 : 24,
+                  height: 1.2, // Tighter line height for large text
+                ),
               ),
             ),
           ],
@@ -216,15 +247,17 @@ class _FilterDropdownChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isSmallScreen = MediaQuery.sizeOf(context).height < 650;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: EdgeInsets.symmetric(
+        horizontal: isSmallScreen ? 12 : 16,
+        vertical: 4,
+      ),
       decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor, // Main Background
+        color: theme.scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: theme.colorScheme.outline.withAlpha(50), // Borders/Dividers
-        ),
+        border: Border.all(color: theme.colorScheme.outline.withAlpha(50)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -232,16 +265,16 @@ class _FilterDropdownChip extends StatelessWidget {
           Text(
             label,
             style: AppFonts.poppinsSemiBold(
-              color: AppTheme.primaryText, // Standard text color
-              fontSize: 10,
+              color: AppTheme.primaryText,
+              fontSize: isSmallScreen ? 9 : 10,
               letterSpacing: 0.5,
             ),
           ),
           const SizedBox(width: 4),
           Icon(
             Icons.keyboard_arrow_down,
-            size: 14,
-            color: AppTheme.secondaryText, // Secondary Grey
+            size: isSmallScreen ? 12 : 14,
+            color: AppTheme.secondaryText,
           ),
         ],
       ),
@@ -251,8 +284,13 @@ class _FilterDropdownChip extends StatelessWidget {
 
 class StylingCard extends StatelessWidget {
   final StylingItem item;
+  final bool isSmallScreen;
 
-  const StylingCard({super.key, required this.item});
+  const StylingCard({
+    super.key,
+    required this.item,
+    required this.isSmallScreen,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -260,11 +298,9 @@ class StylingCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor, // Main Background
+        color: theme.scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: theme.colorScheme.outline.withAlpha(50),
-        ), // Borders/Dividers
+        border: Border.all(color: theme.colorScheme.outline.withAlpha(50)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -275,7 +311,8 @@ class StylingCard extends StatelessWidget {
             children: [
               Image.network(
                 item.imageUrl,
-                height: 200,
+                // 4. Shrink image height so it doesn't crowd text on small phones
+                height: isSmallScreen ? 150 : 200,
                 width: double.infinity,
                 fit: BoxFit.cover,
               ),
@@ -292,8 +329,7 @@ class StylingCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color:
-                            theme.colorScheme.primary, // Primary action color
+                        color: theme.colorScheme.primary,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -312,9 +348,7 @@ class StylingCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withAlpha(
-                          180,
-                        ), // Dark overlay mapping
+                        color: Colors.black.withAlpha(180),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -333,7 +367,7 @@ class StylingCard extends StatelessWidget {
 
           // Content Section
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(isSmallScreen ? 12.0 : 16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -342,44 +376,66 @@ class StylingCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // 5. Bound the title to avoid horizontal crushing
                     Expanded(
                       child: Text(
                         item.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: AppFonts.poppinsSemiBold(
                           color: AppTheme.primaryText,
-                          fontSize: 16,
-                        ), // Primary Dark Text
+                          fontSize: isSmallScreen ? 14 : 16,
+                          height: 1.2,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Text(
                       item.price,
                       style: AppFonts.poppinsSemiBold(
-                        color: AppColors.primaryColor, // Price mapping
-                        fontSize: 16,
+                        color: AppColors.primaryColor,
+                        fontSize: isSmallScreen ? 14 : 16,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: isSmallScreen ? 6 : 8),
 
                 // Description
                 Text(
                   item.description,
                   style: AppFonts.poppinsRegular(
-                    color:
-                        AppTheme.secondaryText, // Secondary Grey Text
-                    fontSize: 14,
+                    color: AppTheme.secondaryText,
+                    fontSize: isSmallScreen ? 13 : 14,
+                    height: 1.4,
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: isSmallScreen ? 12 : 16),
 
                 // Action Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      // 6. Prevent clipping inside the button via minimumSize
+                      minimumSize: Size(
+                        double.infinity,
+                        isSmallScreen ? 44 : 50,
+                      ),
+                      padding: EdgeInsets.symmetric(
+                        vertical: isSmallScreen ? 12 : 16,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
                     onPressed: () {},
-                    child: const Text('BOOK STYLING SESSION'),
+                    child: Text(
+                      'BOOK STYLING SESSION',
+                      style: AppFonts.poppinsSemiBold(
+                        fontSize: isSmallScreen ? 12 : 14,
+                      ),
+                    ),
                   ),
                 ),
               ],

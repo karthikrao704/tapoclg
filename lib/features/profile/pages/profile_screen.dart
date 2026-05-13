@@ -78,7 +78,6 @@ class ProfileView extends StatelessWidget {
   // ─── Photo action bottom sheet ────────────────────────────────────────────
 
   void _showPhotoOptions(BuildContext context, bool hasPhoto) {
-    // ✅ Capture the bloc BEFORE opening bottom sheet
     final profileBloc = context.read<ProfileBloc>();
 
     showModalBottomSheet(
@@ -112,7 +111,6 @@ class ProfileView extends StatelessWidget {
                 ),
                 onTap: () {
                   Navigator.of(bottomSheetContext).pop();
-                  // ✅ Use captured bloc reference
                   _pickAndUploadPhotoWithBloc(context, profileBloc);
                 },
               ),
@@ -130,7 +128,6 @@ class ProfileView extends StatelessWidget {
                   ),
                   onTap: () {
                     Navigator.of(bottomSheetContext).pop();
-                    // ✅ Use captured bloc reference
                     profileBloc.add(DeleteProfilePhoto());
                   },
                 ),
@@ -174,7 +171,6 @@ class ProfileView extends StatelessWidget {
       return;
     }
 
-    // ✅ Use the captured bloc reference directly
     bloc.add(UploadProfilePhoto(filePath: path));
   }
 
@@ -182,14 +178,19 @@ class ProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Determine screen sizing for responsive elements
+    final size = MediaQuery.sizeOf(context);
+    final isSmallScreen = size.height < 650;
+    final horizontalPadding = size.width * 0.05; // Flexible side margins
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
-          ' Profile',
+          'Profile',
           overflow: TextOverflow.ellipsis,
           style: AppFonts.headland(
-            fontSize: 22,
+            fontSize: isSmallScreen ? 20 : 22,
             fontWeight: FontWeight.w400,
             color: AppTheme.primaryText,
           ),
@@ -230,14 +231,28 @@ class ProfileView extends StatelessWidget {
           return SingleChildScrollView(
             child: Column(
               children: [
-                _buildProfileHeader(context, state),
-                _buildWellnessPassCard(context, state),
-                _buildHistoryCard(context, state),
-                _buildAccountSettingsSection(context),
-                _buildLegalLinks(),
-                _buildLogoutButton(context),
-                _buildAppVersion(state),
-                const SizedBox(height: 20),
+                _buildProfileHeader(context, state, isSmallScreen),
+                _buildWellnessPassCard(
+                  context,
+                  state,
+                  isSmallScreen,
+                  horizontalPadding,
+                ),
+                _buildHistoryCard(
+                  context,
+                  state,
+                  isSmallScreen,
+                  horizontalPadding,
+                ),
+                _buildAccountSettingsSection(
+                  context,
+                  isSmallScreen,
+                  horizontalPadding,
+                ),
+                _buildLegalLinks(isSmallScreen),
+                _buildLogoutButton(context, isSmallScreen, horizontalPadding),
+                _buildAppVersion(state, isSmallScreen),
+                SizedBox(height: isSmallScreen ? 15 : 20),
               ],
             ),
           );
@@ -248,13 +263,20 @@ class ProfileView extends StatelessWidget {
 
   // ─── Profile header ───────────────────────────────────────────────────────
 
-  Widget _buildProfileHeader(BuildContext context, ProfileState state) {
+  Widget _buildProfileHeader(
+    BuildContext context,
+    ProfileState state,
+    bool isSmallScreen,
+  ) {
     final bool hasNetworkPhoto =
         state.profilePhotoUrl != null && state.profilePhotoUrl!.isNotEmpty;
 
+    // Scale avatar based on screen size
+    final double avatarSize = isSmallScreen ? 90 : 110;
+
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.only(top: 8, bottom: 24),
+      padding: EdgeInsets.only(top: 8, bottom: isSmallScreen ? 16 : 24),
       child: Column(
         children: [
           GestureDetector(
@@ -264,8 +286,8 @@ class ProfileView extends StatelessWidget {
               children: [
                 // Avatar
                 Container(
-                  width: 110,
-                  height: 110,
+                  width: avatarSize,
+                  height: avatarSize,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 4),
@@ -304,72 +326,44 @@ class ProfileView extends StatelessWidget {
                     ),
                   ),
 
-                // Gold verified badge (bottom-right)
-                // Positioned(
-                //   bottom: -2,
-                //   right: 0,
-                //   child: Container(
-                //     width: 32,
-                //     height: 32,
-                //     decoration: const BoxDecoration(
-                //       color: Colors.white,
-                //       shape: BoxShape.circle,
-                //     ),
-                //     child: Center(
-                //       child: Container(
-                //         width: 26,
-                //         height: 26,
-                //         decoration: const BoxDecoration(
-                //           color: Color(0xFFCFAB46),
-                //           shape: BoxShape.circle,
-                //         ),
-                //         child: const Center(
-                //           child: Icon(
-                //             Icons.verified_outlined,
-                //             color: Colors.white,
-                //             size: 18,
-                //           ),
-                //         ),
-                //       ),
-                //     ),
-                //   ),
-                // ),
-
                 // Camera badge (bottom-left)
                 Positioned(
                   bottom: -2,
                   left: 0,
                   child: Container(
-                    width: 30,
-                    height: 30,
+                    width: isSmallScreen ? 26 : 30,
+                    height: isSmallScreen ? 26 : 30,
                     decoration: BoxDecoration(
                       color: AppColors.primaryColor,
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 2),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.camera_alt_outlined,
                       color: Colors.white,
-                      size: 16,
+                      size: isSmallScreen ? 14 : 16,
                     ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: isSmallScreen ? 12 : 16),
 
           Text(
             state.name,
             style: AppFonts.poppinsMedium(
-              fontSize: 24,
+              fontSize: isSmallScreen ? 20 : 24,
               color: AppTheme.primaryText,
             ),
           ),
           const SizedBox(height: 8),
 
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            padding: EdgeInsets.symmetric(
+              horizontal: isSmallScreen ? 12 : 16,
+              vertical: isSmallScreen ? 4 : 6,
+            ),
             decoration: BoxDecoration(
               color: const Color(0xFF58B814).withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(24),
@@ -378,20 +372,20 @@ class ProfileView extends StatelessWidget {
               state.membershipType,
               style: AppFonts.poppinsSemiBold(
                 color: AppColors.primaryColor,
-                fontSize: 14,
+                fontSize: isSmallScreen ? 12 : 14,
                 letterSpacing: 0.7,
                 height: 1.5,
               ),
             ),
           ),
 
-          const SizedBox(height: 12),
+          SizedBox(height: isSmallScreen ? 8 : 12),
           if (state.memberSince.isNotEmpty)
             Text(
               'Member since ${state.memberSince}',
               style: AppFonts.poppinsRegular(
                 color: AppTheme.secondaryText,
-                fontSize: 15,
+                fontSize: isSmallScreen ? 13 : 15,
                 letterSpacing: -0.3,
               ),
             ),
@@ -402,9 +396,14 @@ class ProfileView extends StatelessWidget {
 
   // ─── Wellness pass card ───────────────────────────────────────────────────
 
-  Widget _buildWellnessPassCard(BuildContext context, ProfileState state) {
+  Widget _buildWellnessPassCard(
+    BuildContext context,
+    ProfileState state,
+    bool isSmallScreen,
+    double hPadding,
+  ) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: EdgeInsets.symmetric(horizontal: hPadding, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -415,7 +414,7 @@ class ProfileView extends StatelessWidget {
         children: [
           Container(
             width: double.infinity,
-            height: 110,
+            height: isSmallScreen ? 90 : 110,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [Color(0xFFDCA730), Color(0xFF9DC970)],
@@ -432,12 +431,12 @@ class ProfileView extends StatelessWidget {
               children: [
                 Positioned(
                   left: 20,
-                  top: 40,
+                  top: isSmallScreen ? 30 : 40,
                   child: Text(
                     'Premium Wellness Pass',
                     style: AppFonts.poppinsMedium(
                       color: AppColors.white,
-                      fontSize: 18,
+                      fontSize: isSmallScreen ? 16 : 18,
                     ),
                   ),
                 ),
@@ -446,15 +445,18 @@ class ProfileView extends StatelessWidget {
                   bottom: 0,
                   child: SvgPicture.asset(
                     'assets/icons/petal.svg',
-                    width: 50,
-                    height: 50,
+                    width: isSmallScreen ? 40 : 50,
+                    height: isSmallScreen ? 40 : 50,
                   ),
                 ),
               ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            padding: EdgeInsets.symmetric(
+              horizontal: isSmallScreen ? 16 : 20,
+              vertical: isSmallScreen ? 16 : 24,
+            ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -466,38 +468,38 @@ class ProfileView extends StatelessWidget {
                         'AVAILABLE CREDITS',
                         style: AppFonts.poppinsSemiBold(
                           color: AppTheme.secondaryText,
-                          fontSize: 12,
+                          fontSize: isSmallScreen ? 10 : 12,
                           letterSpacing: 0.5,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      SizedBox(height: isSmallScreen ? 4 : 6),
                       Text(
                         '${state.availableCredits} Credits remaining',
                         style: AppFonts.poppinsSemiBold(
                           color: AppTheme.primaryText,
-                          fontSize: 18,
+                          fontSize: isSmallScreen ? 16 : 18,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      SizedBox(height: isSmallScreen ? 4 : 6),
                       Text(
                         'Next renewal: ${state.nextRenewal}',
                         style: AppFonts.poppinsRegular(
                           color: AppColors.primaryBlack40,
-                          fontSize: 13,
+                          fontSize: isSmallScreen ? 11 : 13,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: isSmallScreen ? 8 : 12),
                 ElevatedButton(
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryColor,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 16,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isSmallScreen ? 16 : 24,
+                      vertical: isSmallScreen ? 12 : 16,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -506,7 +508,9 @@ class ProfileView extends StatelessWidget {
                   ),
                   child: Text(
                     'Manage',
-                    style: AppFonts.poppinsSemiBold(fontSize: 16),
+                    style: AppFonts.poppinsSemiBold(
+                      fontSize: isSmallScreen ? 14 : 16,
+                    ),
                   ),
                 ),
               ],
@@ -519,7 +523,12 @@ class ProfileView extends StatelessWidget {
 
   // ─── History card ─────────────────────────────────────────────────────────
 
-  Widget _buildHistoryCard(BuildContext context, ProfileState state) {
+  Widget _buildHistoryCard(
+    BuildContext context,
+    ProfileState state,
+    bool isSmallScreen,
+    double hPadding,
+  ) {
     return GestureDetector(
       onTap: () {
         Navigator.of(
@@ -527,8 +536,8 @@ class ProfileView extends StatelessWidget {
         ).push(MaterialPageRoute(builder: (context) => const MyBookingsPage()));
       },
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        padding: const EdgeInsets.all(16),
+        margin: EdgeInsets.symmetric(horizontal: hPadding, vertical: 8),
+        padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -537,38 +546,45 @@ class ProfileView extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 44,
-              height: 44,
+              width: isSmallScreen ? 38 : 44,
+              height: isSmallScreen ? 38 : 44,
               decoration: BoxDecoration(
                 color: const Color(0xFFF2F7E6),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.restore,
                 color: AppColors.primaryColor,
-                size: 28,
+                size: isSmallScreen ? 24 : 28,
               ),
             ),
             const SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'My Bookings & History',
-                  style: AppFonts.poppinsRegular(
-                    fontSize: 16,
-                    color: AppTheme.primaryText,
+
+            // 🐛 THE FIX: Wrapped the Column in an Expanded widget
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'My Bookings & History',
+                    // Added safety truncations just in case
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppFonts.poppinsRegular(
+                      fontSize: isSmallScreen ? 14 : 16,
+                      color: AppTheme.primaryText,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '${state.totalVisits} visits',
-                  style: AppFonts.poppinsRegular(
-                    fontSize: 13,
-                    color: AppColors.primaryBlack40,
+                  const SizedBox(height: 2),
+                  Text(
+                    '${state.totalVisits} visits',
+                    style: AppFonts.poppinsRegular(
+                      fontSize: isSmallScreen ? 11 : 13,
+                      color: AppColors.primaryBlack40,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
@@ -578,23 +594,27 @@ class ProfileView extends StatelessWidget {
 
   // ─── Account settings ─────────────────────────────────────────────────────
 
-  Widget _buildAccountSettingsSection(BuildContext context) {
+  Widget _buildAccountSettingsSection(
+    BuildContext context,
+    bool isSmallScreen,
+    double hPadding,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 20, top: 16, bottom: 8),
+          padding: EdgeInsets.only(left: hPadding + 4, top: 16, bottom: 8),
           child: Text(
             'ACCOUNT SETTINGS',
             style: AppFonts.poppinsSemiBold(
-              fontSize: 13,
+              fontSize: isSmallScreen ? 11 : 13,
               color: AppTheme.secondaryText,
               letterSpacing: 0.8,
             ),
           ),
         ),
         Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
+          margin: EdgeInsets.symmetric(horizontal: hPadding),
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             color: Colors.white,
@@ -608,6 +628,7 @@ class ProfileView extends StatelessWidget {
                 Icons.person_outline,
                 'Personal Information',
                 () => _navigateToPage(context, const PersonalInfoPage()),
+                isSmallScreen,
                 showDivider: true,
               ),
               _buildSettingsItem(
@@ -615,18 +636,21 @@ class ProfileView extends StatelessWidget {
                 'Notifications',
                 () =>
                     _navigateToPage(context, const NotificationSettingsPage()),
+                isSmallScreen,
                 showDivider: true,
               ),
               _buildSettingsItem(
                 Icons.security_outlined,
                 'Privacy & Security',
                 () => _navigateToPage(context, const PrivacySecurityPage()),
+                isSmallScreen,
                 showDivider: true,
               ),
               _buildSettingsItem(
                 Icons.help_outline,
                 'Support Center',
                 () => _navigateToPage(context, const SupportCenterPage()),
+                isSmallScreen,
                 showDivider: false,
               ),
             ],
@@ -639,7 +663,8 @@ class ProfileView extends StatelessWidget {
   Widget _buildSettingsItem(
     IconData icon,
     String title,
-    VoidCallback onTap, {
+    VoidCallback onTap,
+    bool isSmallScreen, {
     bool showDivider = true,
   }) {
     return Column(
@@ -650,18 +675,22 @@ class ProfileView extends StatelessWidget {
             vertical: 0,
           ),
           minVerticalPadding: 0,
-          leading: Icon(icon, color: AppColors.primaryColor, size: 24),
+          leading: Icon(
+            icon,
+            color: AppColors.primaryColor,
+            size: isSmallScreen ? 20 : 24,
+          ),
           title: Text(
             title,
             style: AppFonts.poppinsMedium(
-              fontSize: 15,
+              fontSize: isSmallScreen ? 13 : 15,
               color: AppTheme.primaryText,
             ),
           ),
-          trailing: const Icon(
+          trailing: Icon(
             Icons.chevron_right,
-            color: Color(0xFFCBD5E1),
-            size: 20,
+            color: const Color(0xFFCBD5E1),
+            size: isSmallScreen ? 18 : 20,
           ),
           onTap: onTap,
         ),
@@ -679,9 +708,9 @@ class ProfileView extends StatelessWidget {
 
   // ─── Legal / logout / version ─────────────────────────────────────────────
 
-  Widget _buildLegalLinks() {
+  Widget _buildLegalLinks(bool isSmallScreen) {
     return Padding(
-      padding: const EdgeInsets.only(top: 24, bottom: 16),
+      padding: EdgeInsets.only(top: isSmallScreen ? 16 : 24, bottom: 16),
       child: Column(
         children: [
           Text(
@@ -689,7 +718,7 @@ class ProfileView extends StatelessWidget {
             textAlign: TextAlign.center,
             style: AppFonts.poppinsRegular(
               color: AppTheme.secondaryText,
-              fontSize: 14,
+              fontSize: isSmallScreen ? 12 : 14,
               height: 1.3,
             ),
           ),
@@ -698,7 +727,7 @@ class ProfileView extends StatelessWidget {
             'Privacy Policy',
             style: AppFonts.poppinsRegular(
               color: AppTheme.secondaryText,
-              fontSize: 14,
+              fontSize: isSmallScreen ? 12 : 14,
             ),
           ),
         ],
@@ -706,21 +735,29 @@ class ProfileView extends StatelessWidget {
     );
   }
 
-  Widget _buildLogoutButton(BuildContext context) {
+  Widget _buildLogoutButton(
+    BuildContext context,
+    bool isSmallScreen,
+    double hPadding,
+  ) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      margin: EdgeInsets.symmetric(horizontal: hPadding, vertical: 16),
       width: double.infinity,
       child: ElevatedButton.icon(
         onPressed: () => _showLogoutDialog(context),
-        icon: const Icon(Icons.logout_rounded, size: 24, color: Colors.white),
+        icon: Icon(
+          Icons.logout_rounded,
+          size: isSmallScreen ? 20 : 24,
+          color: Colors.white,
+        ),
         label: Text(
           'Logout',
-          style: AppFonts.poppinsSemiBold(fontSize: 18),
+          style: AppFonts.poppinsSemiBold(fontSize: isSmallScreen ? 16 : 18),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primaryColor,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 12 : 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),
@@ -730,12 +767,15 @@ class ProfileView extends StatelessWidget {
     );
   }
 
-  Widget _buildAppVersion(ProfileState state) {
+  Widget _buildAppVersion(ProfileState state, bool isSmallScreen) {
     return Padding(
-      padding: const EdgeInsets.only(top: 8, bottom: 24),
+      padding: EdgeInsets.only(top: 8, bottom: isSmallScreen ? 16 : 24),
       child: Text(
         'Tapovana Wellness v${state.appVersion}',
-        style: AppFonts.poppinsRegular(color: AppColors.primaryBlack40, fontSize: 13),
+        style: AppFonts.poppinsRegular(
+          color: AppColors.primaryBlack40,
+          fontSize: isSmallScreen ? 11 : 13,
+        ),
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart'; // Required for TapGestureRecognizer
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -26,6 +27,10 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
+    // 1. Fetch screen dimensions and set the breakpoint
+    final size = MediaQuery.sizeOf(context);
+    final bool isSmallScreen = size.height < 650;
+
     return BlocProvider(
       create: (context) => SignupBloc(AuthApiRepository()),
       child: MultiBlocListener(
@@ -63,8 +68,6 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                 );
               }
-              // GoogleNewUser → router handles redirect to googleOtp
-              // Authenticated → router handles redirect to home
             },
           ),
         ],
@@ -75,34 +78,48 @@ class _SignupPageState extends State<SignupPage> {
               children: [
                 SingleChildScrollView(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    // 2. Relative horizontal padding matching the login screen
+                    padding: EdgeInsets.symmetric(
+                      horizontal: size.width * 0.06,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const SizedBox(height: 15),
-                        Image.asset('assets/logo/logo.png', width: 190),
-                        const SizedBox(height: 10),
+                        SizedBox(height: isSmallScreen ? 10 : 15),
+                        // 3. Responsive logo capped safely
+                        Image.asset(
+                          'assets/logo/logo.png',
+                          width: size.width * 0.45 > 190
+                              ? 190
+                              : size.width * 0.45,
+                        ),
+                        SizedBox(height: isSmallScreen ? 5 : 10),
                         Text(
                           "Sign Up",
                           style: AppFonts.headland(
-                            fontSize: 24,
+                            fontSize: isSmallScreen ? 20 : 24,
                             fontWeight: FontWeight.w600,
                             color: AppTheme.primaryText,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: isSmallScreen ? 4 : 8),
                         Text(
                           "Welcome to your sanctuary",
-                          style: AppFonts.poppinsRegular(color: AppColors.primaryBlack40, fontSize: 14),
+                          style: AppFonts.poppinsRegular(
+                            color: AppColors.primaryBlack40,
+                            fontSize: isSmallScreen ? 12 : 14,
+                          ),
                         ),
-                        const SizedBox(height: 40),
+                        SizedBox(height: isSmallScreen ? 25 : 40),
 
                         // Email
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
                             "Email",
-                            style: AppFonts.poppinsSemiBold(fontSize: 14),
+                            style: AppFonts.poppinsSemiBold(
+                              fontSize: isSmallScreen ? 12 : 14,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -112,13 +129,13 @@ class _SignupPageState extends State<SignupPage> {
                             hintText: "your@email.com",
                             hintStyle: AppFonts.poppinsRegular(
                               color: AppColors.primaryBlack40,
-                              fontSize: 14,
+                              fontSize: isSmallScreen ? 12 : 14,
                             ),
                             filled: true,
                             fillColor: AppColors.backgroundColor,
-                            contentPadding: const EdgeInsets.symmetric(
+                            contentPadding: EdgeInsets.symmetric(
                               horizontal: 16,
-                              vertical: 14,
+                              vertical: isSmallScreen ? 12 : 14,
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -134,14 +151,16 @@ class _SignupPageState extends State<SignupPage> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 30),
+                        SizedBox(height: isSmallScreen ? 20 : 30),
 
                         // Password
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
                             "Password",
-                            style: AppFonts.poppinsSemiBold(fontSize: 14),
+                            style: AppFonts.poppinsSemiBold(
+                              fontSize: isSmallScreen ? 12 : 14,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -152,12 +171,13 @@ class _SignupPageState extends State<SignupPage> {
                             hintText: "••••••••",
                             hintStyle: AppFonts.poppinsRegular(
                               color: AppColors.primaryBlack40,
+                              fontSize: isSmallScreen ? 12 : 14,
                             ),
                             filled: true,
                             fillColor: AppColors.backgroundColor,
-                            contentPadding: const EdgeInsets.symmetric(
+                            contentPadding: EdgeInsets.symmetric(
                               horizontal: 16,
-                              vertical: 14,
+                              vertical: isSmallScreen ? 12 : 14,
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -176,6 +196,7 @@ class _SignupPageState extends State<SignupPage> {
                                 _obscurePassword
                                     ? Icons.visibility_off_outlined
                                     : Icons.visibility_outlined,
+                                size: isSmallScreen ? 20 : 24,
                               ),
                               onPressed: () => setState(
                                 () => _obscurePassword = !_obscurePassword,
@@ -184,22 +205,22 @@ class _SignupPageState extends State<SignupPage> {
                           ),
                         ),
 
-                        const SizedBox(height: 8),
+                        SizedBox(height: isSmallScreen ? 4 : 8),
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
                             onPressed: () {},
-                            child: const Text(
+                            child: Text(
                               "Forgot Password?",
                               style: TextStyle(
-                                color: Color(0xFF6B6B6B),
-                                fontSize: 13,
+                                color: const Color(0xFF6B6B6B),
+                                fontSize: isSmallScreen ? 11 : 13,
                               ),
                             ),
                           ),
                         ),
 
-                        const SizedBox(height: 10),
+                        SizedBox(height: isSmallScreen ? 5 : 10),
 
                         // Get OTP Button
                         BlocBuilder<SignupBloc, SignupState>(
@@ -207,7 +228,7 @@ class _SignupPageState extends State<SignupPage> {
                             final isLoading = state is SignupLoading;
                             return SizedBox(
                               width: double.infinity,
-                              height: 60,
+                              // 4. Removed hardcoded height restriction
                               child: ElevatedButton(
                                 onPressed: isLoading
                                     ? null
@@ -224,40 +245,52 @@ class _SignupPageState extends State<SignupPage> {
                                   backgroundColor: AppColors.primaryColor,
                                   foregroundColor: AppColors.white,
                                   elevation: 3,
+                                  // 5. Utilized minimumSize for text scaling flexibility
+                                  minimumSize: Size(
+                                    double.infinity,
+                                    isSmallScreen ? 50 : 60,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                 ),
                                 child: isLoading
-                                    ? const SizedBox(
-                                        width: 24,
-                                        height: 24,
-                                        child: CircularProgressIndicator(
+                                    ? SizedBox(
+                                        width: isSmallScreen ? 20 : 24,
+                                        height: isSmallScreen ? 20 : 24,
+                                        child: const CircularProgressIndicator(
                                           color: AppColors.white,
                                           strokeWidth: 2.5,
                                         ),
                                       )
                                     : Text(
                                         "Get OTP",
-                                        style: AppFonts.poppinsSemiBold(fontSize: 20),
+                                        style: AppFonts.poppinsSemiBold(
+                                          fontSize: isSmallScreen ? 16 : 20,
+                                        ),
                                       ),
                               ),
                             );
                           },
                         ),
 
-                        const SizedBox(height: 30),
+                        SizedBox(height: isSmallScreen ? 20 : 30),
 
                         // Divider
                         Row(
                           children: [
                             const Expanded(child: Divider()),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                              ),
                               child: Text(
                                 "OR CONNECT WITH",
                                 style: AppFonts.poppinsMedium(
-                                  fontSize: 12,
+                                  fontSize: isSmallScreen ? 10 : 12,
                                   color: AppColors.primaryBlack40,
                                 ),
                               ),
@@ -266,7 +299,7 @@ class _SignupPageState extends State<SignupPage> {
                           ],
                         ),
 
-                        const SizedBox(height: 30),
+                        SizedBox(height: isSmallScreen ? 20 : 30),
 
                         // Social Buttons
                         Row(
@@ -279,9 +312,12 @@ class _SignupPageState extends State<SignupPage> {
                                 context.read<AuthCubit>().signInWithGoogle();
                               },
                               child: Container(
-                                width: 70,
-                                height: 70,
-                                padding: const EdgeInsets.all(14),
+                                // 6. Scale down bounds for smaller devices
+                                width: isSmallScreen ? 55 : 70,
+                                height: isSmallScreen ? 55 : 70,
+                                padding: EdgeInsets.all(
+                                  isSmallScreen ? 10 : 14,
+                                ),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(12),
@@ -298,9 +334,9 @@ class _SignupPageState extends State<SignupPage> {
                             const SizedBox(width: 20),
                             // Apple
                             Container(
-                              width: 70,
-                              height: 70,
-                              padding: const EdgeInsets.all(14),
+                              width: isSmallScreen ? 55 : 70,
+                              height: isSmallScreen ? 55 : 70,
+                              padding: EdgeInsets.all(isSmallScreen ? 10 : 14),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(12),
@@ -316,26 +352,33 @@ class _SignupPageState extends State<SignupPage> {
                           ],
                         ),
 
-                        const SizedBox(height: 30),
+                        SizedBox(height: isSmallScreen ? 20 : 30),
 
-                        // Login nav
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text("Already have an account? ", style: AppFonts.poppinsRegular()),
-                            GestureDetector(
-                              onTap: () => context.push(RouteConstants.login),
-                              child: Text(
-                                "Log In",
+                        // 7. Replaced Row with Text.rich to eliminate the right-side overflow bug
+                        Text.rich(
+                          TextSpan(
+                            text: "Already have an account? ",
+                            style: AppFonts.poppinsRegular(
+                              fontSize: isSmallScreen ? 12 : 14,
+                              color: AppTheme.primaryText,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: "Log In",
                                 style: AppFonts.poppinsSemiBold(
                                   color: AppColors.primaryColor,
+                                  fontSize: isSmallScreen ? 12 : 14,
                                 ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () =>
+                                      context.push(RouteConstants.login),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
                         ),
 
-                        const SizedBox(height: 40),
+                        SizedBox(height: isSmallScreen ? 25 : 40),
                       ],
                     ),
                   ),

@@ -102,13 +102,16 @@ class _DataEntryPageState extends State<DataEntryPage> {
 
   @override
   Widget build(BuildContext context) {
+    // 1. Fetch screen dimensions and set breakpoint
+    final size = MediaQuery.sizeOf(context);
+    final bool isSmallScreen = size.height < 650;
+
     return BlocProvider(
       create: (context) => DataEntryBloc(AuthApiRepository()),
       child: BlocListener<DataEntryBloc, DataEntryState>(
         listener: (context, state) {
           if (state is DataEntrySuccess) {
             if (widget.authMethod == 'google') {
-              // Google signup complete → call AuthCubit
               context.read<AuthCubit>().completeGoogleSignup(
                 email: widget.email,
                 firebaseUid: widget.firebaseUid!,
@@ -117,7 +120,6 @@ class _DataEntryPageState extends State<DataEntryPage> {
                 city: _cityController.text.trim(),
               );
             } else {
-              // Email signup complete
               context.read<AuthCubit>().onSignupComplete(
                 state.loginData,
                 'email',
@@ -135,18 +137,19 @@ class _DataEntryPageState extends State<DataEntryPage> {
           body: SafeArea(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                // 2. Relative horizontal padding matching previous screens
+                padding: EdgeInsets.symmetric(horizontal: size.width * 0.06),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 30),
+                    SizedBox(height: isSmallScreen ? 15 : 30),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           "STEP 1 OF 4",
                           style: AppFonts.poppinsSemiBold(
-                            fontSize: 14,
+                            fontSize: isSmallScreen ? 12 : 14,
                             color: AppTheme.secondaryText,
                           ),
                         ),
@@ -154,8 +157,8 @@ class _DataEntryPageState extends State<DataEntryPage> {
                           "25%",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Color.fromARGB(255, 67, 72, 80),
+                            fontSize: isSmallScreen ? 14 : 16,
+                            color: const Color.fromARGB(255, 67, 72, 80),
                           ),
                         ),
                       ],
@@ -169,11 +172,11 @@ class _DataEntryPageState extends State<DataEntryPage> {
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
-                    const SizedBox(height: 35),
+                    SizedBox(height: isSmallScreen ? 20 : 35),
                     Text(
                       "Tell us about yourself",
                       style: AppFonts.headland(
-                        fontSize: 26,
+                        fontSize: isSmallScreen ? 22 : 26,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.primaryText,
                       ),
@@ -183,15 +186,15 @@ class _DataEntryPageState extends State<DataEntryPage> {
                       "We use this information to personalize your "
                       "wellness journey at Topovan Life Space.",
                       style: AppFonts.poppinsRegular(
-                        fontSize: 16.5,
+                        fontSize: isSmallScreen ? 14 : 16.5,
                         color: AppColors.primaryBlack40,
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: isSmallScreen ? 15 : 20),
 
                     // Privacy Card
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF3F4F6),
                         borderRadius: BorderRadius.circular(16),
@@ -211,16 +214,16 @@ class _DataEntryPageState extends State<DataEntryPage> {
                                 Text(
                                   "Privacy first",
                                   style: AppFonts.poppinsSemiBold(
-                                    fontSize: 14,
+                                    fontSize: isSmallScreen ? 13 : 14,
                                   ),
                                 ),
-                                SizedBox(height: 4),
+                                const SizedBox(height: 4),
                                 Text(
                                   "Your data is encrypted and never "
                                   "shared with third parties.",
                                   style: TextStyle(
-                                    fontSize: 13,
-                                    color: Color(0xFF6B7280),
+                                    fontSize: isSmallScreen ? 11 : 13,
+                                    color: const Color(0xFF6B7280),
                                   ),
                                 ),
                               ],
@@ -230,12 +233,12 @@ class _DataEntryPageState extends State<DataEntryPage> {
                       ),
                     ),
 
-                    const SizedBox(height: 10),
+                    SizedBox(height: isSmallScreen ? 10 : 15),
 
                     // Google badge
                     if (widget.authMethod == 'google') ...[
                       Container(
-                        padding: const EdgeInsets.all(12),
+                        padding: EdgeInsets.all(isSmallScreen ? 10 : 12),
                         decoration: BoxDecoration(
                           color: const Color(0xFFE8F5E9),
                           borderRadius: BorderRadius.circular(12),
@@ -244,49 +247,52 @@ class _DataEntryPageState extends State<DataEntryPage> {
                           children: [
                             if (widget.googleUser?.photoUrl != null) ...[
                               CircleAvatar(
-                                radius: 16,
+                                radius: isSmallScreen ? 14 : 16,
                                 backgroundImage: NetworkImage(
                                   widget.googleUser!.photoUrl!,
                                 ),
                               ),
                               const SizedBox(width: 8),
                             ] else ...[
-                              const Icon(
+                              Icon(
                                 Icons.check_circle,
                                 color: Colors.green,
-                                size: 20,
+                                size: isSmallScreen ? 18 : 20,
                               ),
                               const SizedBox(width: 8),
                             ],
                             Expanded(
                               child: Text(
                                 "Signed in with Google as ${widget.email}",
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  color: Color(0xFF2E7D32),
+                                style: TextStyle(
+                                  fontSize: isSmallScreen ? 11 : 13,
+                                  color: const Color(0xFF2E7D32),
                                 ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 10),
+                      SizedBox(height: isSmallScreen ? 10 : 15),
                     ],
 
                     // Name
                     Text(
                       "Name",
                       style: AppFonts.poppinsSemiBold(
-                        fontSize: 16,
+                        fontSize: isSmallScreen ? 14 : 16,
                       ),
                     ),
                     const SizedBox(height: 8),
                     TextField(
                       controller: nameController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: "e.g. Elena Vance",
-                        hintStyle: TextStyle(color: Color(0xFF9CA3AF)),
-                        border: UnderlineInputBorder(
+                        hintStyle: TextStyle(
+                          color: const Color(0xFF9CA3AF),
+                          fontSize: isSmallScreen ? 14 : 16,
+                        ),
+                        border: const UnderlineInputBorder(
                           borderSide: BorderSide(
                             color: Color(0xFFC9A14A),
                             width: 0,
@@ -295,13 +301,13 @@ class _DataEntryPageState extends State<DataEntryPage> {
                       ),
                     ),
 
-                    const SizedBox(height: 28),
+                    SizedBox(height: isSmallScreen ? 20 : 28),
 
                     // Gender
                     Text(
                       "Gender",
                       style: AppFonts.poppinsSemiBold(
-                        fontSize: 16,
+                        fontSize: isSmallScreen ? 14 : 16,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -309,19 +315,19 @@ class _DataEntryPageState extends State<DataEntryPage> {
                       spacing: 12,
                       runSpacing: 12,
                       children: [
-                        _genderButton("Female"),
-                        _genderButton("Male"),
-                        _genderButton("Prefer not to say"),
+                        _genderButton("Female", isSmallScreen),
+                        _genderButton("Male", isSmallScreen),
+                        _genderButton("Prefer not to say", isSmallScreen),
                       ],
                     ),
 
-                    const SizedBox(height: 30),
+                    SizedBox(height: isSmallScreen ? 20 : 30),
 
                     // City
                     Text(
                       "CITY OR ZIP CODE",
                       style: AppFonts.poppinsSemiBold(
-                        fontSize: 15.5,
+                        fontSize: isSmallScreen ? 13.5 : 15.5,
                         letterSpacing: 1,
                       ),
                     ),
@@ -336,9 +342,12 @@ class _DataEntryPageState extends State<DataEntryPage> {
                         controller: _cityController,
                         focusNode: _cityFocus,
                         onChanged: _onSearchChanged,
-                        decoration: const InputDecoration(
-                          icon: Icon(Icons.search),
+                        decoration: InputDecoration(
+                          icon: const Icon(Icons.search),
                           hintText: "Search for your city...",
+                          hintStyle: TextStyle(
+                            fontSize: isSmallScreen ? 14 : 16,
+                          ),
                           border: InputBorder.none,
                         ),
                       ),
@@ -348,30 +357,38 @@ class _DataEntryPageState extends State<DataEntryPage> {
                       isLoading: _isSearching,
                       onSelected: _onPlaceSelected,
                     ),
-                    const SizedBox(height: 25),
+                    SizedBox(height: isSmallScreen ? 15 : 25),
                     GestureDetector(
                       onTap: _useCurrentLocation,
+                      behavior: HitTestBehavior.opaque,
                       child: Row(
-                        children: const [
+                        children: [
                           Icon(
                             Icons.my_location,
-                            color: Color.fromARGB(255, 184, 84, 31),
-                            size: 20,
+                            color: const Color.fromARGB(255, 184, 84, 31),
+                            size: isSmallScreen ? 18 : 20,
                           ),
-                          SizedBox(width: 6),
-                          Text(
-                            "Use Current Location",
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 184, 84, 31),
-                              fontWeight: FontWeight.w500,
-                              fontSize: 15,
+                          const SizedBox(width: 6),
+                          // 1. Wrap the Text in Expanded to bound its maximum width
+                          Expanded(
+                            child: Text(
+                              "Use Current Location",
+                              style: TextStyle(
+                                color: const Color.fromARGB(255, 184, 84, 31),
+                                fontWeight: FontWeight.w500,
+                                fontSize: isSmallScreen ? 13 : 15,
+                              ),
+                              // 2. Define how the text should behave if it runs out of space
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
                       ),
                     ),
 
-                    const SizedBox(height: 105),
+                    // 3. Dynamically collapsed vast whitespace for small screens
+                    SizedBox(height: isSmallScreen ? 40 : 105),
 
                     // Continue Button
                     BlocBuilder<DataEntryBloc, DataEntryState>(
@@ -379,7 +396,6 @@ class _DataEntryPageState extends State<DataEntryPage> {
                         final isLoading = state is DataEntryLoading;
                         return SizedBox(
                           width: double.infinity,
-                          height: 60,
                           child: ElevatedButton(
                             onPressed: isLoading
                                 ? null
@@ -413,7 +429,6 @@ class _DataEntryPageState extends State<DataEntryPage> {
                                     }
 
                                     if (widget.authMethod == 'google') {
-                                      // Google: call AuthCubit directly
                                       context
                                           .read<AuthCubit>()
                                           .completeGoogleSignup(
@@ -424,7 +439,6 @@ class _DataEntryPageState extends State<DataEntryPage> {
                                             city: city,
                                           );
                                     } else {
-                                      // Email: use DataEntryBloc
                                       context.read<DataEntryBloc>().add(
                                         SubmitDataEntry(
                                           email: widget.email,
@@ -441,28 +455,36 @@ class _DataEntryPageState extends State<DataEntryPage> {
                               backgroundColor: AppColors.primaryColor,
                               foregroundColor: AppColors.white,
                               elevation: 3,
+                              // 4. Utilized minimumSize to prevent height clipping
+                              minimumSize: Size(
+                                double.infinity,
+                                isSmallScreen ? 50 : 60,
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
                             child: isLoading
-                                ? const SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: CircularProgressIndicator(
+                                ? SizedBox(
+                                    width: isSmallScreen ? 20 : 24,
+                                    height: isSmallScreen ? 20 : 24,
+                                    child: const CircularProgressIndicator(
                                       color: AppColors.white,
                                       strokeWidth: 2.5,
                                     ),
                                   )
                                 : Text(
                                     "Continue →",
-                                    style: AppFonts.poppinsSemiBold(fontSize: 18),
+                                    style: AppFonts.poppinsSemiBold(
+                                      fontSize: isSmallScreen ? 16 : 18,
+                                    ),
                                   ),
                           ),
                         );
                       },
                     ),
-                    const SizedBox(height: 30),
+                    SizedBox(height: isSmallScreen ? 20 : 30),
                   ],
                 ),
               ),
@@ -473,12 +495,16 @@ class _DataEntryPageState extends State<DataEntryPage> {
     );
   }
 
-  Widget _genderButton(String gender) {
+  // 5. Updated _genderButton to accept the responsive flag
+  Widget _genderButton(String gender, bool isSmallScreen) {
     final isSelected = selectedGender == gender;
     return GestureDetector(
       onTap: () => setState(() => selectedGender = gender),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: EdgeInsets.symmetric(
+          horizontal: isSmallScreen ? 12 : 16,
+          vertical: isSmallScreen ? 8 : 10,
+        ),
         decoration: BoxDecoration(
           color: isSelected ? const Color(0xFFC9A14A) : const Color(0xFFF3F4F6),
           borderRadius: BorderRadius.circular(12),
@@ -488,6 +514,7 @@ class _DataEntryPageState extends State<DataEntryPage> {
           style: TextStyle(
             color: isSelected ? Colors.white : Colors.black,
             fontWeight: FontWeight.w500,
+            fontSize: isSmallScreen ? 12 : 14,
           ),
         ),
       ),

@@ -24,6 +24,10 @@ class _MoreView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 1. Establish central breakpoints for the entire screen
+    final size = MediaQuery.sizeOf(context);
+    final isSmallScreen = size.height < 650;
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 255, 254),
       body: BlocBuilder<MoreBloc, MoreState>(
@@ -66,7 +70,7 @@ class _MoreView extends StatelessWidget {
             },
             child: CustomScrollView(
               slivers: [
-                _buildAppBar(context),
+                _buildAppBar(context, isSmallScreen),
                 SliverToBoxAdapter(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,19 +79,27 @@ class _MoreView extends StatelessWidget {
                       if (state.featuredWorkshop != null)
                         _FeaturedWorkshopSection(
                           workshop: state.featuredWorkshop!,
+                          isSmallScreen: isSmallScreen,
                         ),
-                      const SizedBox(height: 28),
+                      SizedBox(height: isSmallScreen ? 20 : 28),
                       if (state.vedicPackages.isNotEmpty)
-                        _VedicPackagesSection(packages: state.vedicPackages),
-                      const SizedBox(height: 28),
+                        _VedicPackagesSection(
+                          packages: state.vedicPackages,
+                          isSmallScreen: isSmallScreen,
+                        ),
+                      SizedBox(height: isSmallScreen ? 20 : 28),
                       if (state.educationalCourses.isNotEmpty)
                         _EducationalCoursesSection(
                           courses: state.educationalCourses,
+                          isSmallScreen: isSmallScreen,
                         ),
-                      const SizedBox(height: 28),
+                      SizedBox(height: isSmallScreen ? 20 : 28),
                       if (state.blogPosts.isNotEmpty)
-                        _WellnessBlogSection(posts: state.blogPosts),
-                      const SizedBox(height: 32),
+                        _WellnessBlogSection(
+                          posts: state.blogPosts,
+                          isSmallScreen: isSmallScreen,
+                        ),
+                      SizedBox(height: isSmallScreen ? 24 : 32),
                     ],
                   ),
                 ),
@@ -99,7 +111,7 @@ class _MoreView extends StatelessWidget {
     );
   }
 
-  SliverAppBar _buildAppBar(BuildContext context) {
+  SliverAppBar _buildAppBar(BuildContext context, bool isSmallScreen) {
     return SliverAppBar(
       backgroundColor: const Color.fromARGB(255, 253, 253, 252),
       floating: true,
@@ -110,16 +122,13 @@ class _MoreView extends StatelessWidget {
         'Explore more',
         overflow: TextOverflow.ellipsis,
         style: AppFonts.headland(
-          fontSize: 20,
+          fontSize: isSmallScreen ? 18 : 20,
           fontWeight: FontWeight.w400,
           color: AppTheme.primaryText,
         ),
       ),
       actions: [
-        NotificationBell(
-          size: 40,
-          onPressed: () {},
-        ),
+        NotificationBell(size: isSmallScreen ? 34 : 40, onPressed: () {}),
         const SizedBox(width: 8),
       ],
     );
@@ -131,7 +140,12 @@ class _MoreView extends StatelessWidget {
 // ─────────────────────────────────────────────
 class _FeaturedWorkshopSection extends StatelessWidget {
   final FeaturedWorkshop workshop;
-  const _FeaturedWorkshopSection({required this.workshop});
+  final bool isSmallScreen;
+
+  const _FeaturedWorkshopSection({
+    required this.workshop,
+    required this.isSmallScreen,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -143,12 +157,12 @@ class _FeaturedWorkshopSection extends StatelessWidget {
           child: Text(
             'Featured Workshop',
             style: AppFonts.poppinsSemiBold(
-              fontSize: 18,
+              fontSize: isSmallScreen ? 16 : 18,
               color: AppTheme.primaryText,
             ),
           ),
         ),
-        const SizedBox(height: 14),
+        SizedBox(height: isSmallScreen ? 10 : 14),
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
@@ -171,12 +185,15 @@ class _FeaturedWorkshopSection extends StatelessWidget {
                   topLeft: Radius.circular(20),
                   topRight: Radius.circular(20),
                 ),
-                child: _WorkshopImagePlaceholder(imagePath: workshop.imagePath),
+                child: _WorkshopImagePlaceholder(
+                  imagePath: workshop.imagePath,
+                  isSmallScreen: isSmallScreen,
+                ),
               ),
 
               // Workshop details
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -184,17 +201,22 @@ class _FeaturedWorkshopSection extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          workshop.tag,
-                          style: AppFonts.poppinsSemiBold(
-                            fontSize: 11,
-                            color: AppColors.primaryColor,
-                            letterSpacing: 0.8,
+                        // 2. Safely constrained with Flexible so tag and date don't collide
+                        Flexible(
+                          child: Text(
+                            workshop.tag,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppFonts.poppinsSemiBold(
+                              fontSize: isSmallScreen ? 10 : 11,
+                              color: AppColors.primaryColor,
+                              letterSpacing: 0.8,
+                            ),
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isSmallScreen ? 8 : 10,
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
@@ -204,7 +226,7 @@ class _FeaturedWorkshopSection extends StatelessWidget {
                           child: Text(
                             workshop.date,
                             style: AppFonts.poppinsMedium(
-                              fontSize: 13,
+                              fontSize: isSmallScreen ? 11 : 13,
                               color: AppTheme.secondaryText,
                             ),
                           ),
@@ -216,8 +238,10 @@ class _FeaturedWorkshopSection extends StatelessWidget {
                     // Title
                     Text(
                       workshop.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: AppFonts.poppinsSemiBold(
-                        fontSize: 20,
+                        fontSize: isSmallScreen ? 16 : 20,
                         color: AppTheme.primaryText,
                         height: 1.25,
                       ),
@@ -227,13 +251,15 @@ class _FeaturedWorkshopSection extends StatelessWidget {
                     // Description
                     Text(
                       workshop.description,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                       style: AppFonts.poppinsRegular(
-                        fontSize: 13,
+                        fontSize: isSmallScreen ? 12 : 13,
                         color: AppTheme.secondaryText,
                         height: 1.5,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: isSmallScreen ? 12 : 16),
 
                     // Time + Join button
                     Row(
@@ -244,23 +270,28 @@ class _FeaturedWorkshopSection extends StatelessWidget {
                           color: Color(0xFF94A3B8),
                         ),
                         const SizedBox(width: 6),
-                        Text(
-                          '${workshop.time} • ${workshop.duration}',
-                          style: AppFonts.poppinsRegular(
-                            fontSize: 13,
-                            color: AppColors.primaryBlack40,
+                        // 3. Ensuring string truncates if device scaling is extreme
+                        Expanded(
+                          child: Text(
+                            '${workshop.time} • ${workshop.duration}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppFonts.poppinsRegular(
+                              fontSize: isSmallScreen ? 11 : 13,
+                              color: AppColors.primaryBlack40,
+                            ),
                           ),
                         ),
-                        const Spacer(),
+                        const SizedBox(width: 8),
                         ElevatedButton(
                           onPressed: () {},
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFD9A04B),
                             foregroundColor: Colors.white,
                             elevation: 0,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 28,
-                              vertical: 12,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isSmallScreen ? 20 : 28,
+                              vertical: isSmallScreen ? 10 : 12,
                             ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
@@ -269,7 +300,7 @@ class _FeaturedWorkshopSection extends StatelessWidget {
                           child: Text(
                             'Join',
                             style: AppFonts.poppinsSemiBold(
-                              fontSize: 14,
+                              fontSize: isSmallScreen ? 12 : 14,
                             ),
                           ),
                         ),
@@ -286,36 +317,47 @@ class _FeaturedWorkshopSection extends StatelessWidget {
   }
 }
 
-/// Image placeholder for workshop — swap imagePath when user provides images
 class _WorkshopImagePlaceholder extends StatelessWidget {
   final String? imagePath;
-  const _WorkshopImagePlaceholder({this.imagePath});
+  final bool isSmallScreen;
+
+  const _WorkshopImagePlaceholder({
+    this.imagePath,
+    required this.isSmallScreen,
+  });
 
   @override
   Widget build(BuildContext context) {
+    // 4. Responsive image bounds
+    final double height = isSmallScreen ? 150 : 200;
+
     if (imagePath != null) {
       return Image.asset(
         imagePath!,
-        height: 200,
+        height: height,
         width: double.infinity,
         fit: BoxFit.cover,
       );
     }
-    // Placeholder shown until real image is provided
+
     return Container(
-      height: 200,
+      height: height,
       width: double.infinity,
       color: const Color(0xFFE8E0D0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.image_outlined, size: 48, color: Color(0xFFB0A090)),
+          Icon(
+            Icons.image_outlined,
+            size: isSmallScreen ? 36 : 48,
+            color: const Color(0xFFB0A090),
+          ),
           const SizedBox(height: 8),
           Text(
             'Workshop Image',
             style: AppFonts.poppinsRegular(
               color: const Color(0xFFB0A090),
-              fontSize: 13,
+              fontSize: isSmallScreen ? 11 : 13,
             ),
           ),
         ],
@@ -329,7 +371,12 @@ class _WorkshopImagePlaceholder extends StatelessWidget {
 // ─────────────────────────────────────────────
 class _VedicPackagesSection extends StatelessWidget {
   final List<VedicPackage> packages;
-  const _VedicPackagesSection({required this.packages});
+  final bool isSmallScreen;
+
+  const _VedicPackagesSection({
+    required this.packages,
+    required this.isSmallScreen,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -341,12 +388,12 @@ class _VedicPackagesSection extends StatelessWidget {
           child: Text(
             'Vedic Life Packages',
             style: AppFonts.poppinsSemiBold(
-              fontSize: 18,
+              fontSize: isSmallScreen ? 16 : 18,
               color: AppTheme.primaryText,
             ),
           ),
         ),
-        const SizedBox(height: 14),
+        SizedBox(height: isSmallScreen ? 10 : 14),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
@@ -355,9 +402,12 @@ class _VedicPackagesSection extends StatelessWidget {
               return Expanded(
                 child: Padding(
                   padding: EdgeInsets.only(
-                    right: pkg == packages.last ? 0 : 12,
+                    right: pkg == packages.last ? 0 : (isSmallScreen ? 8 : 12),
                   ),
-                  child: _PackageCard(package: pkg),
+                  child: _PackageCard(
+                    package: pkg,
+                    isSmallScreen: isSmallScreen,
+                  ),
                 ),
               );
             }).toList(),
@@ -370,27 +420,34 @@ class _VedicPackagesSection extends StatelessWidget {
 
 class _PackageCard extends StatelessWidget {
   final VedicPackage package;
-  const _PackageCard({required this.package});
+  final bool isSmallScreen;
+
+  const _PackageCard({required this.package, required this.isSmallScreen});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Image area — fixed height so both cards are always identical
         SizedBox(
-          height: 140,
+          // 5. Scaled height so side-by-side cards don't look stretched
+          height: isSmallScreen ? 100 : 140,
           width: double.infinity,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
-            child: _PackageImagePlaceholder(imagePath: package.imagePath),
+            child: _PackageImagePlaceholder(
+              imagePath: package.imagePath,
+              isSmallScreen: isSmallScreen,
+            ),
           ),
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: isSmallScreen ? 6 : 10),
         Text(
           package.title,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
           style: AppFonts.poppinsSemiBold(
-            fontSize: 14,
+            fontSize: isSmallScreen ? 12 : 14,
             color: AppTheme.primaryText,
             height: 1.3,
           ),
@@ -398,8 +455,10 @@ class _PackageCard extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           package.subtitle,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
           style: AppFonts.poppinsRegular(
-            fontSize: 12,
+            fontSize: isSmallScreen ? 11 : 12,
             color: AppColors.primaryBlack40,
           ),
         ),
@@ -408,10 +467,11 @@ class _PackageCard extends StatelessWidget {
   }
 }
 
-/// Image placeholder for packages — swap imagePath when user provides images
 class _PackageImagePlaceholder extends StatelessWidget {
   final String? imagePath;
-  const _PackageImagePlaceholder({this.imagePath});
+  final bool isSmallScreen;
+
+  const _PackageImagePlaceholder({this.imagePath, required this.isSmallScreen});
 
   @override
   Widget build(BuildContext context) {
@@ -419,19 +479,22 @@ class _PackageImagePlaceholder extends StatelessWidget {
       return Image.asset(imagePath!, fit: BoxFit.cover, width: double.infinity);
     }
     return Container(
-      height: 140,
       width: double.infinity,
       color: const Color(0xFFD8E8C8),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.nature_outlined, size: 36, color: Color(0xFF90A880)),
-          const SizedBox(height: 6),
+          Icon(
+            Icons.nature_outlined,
+            size: isSmallScreen ? 28 : 36,
+            color: const Color(0xFF90A880),
+          ),
+          SizedBox(height: isSmallScreen ? 4 : 6),
           Text(
             'Package Image',
             style: AppFonts.poppinsRegular(
               color: const Color(0xFF90A880),
-              fontSize: 11,
+              fontSize: isSmallScreen ? 10 : 11,
             ),
           ),
         ],
@@ -445,7 +508,12 @@ class _PackageImagePlaceholder extends StatelessWidget {
 // ─────────────────────────────────────────────
 class _EducationalCoursesSection extends StatelessWidget {
   final List<EducationalCourse> courses;
-  const _EducationalCoursesSection({required this.courses});
+  final bool isSmallScreen;
+
+  const _EducationalCoursesSection({
+    required this.courses,
+    required this.isSmallScreen,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -457,19 +525,33 @@ class _EducationalCoursesSection extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Educational Courses',
-                style: AppFonts.poppinsSemiBold(
-                  fontSize: 18,
-                  color: AppTheme.primaryText,
+              // 1. Wrapped the title in Expanded to prevent right-side overflow
+              Expanded(
+                child: Text(
+                  'Educational Courses',
+                  // 2. Added truncation rules so it gracefully degrades
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppFonts.poppinsSemiBold(
+                    fontSize: isSmallScreen ? 16 : 18,
+                    color: AppTheme.primaryText,
+                  ),
                 ),
               ),
+              const SizedBox(
+                width: 8,
+              ), // 3. Added a small buffer between title and button
               TextButton(
                 onPressed: () {},
+                style: TextButton.styleFrom(
+                  minimumSize: Size.zero,
+                  padding: EdgeInsets.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
                 child: Text(
                   'VIEW ALL',
                   style: AppFonts.poppinsSemiBold(
-                    fontSize: 13,
+                    fontSize: isSmallScreen ? 11 : 13,
                     color: AppColors.primaryColor,
                     letterSpacing: 0.5,
                   ),
@@ -478,7 +560,7 @@ class _EducationalCoursesSection extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: isSmallScreen ? 6 : 10),
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
@@ -498,13 +580,13 @@ class _EducationalCoursesSection extends StatelessWidget {
               final course = entry.value;
               return Column(
                 children: [
-                  _CourseRow(course: course),
+                  _CourseRow(course: course, isSmallScreen: isSmallScreen),
                   if (idx < courses.length - 1)
-                    const Divider(
+                    Divider(
                       height: 1,
                       thickness: 1,
-                      color: Color(0xFFF1F5F9),
-                      indent: 68,
+                      color: const Color(0xFFF1F5F9),
+                      indent: isSmallScreen ? 54 : 68,
                     ),
                 ],
               );
@@ -518,18 +600,23 @@ class _EducationalCoursesSection extends StatelessWidget {
 
 class _CourseRow extends StatelessWidget {
   final EducationalCourse course;
-  const _CourseRow({required this.course});
+  final bool isSmallScreen;
+
+  const _CourseRow({required this.course, required this.isSmallScreen});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: isSmallScreen ? 10 : 14,
+      ),
       child: Row(
         children: [
           // Icon container
           Container(
-            width: 44,
-            height: 44,
+            width: isSmallScreen ? 36 : 44,
+            height: isSmallScreen ? 36 : 44,
             decoration: BoxDecoration(
               color: const Color(0xFFF5EDD8),
               borderRadius: BorderRadius.circular(12),
@@ -540,34 +627,45 @@ class _CourseRow extends StatelessWidget {
                     ? Icons.menu_book_outlined
                     : Icons.self_improvement_outlined,
                 color: const Color(0xFFD9A04B),
-                size: 22,
+                size: isSmallScreen ? 18 : 22,
               ),
             ),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: isSmallScreen ? 10 : 14),
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   course.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: AppFonts.poppinsMedium(
-                    fontSize: 15,
+                    fontSize: isSmallScreen ? 13 : 15,
                     color: AppTheme.primaryText,
+                    height: 1.2,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   '${course.lessons} • ${course.level}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: AppFonts.poppinsRegular(
-                    fontSize: 12,
+                    fontSize: isSmallScreen ? 11 : 12,
                     color: AppColors.primaryBlack40,
                   ),
                 ),
               ],
             ),
           ),
-          const Icon(Icons.chevron_right, color: Color(0xFFCBD5E1), size: 22),
+          const SizedBox(width: 8),
+          Icon(
+            Icons.chevron_right,
+            color: const Color(0xFFCBD5E1),
+            size: isSmallScreen ? 20 : 22,
+          ),
         ],
       ),
     );
@@ -579,14 +677,26 @@ class _CourseRow extends StatelessWidget {
 // ─────────────────────────────────────────────
 class _WellnessBlogSection extends StatelessWidget {
   final List<WellnessBlogPost> posts;
-  const _WellnessBlogSection({required this.posts});
+  final bool isSmallScreen;
+
+  const _WellnessBlogSection({
+    required this.posts,
+    required this.isSmallScreen,
+  });
 
   @override
   Widget build(BuildContext context) {
+    // 6. Dynamic Bounds calculation
     final screenWidth = MediaQuery.of(context).size.width;
-    final cardWidth = (screenWidth - 20) * 0.60;
-    const imageHeight = 180.0;
-    const totalHeight = 260.0;
+
+    // Scale horizontal card width slightly larger on small screens to remain legible
+    final cardWidth = (screenWidth - 20) * (isSmallScreen ? 0.70 : 0.60);
+
+    // Scale the image height dynamically
+    final imageHeight = isSmallScreen ? 140.0 : 180.0;
+
+    // Scale the entire ListView buffer proportionally so text doesn't hit the floor
+    final totalHeight = isSmallScreen ? 225.0 : 270.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -596,12 +706,12 @@ class _WellnessBlogSection extends StatelessWidget {
           child: Text(
             'Wellness Blog',
             style: AppFonts.poppinsSemiBold(
-              fontSize: 18,
+              fontSize: isSmallScreen ? 16 : 18,
               color: AppTheme.primaryText,
             ),
           ),
         ),
-        const SizedBox(height: 14),
+        SizedBox(height: isSmallScreen ? 10 : 14),
         SizedBox(
           height: totalHeight,
           child: ListView.builder(
@@ -613,6 +723,7 @@ class _WellnessBlogSection extends StatelessWidget {
                 post: posts[index],
                 cardWidth: cardWidth,
                 imageHeight: imageHeight,
+                isSmallScreen: isSmallScreen,
               );
             },
           ),
@@ -626,10 +737,13 @@ class _BlogCard extends StatelessWidget {
   final WellnessBlogPost post;
   final double cardWidth;
   final double imageHeight;
+  final bool isSmallScreen;
+
   const _BlogCard({
     required this.post,
     required this.cardWidth,
     required this.imageHeight,
+    required this.isSmallScreen,
   });
 
   @override
@@ -651,34 +765,42 @@ class _BlogCard extends StatelessWidget {
                     ? Image.asset(post.imagePath!, fit: BoxFit.fill)
                     : Container(
                         color: const Color(0xFFD0C4B0),
-                        child: const Center(
+                        child: Center(
                           child: Icon(
                             Icons.spa_outlined,
-                            size: 36,
-                            color: Color(0xFF907060),
+                            size: isSmallScreen ? 28 : 36,
+                            color: const Color(0xFF907060),
                           ),
                         ),
                       ),
               ),
             ),
-            const SizedBox(height: 10),
-            // Category label below image
+            SizedBox(height: isSmallScreen ? 6 : 10),
+
+            // Category label
             Text(
               post.category,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: AppFonts.poppinsSemiBold(
-                fontSize: 11,
+                fontSize: isSmallScreen ? 10 : 11,
                 color: AppColors.primaryColor,
                 letterSpacing: 0.6,
               ),
             ),
             const SizedBox(height: 4),
-            // Title below category
-            Text(
-              post.title,
-              style: AppFonts.poppinsSemiBold(
-                fontSize: 16,
-                color: AppTheme.primaryText,
-                height: 1.3,
+
+            // 1. Wrapped the title in Flexible to protect against vertical overflow!
+            Flexible(
+              child: Text(
+                post.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppFonts.poppinsSemiBold(
+                  fontSize: isSmallScreen ? 14 : 16,
+                  color: AppTheme.primaryText,
+                  height: 1.3,
+                ),
               ),
             ),
           ],

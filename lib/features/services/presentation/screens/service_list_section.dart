@@ -97,17 +97,16 @@ class _CategoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // Wrapped in Material and InkWell for the ripple touch effect
     return Material(
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(12.0),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
-          // Use go_router to push the new route
           context.push(item.routePath);
         },
         child: Container(
+          // Maintain your fixed visual design
           height: 180,
           decoration: BoxDecoration(
             border: Border.all(color: theme.colorScheme.outline.withAlpha(50)),
@@ -120,20 +119,16 @@ class _CategoryCard extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12.0),
-              // --- Gradient Overlay ---
-              // Transparent at the top, dark at the bottom
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.transparent, // Top is fully transparent
-                  Colors.black.withAlpha(50), // Middle starts darkening
-                  Colors.black.withAlpha(100), // Bottom is dark
+                  Colors.transparent,
+                  Colors.black.withAlpha(50),
+                  Colors.black.withAlpha(100),
                 ],
-                // Fine-tune where the gradient colors start/end
                 stops: const [0.4, 0.7, 1.0],
               ),
-              // --------------------------
             ),
             padding: const EdgeInsets.all(16.0),
             alignment: Alignment.bottomLeft,
@@ -141,28 +136,41 @@ class _CategoryCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  item.overline,
-                  style: AppFonts.poppinsSemiBold(
-                    color: AppColors.primaryColor,
-                    fontSize: 12,
-                    letterSpacing: 2.0,
+                // 1. Wrap in Flexible and apply strict maxLines
+                Flexible(
+                  child: Text(
+                    item.overline,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppFonts.poppinsSemiBold(
+                      color: AppColors.primaryColor,
+                      fontSize: 12,
+                      letterSpacing: 2.0,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 4.0),
-                Text(
-                  item.title,
-                  style: AppFonts.poppinsSemiBold(
-                    color: AppColors.white,
-                    fontSize: 20,
+                Flexible(
+                  child: Text(
+                    item.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppFonts.poppinsSemiBold(
+                      color: AppColors.white,
+                      fontSize: 20,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 2.0),
-                Text(
-                  item.subtitle,
-                  style: AppFonts.poppinsRegular(
-                    color: AppColors.white.withAlpha(200),
-                    fontSize: 13,
+                Flexible(
+                  child: Text(
+                    item.subtitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppFonts.poppinsRegular(
+                      color: AppColors.white.withAlpha(200),
+                      fontSize: 13,
+                    ),
                   ),
                 ),
               ],
