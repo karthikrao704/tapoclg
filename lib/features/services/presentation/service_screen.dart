@@ -4,7 +4,7 @@ import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'package:tapovana_mobile_app/features/services/presentation/components/categories_buttons.dart';
 import 'package:tapovana_mobile_app/features/services/presentation/components/custom_search_bar.dart';
 import 'package:tapovana_mobile_app/features/services/presentation/screens/service_list_section.dart';
-import 'package:tapovana_mobile_app/features/services/presentation/screens/service_grid_section.dart';
+
 import 'package:tapovana_mobile_app/core/widgets/notification_bell.dart';
 
 class ServiceScreen extends StatefulWidget {
@@ -144,7 +144,7 @@ class _ServiceScreenState extends State<ServiceScreen>
           controller: _tabController,
           children: const [
             ListScreen(),
-            ServiceGridSection(),
+            Center(child: Text("Popular Content")),
             Center(child: Text("Packages Content")),
             Center(child: Text("Offers Content")),
           ],

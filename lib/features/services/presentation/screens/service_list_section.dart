@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tapovana_mobile_app/core/routing/route_constants.dart';
 import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
-import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 // --- Data Model ---
@@ -67,22 +66,13 @@ class ListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: Text(
-          'Services',
-          style: AppFonts.headland(color: AppTheme.primaryText, fontSize: 20),
-        ),
-      ),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16.0),
-        itemCount: _mockCategories.length,
-        separatorBuilder: (context, index) => const SizedBox(height: 16.0),
-        itemBuilder: (context, index) {
-          return _CategoryCard(item: _mockCategories[index]);
-        },
-      ),
+    return ListView.separated(
+      padding: const EdgeInsets.all(16.0),
+      itemCount: _mockCategories.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 16.0),
+      itemBuilder: (context, index) {
+        return _CategoryCard(item: _mockCategories[index]);
+      },
     );
   }
 }

@@ -20,4 +20,15 @@ class ServiceCubit extends Cubit<ServiceState> {
       emit(ServiceError(message: e.toString()));
     }
   }
+
+  /// Fetch services filtered by [category] from the API.
+  Future<void> fetchServicesByCategory(String category) async {
+    emit(ServiceLoading());
+    try {
+      final services = await _repository.getServicesByCategory(category);
+      emit(ServiceLoaded(services: services));
+    } catch (e) {
+      emit(ServiceError(message: e.toString()));
+    }
+  }
 }

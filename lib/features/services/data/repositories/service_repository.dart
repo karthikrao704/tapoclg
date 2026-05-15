@@ -41,6 +41,18 @@ class ServiceRepository {
   }
 
   // ═══════════════════════════════════════
+  //   GET /api/services — Fetch services by category
+  // ═══════════════════════════════════════
+
+  /// Fetches all services and filters by [category] (case-insensitive).
+  Future<List<ServiceModel>> getServicesByCategory(String category) async {
+    final all = await getAllServices();
+    return all
+        .where((s) => s.category.toLowerCase() == category.toLowerCase())
+        .toList();
+  }
+
+  // ═══════════════════════════════════════
   //   GET /api/services/:id — Fetch service by ID
   // ═══════════════════════════════════════
 
