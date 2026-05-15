@@ -32,37 +32,6 @@ class ProfileView extends StatelessWidget {
 
   // ─── File picker + validation ─────────────────────────────────────────────
 
-  Future<void> _pickAndUploadPhoto(BuildContext context) async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['jpg', 'jpeg', 'png'],
-      allowMultiple: false,
-      withData: false,
-    );
-
-    if (result == null || result.files.isEmpty) return;
-
-    final file = result.files.first;
-    final ext = (file.extension ?? '').toLowerCase();
-
-    if (!['jpg', 'jpeg', 'png'].contains(ext)) {
-      _showSnackBar(context, 'Only .jpg and .png files are allowed.');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      _showSnackBar(context, 'File size must not exceed 5 MB.');
-      return;
-    }
-
-    final path = file.path;
-    if (path == null) {
-      _showSnackBar(context, 'Could not access the selected file.');
-      return;
-    }
-
-    context.read<ProfileBloc>().add(UploadProfilePhoto(filePath: path));
-  }
 
   void _showSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -150,6 +119,7 @@ class ProfileView extends StatelessWidget {
       withData: false,
     );
 
+    if (!context.mounted) return;
     if (result == null || result.files.isEmpty) return;
 
     final file = result.files.first;

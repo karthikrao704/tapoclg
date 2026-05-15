@@ -14,9 +14,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.userName,
   });
 
-  void _handleNotificationTap() {}
 
   void _handleProfileTap() {}
+
 
   @override
   Widget build(BuildContext context) {
