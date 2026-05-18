@@ -72,7 +72,7 @@ class _CategoryServiceContent extends StatelessWidget {
             unselectedLabelStyle: AppFonts.poppinsRegular(fontSize: 14),
             isScrollable: tabLabels.length > 3,
             tabAlignment:
-                tabLabels.length > 3 ? TabAlignment.start : TabAlignment.fill,
+                tabLabels.length > 3 ? TabAlignment.center : TabAlignment.fill,
             tabs: tabLabels.map((label) => Tab(text: label)).toList(),
           ),
         ),

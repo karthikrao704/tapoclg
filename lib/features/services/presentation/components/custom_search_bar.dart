@@ -13,7 +13,6 @@ class CustomSearchBar extends StatelessWidget {
 
     return Container(
       // margin: const EdgeInsets.all(16.0),
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       decoration: BoxDecoration(
         color: theme.colorScheme.onPrimary,
         borderRadius: BorderRadius.circular(8.0),
@@ -21,20 +20,15 @@ class CustomSearchBar extends StatelessWidget {
           BoxShadow(color: theme.colorScheme.tertiary, offset: Offset(1, 1)),
         ],
       ),
-      child: Row(
-        children: [
-          Icon(Icons.search, color: AppColors.primaryColor),
-          const SizedBox(width: 8.0),
-          Expanded(
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search services, treatments...',
-                hintStyle: AppFonts.poppinsRegular(color: AppTheme.secondaryText, fontSize: 14),
-                border: InputBorder.none,
-              ),
-            ),
-          ),
-        ],
+      child: TextField(
+        textAlign: TextAlign.center,
+        decoration: InputDecoration(
+          hintText: 'Search services, treatments...',
+          hintStyle: AppFonts.poppinsRegular(color: AppTheme.secondaryText, fontSize: 14),
+          border: InputBorder.none,
+          prefixIcon: Icon(Icons.search, color: AppColors.primaryColor),
+          contentPadding: const EdgeInsets.symmetric(vertical: 14.0),
+        ),
       ),
     );
   }
