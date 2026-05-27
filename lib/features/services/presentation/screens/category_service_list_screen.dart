@@ -42,6 +42,7 @@ class CategoryServiceListScreen extends StatelessWidget {
       child: _CategoryServiceContent(
         title: title,
         tabLabels: tabLabels,
+        apiCategory: apiCategory,
       ),
     );
   }
@@ -50,10 +51,12 @@ class CategoryServiceListScreen extends StatelessWidget {
 class _CategoryServiceContent extends StatelessWidget {
   final String title;
   final List<String> tabLabels;
+  final String apiCategory;
 
   const _CategoryServiceContent({
     required this.title,
     required this.tabLabels,
+    required this.apiCategory,
   });
 
   @override
@@ -88,7 +91,9 @@ class _CategoryServiceContent extends StatelessWidget {
             if (state is ServiceError) {
               return NoInternetWidget(
                 errorType: state.errorType,
-                onReload: () => context.read<ServiceCubit>().fetchServices(),
+                onReload: () => context
+                    .read<ServiceCubit>()
+                    .fetchServicesByCategory(apiCategory),
               );
             }
 
