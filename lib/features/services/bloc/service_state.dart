@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:tapovana_mobile_app/core/api/app_error.dart';
 import 'package:tapovana_mobile_app/features/services/data/models/service_model.dart';
 import 'package:tapovana_mobile_app/features/services/data/models/service_detail_model.dart';
 
@@ -28,11 +29,15 @@ class ServiceLoaded extends ServiceState {
 
 class ServiceError extends ServiceState {
   final String message;
+  final AppErrorType errorType;
 
-  const ServiceError({required this.message});
+  const ServiceError({
+    required this.message,
+    this.errorType = AppErrorType.server,
+  });
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, errorType];
 }
 
 // ═══════════════════════════════════════
@@ -61,9 +66,13 @@ class ServiceDetailLoaded extends ServiceDetailState {
 
 class ServiceDetailError extends ServiceDetailState {
   final String message;
+  final AppErrorType errorType;
 
-  const ServiceDetailError({required this.message});
+  const ServiceDetailError({
+    required this.message,
+    this.errorType = AppErrorType.server,
+  });
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, errorType];
 }

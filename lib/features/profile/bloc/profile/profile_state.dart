@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:tapovana_mobile_app/core/api/app_error.dart';
 
 class ProfileState extends Equatable {
   final String name;
@@ -14,6 +15,7 @@ class ProfileState extends Equatable {
   final bool isLoading;
   final bool isUploadingPhoto;
   final String? error;
+  final AppErrorType? errorType;
   final String? photoError;
 
   const ProfileState({
@@ -30,6 +32,7 @@ class ProfileState extends Equatable {
     this.isLoading = false,
     this.isUploadingPhoto = false,
     this.error,
+    this.errorType,
     this.photoError,
   });
 
@@ -48,6 +51,7 @@ class ProfileState extends Equatable {
     bool? isLoading,
     bool? isUploadingPhoto,
     String? error,
+    AppErrorType? errorType,
     bool clearError = false,
     String? photoError,
     bool clearPhotoError = false,
@@ -68,6 +72,7 @@ class ProfileState extends Equatable {
       isLoading: isLoading ?? this.isLoading,
       isUploadingPhoto: isUploadingPhoto ?? this.isUploadingPhoto,
       error: clearError ? null : (error ?? this.error),
+      errorType: clearError ? null : (errorType ?? this.errorType),
       photoError: clearPhotoError ? null : (photoError ?? this.photoError),
     );
   }
@@ -87,6 +92,7 @@ class ProfileState extends Equatable {
         isLoading,
         isUploadingPhoto,
         error,
+        errorType,
         photoError,
       ];
 }

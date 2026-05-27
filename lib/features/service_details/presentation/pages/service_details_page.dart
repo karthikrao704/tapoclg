@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
+import 'package:tapovana_mobile_app/core/widgets/no_internet_widget.dart';
 import 'package:tapovana_mobile_app/features/appointments/presentation/pages/appointment_booking_page.dart';
 import 'package:tapovana_mobile_app/features/service_details/presentation/widgets/benefit_item.dart';
 import 'package:tapovana_mobile_app/features/services/bloc/service_detail_cubit.dart';
@@ -66,45 +67,10 @@ class _ServiceDetailsContent extends StatelessWidget {
           }
 
           if (state is ServiceDetailError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, color: Colors.red.shade300, size: 48),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Failed to load service details',
-                    style: AppFonts.poppinsSemiBold(
-                      fontSize: 16,
-                      color: AppTheme.primaryText,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
-                    child: Text(
-                      state.message,
-                      textAlign: TextAlign.center,
-                      style: AppFonts.poppinsRegular(
-                        fontSize: 13,
-                        color: AppTheme.secondaryText,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      context.read<ServiceDetailCubit>().fetchServiceById(serviceId);
-                    },
-                    icon: const Icon(Icons.refresh, size: 18),
-                    label: const Text('Retry'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryColor,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
+            return NoInternetWidget(
+              errorType: state.errorType,
+              onReload: () =>
+                  context.read<ServiceDetailCubit>().fetchServiceById(serviceId),
             );
           }
 

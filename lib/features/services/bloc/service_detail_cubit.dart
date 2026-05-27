@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tapovana_mobile_app/core/api/app_error.dart';
 import 'package:tapovana_mobile_app/features/services/bloc/service_state.dart';
 import 'package:tapovana_mobile_app/features/services/data/repositories/service_repository.dart';
 
@@ -17,7 +18,10 @@ class ServiceDetailCubit extends Cubit<ServiceDetailState> {
       final service = await _repository.getServiceById(id);
       emit(ServiceDetailLoaded(service: service));
     } catch (e) {
-      emit(ServiceDetailError(message: e.toString()));
+      emit(ServiceDetailError(
+        message: e.toString(),
+        errorType: AppError.classify(e),
+      ));
     }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tapovana_mobile_app/core/api/app_error.dart';
 import 'package:tapovana_mobile_app/core/storage/local_database.dart';
 import 'package:tapovana_mobile_app/features/profile/repositories/profile_repository.dart';
 import 'profile_event.dart';
@@ -49,6 +50,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       emit(
         state.copyWith(
           error: 'Failed to load profile: ${e.toString()}',
+          errorType: AppError.classify(e),
           isLoading: false,
         ),
       );

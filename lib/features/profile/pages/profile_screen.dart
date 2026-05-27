@@ -5,6 +5,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
+import 'package:tapovana_mobile_app/core/widgets/no_internet_widget.dart';
+import 'package:tapovana_mobile_app/core/api/app_error.dart';
 import 'package:tapovana_mobile_app/features/auth/bloc/auth/auth_cubit.dart';
 import 'package:tapovana_mobile_app/features/bookings/presentation/pages/my_bookings_page.dart';
 import '../bloc/profile/profile_bloc.dart';
@@ -178,23 +180,9 @@ class ProfileView extends StatelessWidget {
           }
 
           if (state.error != null) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    state.error!,
-                    style: const TextStyle(color: Colors.red),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () =>
-                        context.read<ProfileBloc>().add(LoadProfile()),
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
+            return NoInternetWidget(
+              errorType: state.errorType ?? AppErrorType.network,
+              onReload: () => context.read<ProfileBloc>().add(LoadProfile()),
             );
           }
 
