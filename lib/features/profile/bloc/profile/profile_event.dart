@@ -36,3 +36,14 @@ class UploadProfilePhoto extends ProfileEvent {
 class DeleteProfilePhoto extends ProfileEvent {}
 
 class Logout extends ProfileEvent {}
+
+class UpgradeWellnessPass extends ProfileEvent {
+  final String passType;
+
+  const UpgradeWellnessPass({required this.passType});
+
+  @override
+  List<Object> get props => [passType];
+}
+
+class UseWellnessCredit extends ProfileEvent {}

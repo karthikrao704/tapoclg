@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:tapovana_mobile_app/features/bookings/presentation/widgets/future_booking_card.dart';
 import 'package:tapovana_mobile_app/features/bookings/presentation/widgets/upcoming_booking_card.dart';
 import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
-import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 class MyBookingsPage extends StatefulWidget {
@@ -36,20 +35,23 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     final hPadding = size.width * 0.05;
 
     return Scaffold(
-      backgroundColor: AppColors.tertiaryColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF333333)),
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).brightness == Brightness.dark ? Colors.white : const Color(0xFF333333),
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           "My Bookings",
           style: AppFonts.headland(
             fontSize: isSmallScreen ? 18 : 20,
-            color: AppTheme.primaryText,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -57,7 +59,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
           // Adjusted preferred size slightly for tighter screens
           preferredSize: Size.fromHeight(isSmallScreen ? 42 : 48),
           child: Container(
-            color: Colors.white,
+            color: Theme.of(context).scaffoldBackgroundColor,
             child: TabBar(
               controller: _tabController,
               indicatorWeight: 3.0,
@@ -65,7 +67,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
               indicatorColor: AppColors.primaryColor,
               dividerColor: Colors.transparent,
               labelColor: AppColors.primaryColor,
-              unselectedLabelColor: AppColors.primaryBlack40,
+              unselectedLabelColor: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : AppColors.primaryBlack40,
               labelPadding: EdgeInsets.symmetric(
                 horizontal: isSmallScreen ? 12 : 16,
               ),
@@ -157,7 +159,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
         child: Text(
           "No completed bookings yet",
           style: AppFonts.poppinsRegular(
-            color: AppColors.primaryBlack40,
+            color: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : AppColors.primaryBlack40,
             fontSize: isSmallScreen ? 13 : 15,
           ),
         ),

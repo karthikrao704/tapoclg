@@ -5,7 +5,7 @@ import 'package:tapovana_mobile_app/features/services/data/models/service_model.
 import 'package:tapovana_mobile_app/features/services/data/models/service_detail_model.dart';
 
 class ServiceRepository {
-  final String baseUrl = "https://backend.rosettesmartlife.com";
+  final String baseUrl = "https://tapovana.onrender.com";
 
   // ═══════════════════════════════════════
   //   GET /api/services — Fetch all services

@@ -47,7 +47,7 @@ class PrivacySecurityView extends StatelessWidget {
         }
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFFAFAFA),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: SecondaryAppBar(
           title: 'Privacy & Security',
           centerTitle: false,
@@ -69,9 +69,10 @@ class PrivacySecurityView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSectionHeader('Account Security'),
-                  _buildCardGroup([
+                  _buildSectionHeader(context, 'Account Security'),
+                  _buildCardGroup(context, [
                     _buildActionItem(
+                      context: context,
                       title: 'Change Password',
                       subtitle: '',
                       icon: Icons.lock_outline,
@@ -80,6 +81,7 @@ class PrivacySecurityView extends StatelessWidget {
                       onTap: () => _showChangePasswordDialog(context),
                     ),
                     _buildSwitchItem(
+                      context: context,
                       title: 'Two-Factor Authentication',
                       subtitle: 'Adds an extra layer of security',
                       icon: Icons.security,
@@ -97,9 +99,10 @@ class PrivacySecurityView extends StatelessWidget {
 
                   const SizedBox(height: 32),
 
-                  _buildSectionHeader('Privacy Controls'),
-                  _buildCardGroup([
+                  _buildSectionHeader(context, 'Privacy Controls'),
+                  _buildCardGroup(context, [
                     _buildActionItem(
+                      context: context,
                       title: 'Data Permissions',
                       subtitle: '',
                       icon: Icons.key_outlined,
@@ -108,6 +111,7 @@ class PrivacySecurityView extends StatelessWidget {
                       onTap: () {}, // Navigate or show modal
                     ),
                     _buildActionItem(
+                      context: context,
                       title: 'Download Data',
                       subtitle: '',
                       icon: Icons.file_download_outlined,
@@ -116,6 +120,7 @@ class PrivacySecurityView extends StatelessWidget {
                       onTap: () {}, // Trigger data download action
                     ),
                     _buildActionItem(
+                      context: context,
                       title: 'Delete Account',
                       subtitle: '',
                       titleColor: const Color(0xFFEF4444),
@@ -136,25 +141,28 @@ class PrivacySecurityView extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 16),
       child: Text(
         title,
         style: AppFonts.poppinsSemiBold(
-          color: AppTheme.primaryText,
+          color: Theme.of(context).colorScheme.onSurface,
           fontSize: 18,
         ),
       ),
     );
   }
 
-  Widget _buildCardGroup(List<Widget> children) {
+  Widget _buildCardGroup(BuildContext context, List<Widget> children) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        border: Border.all(
+          color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withAlpha(20) : const Color(0xFFF1F5F9),
+          width: 1.5,
+        ),
       ),
       child: Column(
         children: children,
@@ -162,11 +170,12 @@ class PrivacySecurityView extends StatelessWidget {
     );
   }
 
-  Widget _buildEnclosedIcon(IconData icon, Color iconBackColor, Color iconColor) {
+  Widget _buildEnclosedIcon(BuildContext context, IconData icon, Color iconBackColor, Color iconColor) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: iconBackColor,
+        color: isDark ? Colors.white.withAlpha(15) : iconBackColor,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Icon(
@@ -178,6 +187,7 @@ class PrivacySecurityView extends StatelessWidget {
   }
 
   Widget _buildActionItem({
+    required BuildContext context,
     required String title,
     String subtitle = '',
     required IconData icon,
@@ -200,7 +210,7 @@ class PrivacySecurityView extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _buildEnclosedIcon(icon, iconBackColor, iconColor),
+                _buildEnclosedIcon(context, icon, iconBackColor, iconColor),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
@@ -209,7 +219,9 @@ class PrivacySecurityView extends StatelessWidget {
                       Text(
                         title,
                         style: AppFonts.poppinsMedium(
-                          color: titleColor,
+                          color: titleColor == const Color(0xFF1E293B) && Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white
+                              : titleColor,
                           fontSize: 15,
                         ),
                       ),
@@ -218,7 +230,7 @@ class PrivacySecurityView extends StatelessWidget {
                         Text(
                           subtitle,
                           style: AppFonts.poppinsRegular(
-                            color: AppColors.primaryBlack40,
+                            color: Theme.of(context).textTheme.bodySmall?.color,
                             fontSize: 12,
                           ),
                         ),
@@ -237,10 +249,10 @@ class PrivacySecurityView extends StatelessWidget {
           ),
         ),
         if (showDivider)
-          const Divider(
+          Divider(
             height: 1,
             thickness: 1,
-            color: Color(0xFFF1F5F9),
+            color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withAlpha(15) : const Color(0xFFF1F5F9),
             indent: 16,
             endIndent: 16,
           ),
@@ -249,6 +261,7 @@ class PrivacySecurityView extends StatelessWidget {
   }
 
   Widget _buildSwitchItem({
+    required BuildContext context,
     required String title,
     required String subtitle,
     required IconData icon,
@@ -267,7 +280,7 @@ class PrivacySecurityView extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _buildEnclosedIcon(icon, iconBackColor, iconColor),
+              _buildEnclosedIcon(context, icon, iconBackColor, iconColor),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -276,7 +289,7 @@ class PrivacySecurityView extends StatelessWidget {
                     Text(
                       title,
                       style: AppFonts.poppinsMedium(
-                        color: AppTheme.primaryText,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 15,
                       ),
                     ),
@@ -307,10 +320,10 @@ class PrivacySecurityView extends StatelessWidget {
           ),
         ),
         if (showDivider)
-          const Divider(
+          Divider(
             height: 1,
             thickness: 1,
-            color: Color(0xFFF1F5F9),
+            color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withAlpha(15) : const Color(0xFFF1F5F9),
             indent: 16,
             endIndent: 16,
           ),

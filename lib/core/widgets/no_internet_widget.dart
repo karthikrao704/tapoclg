@@ -68,15 +68,17 @@ class NoInternetWidget extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(10),
-                blurRadius: 16,
-                offset: const Offset(0, 4),
-              ),
-            ],
+            boxShadow: Theme.of(context).brightness == Brightness.dark
+                ? null
+                : [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(10),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -96,7 +98,7 @@ class NoInternetWidget extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: AppFonts.poppinsSemiBold(
                   fontSize: 16,
-                  color: const Color(0xFF1A1A1A),
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
 
@@ -108,7 +110,7 @@ class NoInternetWidget extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: AppFonts.poppinsRegular(
                   fontSize: 13,
-                  color: const Color(0xFF9B9BA1),
+                  color: Theme.of(context).textTheme.bodySmall?.color ?? const Color(0xFF9B9BA1),
                   height: 1.5,
                 ),
               ),

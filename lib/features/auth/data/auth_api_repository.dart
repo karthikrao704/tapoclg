@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:tapovana_mobile_app/core/storage/secure_storage.dart';
 
 class AuthApiRepository {
-  final String baseUrl = "https://backend.rosettesmartlife.com";
+  final String baseUrl = "https://tapovana.onrender.com";
   final SecureStorage _secureStorage = SecureStorage();
 
   // ═══════════════════════════════════════

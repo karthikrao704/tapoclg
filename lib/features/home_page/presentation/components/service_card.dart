@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
+import 'package:tapovana_mobile_app/core/widgets/failed_image_cache.dart';
 
 class ServiceCard extends StatelessWidget {
   final String imagePath;
@@ -38,13 +39,8 @@ class ServiceCard extends StatelessWidget {
                 borderRadius: const BorderRadius.all(Radius.circular(16)),
                 // AspectRatio ensures the image scales gracefully on wider screens
                 child: AspectRatio(
-                  aspectRatio:
-                      1.1, // Adjust this ratio to match your specific design needs
-                  child: Image.asset(
-                    imagePath,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+                  aspectRatio: 1.1, // Adjust this ratio to match your specific design needs
+                  child: _buildImage(),
                 ),
               ),
               // The dynamic tag on the top right
@@ -57,14 +53,14 @@ class ServiceCard extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.tagBackground,
+                    color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : AppColors.tagBackground,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     tagLabel,
                     style: AppFonts.poppinsSemiBold(
                       fontSize: 12,
-                      color: AppTheme.wellnessTipText,
+                      color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFFC9A14A) : AppTheme.wellnessTipText,
                     ),
                   ),
                 ),
@@ -80,9 +76,11 @@ class ServiceCard extends StatelessWidget {
               children: [
                 Text(
                   serviceName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: AppFonts.poppinsSemiBold(
                     fontSize: 16,
-                    color: AppTheme.primaryText,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -94,7 +92,7 @@ class ServiceCard extends StatelessWidget {
                       Icons.access_time,
                       // Scale the icon proportionally to the system font size
                       size: 16,
-                      color: AppColors.primaryBlack40,
+                      color: Theme.of(context).textTheme.bodySmall?.color ?? AppColors.primaryBlack40,
                     ),
                     const SizedBox(width: 4),
                     // Expanded prevents horizontal overflow by pushing long text to the next line
@@ -103,7 +101,7 @@ class ServiceCard extends StatelessWidget {
                         duration,
                         style: AppFonts.poppinsRegular(
                           fontSize: 13,
-                          color: AppColors.primaryBlack40,
+                          color: Theme.of(context).textTheme.bodySmall?.color ?? AppColors.primaryBlack40,
                         ),
                       ),
                     ),
@@ -113,6 +111,62 @@ class ServiceCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildImage() {
+    if (FailedImageCache.isFailed(imagePath)) {
+      return _buildPlaceholder();
+    }
+
+    if (imagePath.startsWith('http')) {
+      return Image.network(
+        imagePath,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) {
+          FailedImageCache.markFailed(imagePath);
+          return _buildPlaceholder();
+        },
+      );
+    } else if (imagePath.isNotEmpty) {
+      return Image.asset(
+        imagePath,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) {
+          FailedImageCache.markFailed(imagePath);
+          return _buildPlaceholder();
+        },
+      );
+    } else {
+      return _buildPlaceholder();
+    }
+  }
+
+  Widget _buildPlaceholder() {
+    return Container(
+      color: AppColors.tagBackground,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.spa_outlined,
+              size: 40,
+              color: AppColors.primaryColor.withAlpha(150),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              tagLabel,
+              style: AppFonts.poppinsRegular(
+                fontSize: 12,
+                color: AppColors.primaryColor.withAlpha(150),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

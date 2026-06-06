@@ -3,6 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:tapovana_mobile_app/core/routing/route_constants.dart';
 import 'package:tapovana_mobile_app/features/navigation/presentation/widgets/custom_app_bar.dart';
 import 'package:tapovana_mobile_app/features/navigation/presentation/widgets/custom_bottom_navbar.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tapovana_mobile_app/features/profile/bloc/profile/profile_bloc.dart';
+import 'package:tapovana_mobile_app/features/profile/bloc/profile/profile_event.dart';
 
 class Navigation extends StatelessWidget {
   // 1. Change from `Widget child` to `StatefulNavigationShell`
@@ -40,6 +43,9 @@ class Navigation extends StatelessWidget {
             // if tapping the currently active tab.
             initialLocation: index == navigationShell.currentIndex,
           );
+          if (index == 3) {
+            context.read<ProfileBloc>().add(LoadProfile());
+          }
         },
       ),
     );

@@ -10,6 +10,7 @@ import 'package:tapovana_mobile_app/features/services/bloc/service_state.dart';
 import 'package:tapovana_mobile_app/features/services/data/models/service_model.dart';
 import 'package:tapovana_mobile_app/features/services/data/repositories/service_repository.dart';
 import 'package:tapovana_mobile_app/features/service_details/presentation/pages/service_details_page.dart';
+import 'package:tapovana_mobile_app/core/storage/local_database.dart';
 
 /// A reusable screen that fetches and displays services for a given [category].
 ///
@@ -166,8 +167,7 @@ class _ApiServiceCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
+        Navigator.of(context, rootNavigator: true).push(
           MaterialPageRoute(
             builder: (_) => ServiceDetailsPage(serviceId: service.id),
           ),
@@ -221,12 +221,56 @@ class _ApiServiceCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Text(
-                        service.formattedPrice,
-                        style: AppFonts.poppinsSemiBold(
-                          color: AppColors.primaryColor,
-                          fontSize: 16,
-                        ),
+                      FutureBuilder<String?>(
+                        future: LocalDatabase.getWellnessPass(),
+                        builder: (context, snapshot) {
+                          final pass = snapshot.data;
+                          double discountPercentage = 0.0;
+                          if (pass != null) {
+                            final passUpper = pass.toUpperCase();
+                            if (passUpper.contains('SILVER')) {
+                              discountPercentage = 0.10;
+                            } else if (passUpper.contains('GOLD')) {
+                              discountPercentage = 0.20;
+                            } else if (passUpper.contains('DIAMOND')) {
+                              discountPercentage = 0.30;
+                            }
+                          }
+
+                          final double originalPrice = double.tryParse(service.basePrice) ?? 0.0;
+                          if (discountPercentage > 0) {
+                            final double finalPrice = originalPrice * (1 - discountPercentage);
+                            final String formattedFinal = '₹${finalPrice.toStringAsFixed(0)}';
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  formattedFinal,
+                                  style: AppFonts.poppinsSemiBold(
+                                    color: AppColors.primaryColor,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Text(
+                                  '₹${originalPrice.toStringAsFixed(0)}',
+                                  style: AppFonts.poppinsRegular(
+                                    color: AppColors.primaryBlack40,
+                                    fontSize: 11,
+                                    decoration: TextDecoration.lineThrough,
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+
+                          return Text(
+                            service.formattedPrice,
+                            style: AppFonts.poppinsSemiBold(
+                              color: AppColors.primaryColor,
+                              fontSize: 16,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -276,8 +320,7 @@ class _ApiServiceCard extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
+                        Navigator.of(context, rootNavigator: true).push(
                           MaterialPageRoute(
                             builder: (_) =>
                                 ServiceDetailsPage(serviceId: service.id),

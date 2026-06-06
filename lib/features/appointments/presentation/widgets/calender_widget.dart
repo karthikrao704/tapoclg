@@ -18,10 +18,13 @@ class _CalendarWidgetState extends State<CalendarWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 244, 244, 244),
+        color: isDark ? const Color(0xFF1E293B) : const Color.fromARGB(255, 244, 244, 244),
         borderRadius: BorderRadius.circular(12),
       ),
       child: TableCalendar(
@@ -42,15 +45,33 @@ class _CalendarWidgetState extends State<CalendarWidget> {
           widget.onDateSelected(selected);
         },
 
-        headerStyle: const HeaderStyle(
+        headerStyle: HeaderStyle(
           formatButtonVisible: false,
           titleCentered: true,
+          titleTextStyle: AppFonts.poppinsSemiBold(
+            fontSize: 16,
+            color: theme.colorScheme.onSurface,
+          ),
+          leftChevronIcon: Icon(
+            Icons.chevron_left,
+            color: theme.colorScheme.onSurface,
+          ),
+          rightChevronIcon: Icon(
+            Icons.chevron_right,
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+
+        daysOfWeekStyle: DaysOfWeekStyle(
+          weekdayStyle: AppFonts.poppinsRegular(fontSize: 12, color: theme.textTheme.bodySmall?.color ?? Colors.grey),
+          weekendStyle: AppFonts.poppinsRegular(fontSize: 12, color: theme.textTheme.bodySmall?.color ?? Colors.grey),
         ),
 
         calendarStyle: CalendarStyle(
           todayDecoration: const BoxDecoration(color: Colors.transparent),
-          defaultTextStyle: AppFonts.poppinsRegular(fontSize: 13),
-          weekendTextStyle: AppFonts.poppinsRegular(fontSize: 13),
+          defaultTextStyle: AppFonts.poppinsRegular(fontSize: 13, color: theme.colorScheme.onSurface),
+          weekendTextStyle: AppFonts.poppinsRegular(fontSize: 13, color: theme.colorScheme.onSurface),
+          outsideTextStyle: AppFonts.poppinsRegular(fontSize: 13, color: theme.textTheme.bodySmall?.color ?? Colors.grey),
         ),
 
         calendarBuilders: CalendarBuilders(
@@ -81,6 +102,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                 '${date.day}',
                 style: AppFonts.poppinsSemiBold(
                   fontSize: 13,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
             );
@@ -91,7 +113,13 @@ class _CalendarWidgetState extends State<CalendarWidget> {
             return Container(
               margin: const EdgeInsets.all(6),
               alignment: Alignment.center,
-              child: Text('${date.day}', style: AppFonts.poppinsRegular(fontSize: 13)),
+              child: Text(
+                '${date.day}',
+                style: AppFonts.poppinsRegular(
+                  fontSize: 13,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
             );
           },
         ),

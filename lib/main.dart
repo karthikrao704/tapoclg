@@ -9,7 +9,10 @@ import 'package:tapovana_mobile_app/core/routing/app_router.dart';
 import 'package:tapovana_mobile_app/features/auth/bloc/auth/auth_cubit.dart';
 import 'package:tapovana_mobile_app/features/auth/data/auth_api_repository.dart';
 import 'package:tapovana_mobile_app/features/auth/data/firebase_auth_repo.dart';
+import 'package:tapovana_mobile_app/features/profile/bloc/profile/profile_bloc.dart';
+import 'package:tapovana_mobile_app/features/profile/bloc/profile/profile_event.dart';
 import 'package:tapovana_mobile_app/firebase_options.dart';
+import 'package:tapovana_mobile_app/core/theme/theme_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -74,14 +77,29 @@ class _MyAppState extends State<MyApp> {
     return MultiBlocProvider(
       providers: [
         BlocProvider.value(value: _authCubit),
+        BlocProvider(create: (context) => ProfileBloc()..add(LoadProfile())),
+        BlocProvider(create: (context) => ThemeCubit()),
       ],
-      child: MaterialApp.router(
-        title: 'Tapovana',
-        debugShowCheckedModeBanner: false,
-        builder: (context, child) {
-          return Theme(data: AppTheme.getLightTheme(context), child: child!);
+      child: BlocBuilder<ThemeCubit, ThemeMode>(
+        builder: (context, themeMode) {
+          final isDark = themeMode == ThemeMode.dark;
+          return MaterialApp.router(
+            title: 'Tapovana',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.getLightTheme(context),
+            darkTheme: AppTheme.getDarkTheme(context),
+            themeMode: themeMode,
+            builder: (context, child) {
+              return Theme(
+                data: isDark
+                    ? AppTheme.getDarkTheme(context)
+                    : AppTheme.getLightTheme(context),
+                child: child!,
+              );
+            },
+            routerConfig: _router,
+          );
         },
-        routerConfig: _router,
       ),
     );
   }

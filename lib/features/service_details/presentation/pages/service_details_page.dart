@@ -10,6 +10,7 @@ import 'package:tapovana_mobile_app/features/services/bloc/service_detail_cubit.
 import 'package:tapovana_mobile_app/features/services/bloc/service_state.dart';
 import 'package:tapovana_mobile_app/features/services/data/models/service_detail_model.dart';
 import 'package:tapovana_mobile_app/features/services/data/repositories/service_repository.dart';
+import 'package:tapovana_mobile_app/core/storage/local_database.dart';
 
 class ServiceDetailsPage extends StatelessWidget {
   final String serviceId;
@@ -212,12 +213,57 @@ class _ServiceDetailsContent extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 1),
-                            Text(
-                              service.formattedPrice,
-                              style: AppFonts.poppinsSemiBold(
-                                color: AppTheme.primaryText,
-                                fontSize: 18,
-                              ),
+                            FutureBuilder<String?>(
+                              future: LocalDatabase.getWellnessPass(),
+                              builder: (context, snapshot) {
+                                final pass = snapshot.data;
+                                double discountPercentage = 0.0;
+                                if (pass != null) {
+                                  final passUpper = pass.toUpperCase();
+                                  if (passUpper.contains('SILVER')) {
+                                    discountPercentage = 0.10;
+                                  } else if (passUpper.contains('GOLD')) {
+                                    discountPercentage = 0.20;
+                                  } else if (passUpper.contains('DIAMOND')) {
+                                    discountPercentage = 0.30;
+                                  }
+                                }
+
+                                final double originalPrice = double.tryParse(service.basePrice) ?? 0.0;
+                                if (discountPercentage > 0) {
+                                  final double finalPrice = originalPrice * (1 - discountPercentage);
+                                  final String formattedFinal = '₹${finalPrice.toStringAsFixed(0)}';
+                                  return Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        formattedFinal,
+                                        style: AppFonts.poppinsSemiBold(
+                                          color: AppTheme.primaryText,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        '₹${originalPrice.toStringAsFixed(0)}',
+                                        style: AppFonts.poppinsRegular(
+                                          color: AppColors.primaryBlack40,
+                                          fontSize: 12,
+                                          decoration: TextDecoration.lineThrough,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }
+
+                                return Text(
+                                  service.formattedPrice,
+                                  style: AppFonts.poppinsSemiBold(
+                                    color: AppTheme.primaryText,
+                                    fontSize: 18,
+                                  ),
+                                );
+                              },
                             ),
                           ],
                         ),
@@ -308,7 +354,10 @@ class _ServiceDetailsContent extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => AppointmentBookingPage(),
+                        builder: (context) => AppointmentBookingPage(
+                          serviceName: service.name,
+                          price: service.formattedPrice,
+                        ),
                       ),
                     );
                   },

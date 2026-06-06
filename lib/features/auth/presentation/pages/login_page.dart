@@ -79,7 +79,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ],
         child: Scaffold(
-          backgroundColor: const Color(0xFFFFFFFF),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: SafeArea(
             child: Stack(
               children: [
@@ -106,14 +106,14 @@ class _LoginPageState extends State<LoginPage> {
                           style: AppFonts.headland(
                             fontSize: isSmallScreen ? 20 : 24,
                             fontWeight: FontWeight.w600,
-                            color: AppTheme.primaryText,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         SizedBox(height: isSmallScreen ? 4 : 8),
                         Text(
                           "Welcome back to your sanctuary",
                           style: AppFonts.poppinsRegular(
-                            color: AppColors.primaryBlack40,
+                            color: Theme.of(context).textTheme.bodySmall?.color ?? AppColors.primaryBlack40,
                             fontSize: isSmallScreen ? 12 : 14,
                           ),
                         ),
@@ -132,28 +132,38 @@ class _LoginPageState extends State<LoginPage> {
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: emailController,
+                          style: AppFonts.poppinsRegular(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontSize: isSmallScreen ? 14 : 16,
+                          ),
                           decoration: InputDecoration(
                             hintText: "your@email.com",
                             hintStyle: AppFonts.poppinsRegular(
-                              color: AppColors.primaryBlack40,
+                              color: Theme.of(context).textTheme.bodySmall?.color ?? AppColors.primaryBlack40,
                               fontSize: isSmallScreen ? 12 : 14,
                             ),
                             filled: true,
-                            fillColor: AppColors.backgroundColor,
+                            fillColor: Theme.of(context).brightness == Brightness.dark
+                                ? const Color(0xFF1E293B)
+                                : AppColors.backgroundColor,
                             contentPadding: EdgeInsets.symmetric(
                               horizontal: 16,
                               vertical: isSmallScreen ? 12 : 14,
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: Color(0xFFE0E0E0),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.white.withAlpha(20)
+                                    : const Color(0xFFE0E0E0),
                               ),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: Color(0xFFE0E0E0),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.white.withAlpha(20)
+                                    : const Color(0xFFE0E0E0),
                               ),
                             ),
                           ),
@@ -174,27 +184,37 @@ class _LoginPageState extends State<LoginPage> {
                         TextFormField(
                           controller: passwordController,
                           obscureText: _obscurePassword,
+                          style: AppFonts.poppinsRegular(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontSize: isSmallScreen ? 14 : 16,
+                          ),
                           decoration: InputDecoration(
                             hintText: "••••••••",
                             hintStyle: AppFonts.poppinsRegular(
-                              color: AppColors.primaryBlack40,
+                              color: Theme.of(context).textTheme.bodySmall?.color ?? AppColors.primaryBlack40,
                             ),
                             filled: true,
-                            fillColor: AppColors.backgroundColor,
+                            fillColor: Theme.of(context).brightness == Brightness.dark
+                                ? const Color(0xFF1E293B)
+                                : AppColors.backgroundColor,
                             contentPadding: EdgeInsets.symmetric(
                               horizontal: 16,
                               vertical: isSmallScreen ? 12 : 14,
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: Color(0xFFE0E0E0),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.white.withAlpha(20)
+                                    : const Color(0xFFE0E0E0),
                               ),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: Color(0xFFE0E0E0),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.white.withAlpha(20)
+                                    : const Color(0xFFE0E0E0),
                               ),
                             ),
                             suffixIcon: IconButton(
@@ -324,14 +344,18 @@ class _LoginPageState extends State<LoginPage> {
                                   isSmallScreen ? 10 : 14,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: Theme.of(context).brightness == Brightness.dark
+                                      ? const Color(0xFF1E293B)
+                                      : Colors.white,
                                   borderRadius: BorderRadius.circular(12),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Colors.black12,
-                                      blurRadius: 6,
-                                    ),
-                                  ],
+                                  boxShadow: Theme.of(context).brightness == Brightness.dark
+                                      ? null
+                                      : const [
+                                          BoxShadow(
+                                            color: Colors.black12,
+                                            blurRadius: 6,
+                                          ),
+                                        ],
                                 ),
                                 child: Image.asset('assets/images/google.png'),
                               ),
@@ -342,14 +366,18 @@ class _LoginPageState extends State<LoginPage> {
                               height: isSmallScreen ? 55 : 70,
                               padding: EdgeInsets.all(isSmallScreen ? 10 : 14),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? const Color(0xFF1E293B)
+                                    : Colors.white,
                                 borderRadius: BorderRadius.circular(12),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 6,
-                                  ),
-                                ],
+                                boxShadow: Theme.of(context).brightness == Brightness.dark
+                                    ? null
+                                    : const [
+                                        BoxShadow(
+                                          color: Colors.black12,
+                                          blurRadius: 6,
+                                        ),
+                                      ],
                               ),
                               child: Image.asset('assets/images/apple.png'),
                             ),
@@ -363,8 +391,7 @@ class _LoginPageState extends State<LoginPage> {
                             text: "Don't have an account? ",
                             style: AppFonts.poppinsRegular(
                               fontSize: isSmallScreen ? 12 : 14,
-                              color: AppTheme
-                                  .primaryText, // Ensure default color is set
+                              color: Theme.of(context).colorScheme.onSurface, // Ensure default color is set
                             ),
                             children: [
                               TextSpan(

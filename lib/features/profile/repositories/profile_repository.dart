@@ -6,7 +6,7 @@ import '../../../../core/storage/local_database.dart';
 
 class ProfileRepository {
   static const String _baseUrl =
-      'https://backend.rosettesmartlife.com/api/details';
+      'https://tapovana.onrender.com/api/details';
 
   // ─── Helper: resolve userId from local DB ────────────────────────────────
 

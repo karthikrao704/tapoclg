@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tapovana_mobile_app/core/theme/theme_cubit.dart';
 import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
-import 'package:tapovana_mobile_app/core/widgets/notification_bell.dart';
+import 'package:tapovana_mobile_app/core/widgets/failed_image_cache.dart';
 import 'bloc/more_bloc.dart';
 import 'models/more_models.dart';
+import 'vedic_package_details_page.dart';
+import 'wellness_blog_details_page.dart';
+import 'workshop_details_page.dart';
 
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});
@@ -29,7 +33,7 @@ class _MoreView extends StatelessWidget {
     final isSmallScreen = size.height < 650;
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 255, 255, 254),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: BlocBuilder<MoreBloc, MoreState>(
         builder: (context, state) {
           if (state.isLoading) {
@@ -76,21 +80,15 @@ class _MoreView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 8),
-                      if (state.featuredWorkshop != null)
+                      if (state.workshops.isNotEmpty)
                         _FeaturedWorkshopSection(
-                          workshop: state.featuredWorkshop!,
+                          workshops: state.workshops,
                           isSmallScreen: isSmallScreen,
                         ),
                       SizedBox(height: isSmallScreen ? 20 : 28),
                       if (state.vedicPackages.isNotEmpty)
                         _VedicPackagesSection(
                           packages: state.vedicPackages,
-                          isSmallScreen: isSmallScreen,
-                        ),
-                      SizedBox(height: isSmallScreen ? 20 : 28),
-                      if (state.educationalCourses.isNotEmpty)
-                        _EducationalCoursesSection(
-                          courses: state.educationalCourses,
                           isSmallScreen: isSmallScreen,
                         ),
                       SizedBox(height: isSmallScreen ? 20 : 28),
@@ -113,7 +111,7 @@ class _MoreView extends StatelessWidget {
 
   SliverAppBar _buildAppBar(BuildContext context, bool isSmallScreen) {
     return SliverAppBar(
-      backgroundColor: const Color.fromARGB(255, 253, 253, 252),
+      backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
       floating: true,
       snap: true,
       elevation: 0,
@@ -124,11 +122,23 @@ class _MoreView extends StatelessWidget {
         style: AppFonts.headland(
           fontSize: isSmallScreen ? 18 : 20,
           fontWeight: FontWeight.w400,
-          color: AppTheme.primaryText,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
       ),
       actions: [
-        NotificationBell(size: isSmallScreen ? 34 : 40, onPressed: () {}),
+        IconButton(
+          icon: Icon(
+            Theme.of(context).brightness == Brightness.dark
+                ? Icons.light_mode_rounded
+                : Icons.dark_mode_rounded,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.amberAccent
+                : AppTheme.primaryText,
+          ),
+          onPressed: () {
+            context.read<ThemeCubit>().toggleTheme();
+          },
+        ),
         const SizedBox(width: 8),
       ],
     );
@@ -139,177 +149,224 @@ class _MoreView extends StatelessWidget {
 // Featured Workshop Section
 // ─────────────────────────────────────────────
 class _FeaturedWorkshopSection extends StatelessWidget {
-  final FeaturedWorkshop workshop;
+  final List<FeaturedWorkshop> workshops;
   final bool isSmallScreen;
 
   const _FeaturedWorkshopSection({
-    required this.workshop,
+    required this.workshops,
     required this.isSmallScreen,
   });
 
   @override
   Widget build(BuildContext context) {
+    final double cardWidth = isSmallScreen ? 280.0 : 340.0;
+    final double listHeight = isSmallScreen ? 320.0 : 410.0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
-            'Featured Workshop',
+            'Featured Workshops',
             style: AppFonts.poppinsSemiBold(
               fontSize: isSmallScreen ? 16 : 18,
-              color: AppTheme.primaryText,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ),
         SizedBox(height: isSmallScreen ? 10 : 14),
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.06),
-                blurRadius: 10,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Workshop image area
-              ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-                child: _WorkshopImagePlaceholder(
-                  imagePath: workshop.imagePath,
-                  isSmallScreen: isSmallScreen,
-                ),
-              ),
-
-              // Workshop details
-              Padding(
-                padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Tag + Date row
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // 2. Safely constrained with Flexible so tag and date don't collide
-                        Flexible(
-                          child: Text(
-                            workshop.tag,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppFonts.poppinsSemiBold(
-                              fontSize: isSmallScreen ? 10 : 11,
-                              color: AppColors.primaryColor,
-                              letterSpacing: 0.8,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: isSmallScreen ? 8 : 10,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF9F7F2),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            workshop.date,
-                            style: AppFonts.poppinsMedium(
-                              fontSize: isSmallScreen ? 11 : 13,
-                              color: AppTheme.secondaryText,
-                            ),
-                          ),
+        SizedBox(
+          height: listHeight,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.only(left: 20, right: 4),
+            itemCount: workshops.length,
+            itemBuilder: (context, index) {
+              final workshop = workshops[index];
+              return Padding(
+                padding: const EdgeInsets.only(right: 16, bottom: 8),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => WorkshopDetailsPage(workshop: workshop),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: cardWidth,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? const Color(0xFF1E293B)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white.withAlpha(20)
+                            : Colors.transparent,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-
-                    // Title
-                    Text(
-                      workshop.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppFonts.poppinsSemiBold(
-                        fontSize: isSmallScreen ? 16 : 20,
-                        color: AppTheme.primaryText,
-                        height: 1.25,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Description
-                    Text(
-                      workshop.description,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppFonts.poppinsRegular(
-                        fontSize: isSmallScreen ? 12 : 13,
-                        color: AppTheme.secondaryText,
-                        height: 1.5,
-                      ),
-                    ),
-                    SizedBox(height: isSmallScreen ? 12 : 16),
-
-                    // Time + Join button
-                    Row(
+                    clipBehavior: Clip.antiAlias,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
-                          Icons.access_time_outlined,
-                          size: 15,
-                          color: Color(0xFF94A3B8),
+                        // Workshop image area
+                        _WorkshopImagePlaceholder(
+                          imagePath: workshop.imagePath,
+                          isSmallScreen: isSmallScreen,
                         ),
-                        const SizedBox(width: 6),
-                        // 3. Ensuring string truncates if device scaling is extreme
+
+                        // Workshop details
                         Expanded(
-                          child: Text(
-                            '${workshop.time} • ${workshop.duration}',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppFonts.poppinsRegular(
-                              fontSize: isSmallScreen ? 11 : 13,
-                              color: AppColors.primaryBlack40,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFD9A04B),
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: isSmallScreen ? 20 : 28,
-                              vertical: isSmallScreen ? 10 : 12,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                          child: Text(
-                            'Join',
-                            style: AppFonts.poppinsSemiBold(
-                              fontSize: isSmallScreen ? 12 : 14,
+                          child: Padding(
+                            padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Tag + Date row
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Flexible(
+                                          child: Text(
+                                            workshop.tag,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: AppFonts.poppinsSemiBold(
+                                              fontSize: isSmallScreen ? 10 : 11,
+                                              color: AppColors.primaryColor,
+                                              letterSpacing: 0.8,
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: isSmallScreen ? 8 : 10,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context).brightness == Brightness.dark
+                                                ? Colors.white.withAlpha(15)
+                                                : const Color(0xFFF9F7F2),
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          child: Text(
+                                            workshop.date,
+                                            style: AppFonts.poppinsMedium(
+                                              fontSize: isSmallScreen ? 11 : 13,
+                                              color: Theme.of(context).brightness == Brightness.dark
+                                                  ? Colors.white70
+                                                  : AppTheme.secondaryText,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+
+                                    // Title
+                                    Text(
+                                      workshop.title.replaceAll('\n', ' '),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: AppFonts.poppinsSemiBold(
+                                        fontSize: isSmallScreen ? 15 : 18,
+                                        color: Theme.of(context).colorScheme.onSurface,
+                                        height: 1.25,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+
+                                    // Description
+                                    Text(
+                                      workshop.description,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: AppFonts.poppinsRegular(
+                                        fontSize: isSmallScreen ? 11 : 12,
+                                        color: Theme.of(context).brightness == Brightness.dark
+                                            ? Colors.white70
+                                            : AppTheme.secondaryText,
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                // Time + Join button
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.access_time_outlined,
+                                      size: 15,
+                                      color: Color(0xFF94A3B8),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Expanded(
+                                      child: Text(
+                                        '${workshop.time} • ${workshop.duration}',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: AppFonts.poppinsRegular(
+                                          fontSize: isSmallScreen ? 11 : 12,
+                                          color: AppColors.primaryBlack40,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => WorkshopDetailsPage(workshop: workshop),
+                                          ),
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFFD9A04B),
+                                        foregroundColor: Colors.white,
+                                        elevation: 0,
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: isSmallScreen ? 16 : 22,
+                                          vertical: isSmallScreen ? 8 : 10,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(30),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'View',
+                                        style: AppFonts.poppinsSemiBold(
+                                          fontSize: isSmallScreen ? 11 : 13,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+              );
+            },
           ),
         ),
       ],
@@ -331,15 +388,36 @@ class _WorkshopImagePlaceholder extends StatelessWidget {
     // 4. Responsive image bounds
     final double height = isSmallScreen ? 150 : 200;
 
-    if (imagePath != null) {
-      return Image.asset(
-        imagePath!,
-        height: height,
-        width: double.infinity,
-        fit: BoxFit.cover,
-      );
+    if (imagePath != null && imagePath!.isNotEmpty && !FailedImageCache.isFailed(imagePath)) {
+      if (imagePath!.startsWith('http')) {
+        return Image.network(
+          imagePath!,
+          height: height,
+          width: double.infinity,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) {
+            FailedImageCache.markFailed(imagePath);
+            return _buildFallback(height);
+          },
+        );
+      } else {
+        return Image.asset(
+          imagePath!,
+          height: height,
+          width: double.infinity,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) {
+            FailedImageCache.markFailed(imagePath);
+            return _buildFallback(height);
+          },
+        );
+      }
     }
 
+    return _buildFallback(height);
+  }
+
+  Widget _buildFallback(double height) {
     return Container(
       height: height,
       width: double.infinity,
@@ -380,6 +458,9 @@ class _VedicPackagesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cardWidth = isSmallScreen ? 130.0 : 170.0;
+    final totalHeight = isSmallScreen ? 170.0 : 230.0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -389,28 +470,41 @@ class _VedicPackagesSection extends StatelessWidget {
             'Vedic Life Packages',
             style: AppFonts.poppinsSemiBold(
               fontSize: isSmallScreen ? 16 : 18,
-              color: AppTheme.primaryText,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ),
         SizedBox(height: isSmallScreen ? 10 : 14),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: packages.map((pkg) {
-              return Expanded(
+        SizedBox(
+          height: totalHeight,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.only(left: 20, right: 8),
+            itemCount: packages.length,
+            itemBuilder: (context, index) {
+              return SizedBox(
+                width: cardWidth,
                 child: Padding(
-                  padding: EdgeInsets.only(
-                    right: pkg == packages.last ? 0 : (isSmallScreen ? 8 : 12),
-                  ),
-                  child: _PackageCard(
-                    package: pkg,
-                    isSmallScreen: isSmallScreen,
+                  padding: const EdgeInsets.only(right: 16),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => VedicPackageDetailsPage(
+                            package: packages[index],
+                          ),
+                        ),
+                      );
+                    },
+                    child: _PackageCard(
+                      package: packages[index],
+                      isSmallScreen: isSmallScreen,
+                    ),
                   ),
                 ),
               );
-            }).toList(),
+            },
           ),
         ),
       ],
@@ -430,8 +524,7 @@ class _PackageCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          // 5. Scaled height so side-by-side cards don't look stretched
-          height: isSmallScreen ? 100 : 140,
+          height: isSmallScreen ? 90 : 130,
           width: double.infinity,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
@@ -448,14 +541,14 @@ class _PackageCard extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: AppFonts.poppinsSemiBold(
             fontSize: isSmallScreen ? 12 : 14,
-            color: AppTheme.primaryText,
+            color: Theme.of(context).colorScheme.onSurface,
             height: 1.3,
           ),
         ),
         const SizedBox(height: 2),
         Text(
           package.subtitle,
-          maxLines: 2,
+          maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: AppFonts.poppinsRegular(
             fontSize: isSmallScreen ? 11 : 12,
@@ -504,175 +597,6 @@ class _PackageImagePlaceholder extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────
-// Educational Courses Section
-// ─────────────────────────────────────────────
-class _EducationalCoursesSection extends StatelessWidget {
-  final List<EducationalCourse> courses;
-  final bool isSmallScreen;
-
-  const _EducationalCoursesSection({
-    required this.courses,
-    required this.isSmallScreen,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // 1. Wrapped the title in Expanded to prevent right-side overflow
-              Expanded(
-                child: Text(
-                  'Educational Courses',
-                  // 2. Added truncation rules so it gracefully degrades
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppFonts.poppinsSemiBold(
-                    fontSize: isSmallScreen ? 16 : 18,
-                    color: AppTheme.primaryText,
-                  ),
-                ),
-              ),
-              const SizedBox(
-                width: 8,
-              ), // 3. Added a small buffer between title and button
-              TextButton(
-                onPressed: () {},
-                style: TextButton.styleFrom(
-                  minimumSize: Size.zero,
-                  padding: EdgeInsets.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: Text(
-                  'VIEW ALL',
-                  style: AppFonts.poppinsSemiBold(
-                    fontSize: isSmallScreen ? 11 : 13,
-                    color: AppColors.primaryColor,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: isSmallScreen ? 6 : 10),
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Column(
-            children: courses.asMap().entries.map((entry) {
-              final idx = entry.key;
-              final course = entry.value;
-              return Column(
-                children: [
-                  _CourseRow(course: course, isSmallScreen: isSmallScreen),
-                  if (idx < courses.length - 1)
-                    Divider(
-                      height: 1,
-                      thickness: 1,
-                      color: const Color(0xFFF1F5F9),
-                      indent: isSmallScreen ? 54 : 68,
-                    ),
-                ],
-              );
-            }).toList(),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _CourseRow extends StatelessWidget {
-  final EducationalCourse course;
-  final bool isSmallScreen;
-
-  const _CourseRow({required this.course, required this.isSmallScreen});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: isSmallScreen ? 10 : 14,
-      ),
-      child: Row(
-        children: [
-          // Icon container
-          Container(
-            width: isSmallScreen ? 36 : 44,
-            height: isSmallScreen ? 36 : 44,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF5EDD8),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
-              child: Icon(
-                course.iconType == 'book'
-                    ? Icons.menu_book_outlined
-                    : Icons.self_improvement_outlined,
-                color: const Color(0xFFD9A04B),
-                size: isSmallScreen ? 18 : 22,
-              ),
-            ),
-          ),
-          SizedBox(width: isSmallScreen ? 10 : 14),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  course.title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppFonts.poppinsMedium(
-                    fontSize: isSmallScreen ? 13 : 15,
-                    color: AppTheme.primaryText,
-                    height: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '${course.lessons} • ${course.level}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppFonts.poppinsRegular(
-                    fontSize: isSmallScreen ? 11 : 12,
-                    color: AppColors.primaryBlack40,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Icon(
-            Icons.chevron_right,
-            color: const Color(0xFFCBD5E1),
-            size: isSmallScreen ? 20 : 22,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────
 // Wellness Blog Section
 // ─────────────────────────────────────────────
 class _WellnessBlogSection extends StatelessWidget {
@@ -707,7 +631,7 @@ class _WellnessBlogSection extends StatelessWidget {
             'Wellness Blog',
             style: AppFonts.poppinsSemiBold(
               fontSize: isSmallScreen ? 16 : 18,
-              color: AppTheme.primaryText,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ),
@@ -719,11 +643,23 @@ class _WellnessBlogSection extends StatelessWidget {
             padding: const EdgeInsets.only(left: 20, right: 8),
             itemCount: posts.length,
             itemBuilder: (context, index) {
-              return _BlogCard(
-                post: posts[index],
-                cardWidth: cardWidth,
-                imageHeight: imageHeight,
-                isSmallScreen: isSmallScreen,
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => WellnessBlogDetailsPage(
+                        post: posts[index],
+                      ),
+                    ),
+                  );
+                },
+                child: _BlogCard(
+                  post: posts[index],
+                  cardWidth: cardWidth,
+                  imageHeight: imageHeight,
+                  isSmallScreen: isSmallScreen,
+                ),
               );
             },
           ),
@@ -798,7 +734,7 @@ class _BlogCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: AppFonts.poppinsSemiBold(
                   fontSize: isSmallScreen ? 14 : 16,
-                  color: AppTheme.primaryText,
+                  color: Theme.of(context).colorScheme.onSurface,
                   height: 1.3,
                 ),
               ),

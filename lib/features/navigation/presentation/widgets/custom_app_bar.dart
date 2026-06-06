@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
-import 'package:tapovana_mobile_app/core/widgets/notification_bell.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tapovana_mobile_app/core/theme/theme_cubit.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import '../../../../core/storage/local_database.dart';
 
@@ -86,7 +87,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             getGreeting(),
             style: AppFonts.poppinsRegular(
               fontSize: 13,
-              color: AppTheme.secondaryText,
+              color: Theme.of(context).textTheme.bodySmall?.color ?? AppTheme.secondaryText,
             ),
           ),
           FutureBuilder<String?>(
@@ -98,7 +99,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 style: AppFonts.headland(
                   fontSize: 19,
                   fontWeight: FontWeight.w600,
-                  color: AppTheme.primaryText,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               );
             },
@@ -107,7 +108,19 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
 
       actions: [
-        const NotificationBell(),
+        IconButton(
+          icon: Icon(
+            Theme.of(context).brightness == Brightness.dark
+                ? Icons.light_mode_rounded
+                : Icons.dark_mode_rounded,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.amberAccent
+                : Theme.of(context).colorScheme.onSurface,
+          ),
+          onPressed: () {
+            context.read<ThemeCubit>().toggleTheme();
+          },
+        ),
         const SizedBox(width: 8),
       ],
     );

@@ -26,7 +26,7 @@ class FutureBookingCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -40,7 +40,7 @@ class FutureBookingCard extends StatelessWidget {
             height: isSmallScreen ? 56 : 72,
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: AppColors.white,
+              color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF0F172A) : AppColors.white,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Image.asset(icon, fit: BoxFit.contain),
@@ -69,7 +69,7 @@ class FutureBookingCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppFonts.poppinsRegular(
-                    color: AppColors.primaryBlack40,
+                    color: Theme.of(context).textTheme.bodySmall?.color ?? AppColors.primaryBlack40,
                     fontSize: isSmallScreen ? 12 : 14,
                   ),
                 ),
@@ -99,7 +99,7 @@ class FutureBookingCard extends StatelessWidget {
                       child: Text(
                         "Cancel",
                         style: AppFonts.poppinsRegular(
-                          color: AppTheme.secondaryText,
+                          color: Theme.of(context).textTheme.bodySmall?.color ?? AppTheme.secondaryText,
                           fontSize: isSmallScreen ? 11.5 : 12.5,
                         ),
                       ),

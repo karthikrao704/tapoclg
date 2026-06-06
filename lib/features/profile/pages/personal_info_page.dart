@@ -149,7 +149,7 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
         }
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFFAFAFA),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: SecondaryAppBar(
           title: 'Personal Information',
           centerTitle: false,
@@ -305,11 +305,10 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
           Expanded(
             child: Text(
               title,
-              // 2. Add truncation rules for safety
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: AppFonts.poppinsSemiBold(
-                color: AppTheme.primaryText,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: isSmallScreen ? 15 : 17,
               ),
             ),
@@ -327,6 +326,7 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
     TextInputType keyboardType = TextInputType.text,
     bool readOnly = false,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: EdgeInsets.symmetric(
@@ -334,9 +334,14 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
         vertical: isSmallScreen ? 8 : 10,
       ),
       decoration: BoxDecoration(
-        color: readOnly ? const Color(0xFFF5F5F5) : Colors.white,
+        color: readOnly
+            ? (isDark ? Colors.black26 : const Color(0xFFF5F5F5))
+            : (isDark ? const Color(0xFF1E293B) : Colors.white),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        border: Border.all(
+          color: isDark ? Colors.white.withAlpha(20) : const Color(0xFFF1F5F9),
+          width: 1.5,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -354,7 +359,7 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
             keyboardType: keyboardType,
             readOnly: readOnly,
             style: AppFonts.poppinsMedium(
-              color: readOnly ? AppColors.primaryBlack40 : AppTheme.primaryText,
+              color: readOnly ? AppColors.primaryBlack40 : Theme.of(context).colorScheme.onSurface,
               fontSize: isSmallScreen ? 14 : 16,
             ),
             decoration: InputDecoration(
@@ -592,9 +597,14 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
           vertical: isSmallScreen ? 8 : 10,
         ),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+          border: Border.all(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white.withAlpha(20)
+                : const Color(0xFFF1F5F9),
+            width: 1.5,
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -612,7 +622,7 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
               readOnly: true,
               enabled: false,
               style: AppFonts.poppinsMedium(
-                color: AppTheme.primaryText,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: isSmallScreen ? 14 : 16,
               ),
               decoration: InputDecoration(
@@ -648,6 +658,7 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
     bool isSmallScreen, {
     String hintText = 'Enter value',
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: EdgeInsets.symmetric(
@@ -655,9 +666,12 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
         vertical: isSmallScreen ? 10 : 14,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        border: Border.all(
+          color: isDark ? Colors.white.withAlpha(20) : const Color(0xFFF1F5F9),
+          width: 1.5,
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -665,7 +679,7 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
           Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: const Color(0xFFFAF2E6),
+              color: isDark ? Colors.white.withAlpha(15) : const Color(0xFFFAF2E6),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Icon(
@@ -691,7 +705,7 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
                   controller: controller,
                   maxLines: null,
                   style: AppFonts.poppinsMedium(
-                    color: AppTheme.primaryText,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: isSmallScreen ? 13 : 15,
                     height: 1.4,
                   ),
@@ -719,11 +733,17 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
     PersonalInfoState state,
     bool isSmallScreen,
   ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
-      decoration: const BoxDecoration(
-        color: Color(0xFFFBFAF8),
-        border: Border(top: BorderSide(color: Color(0xFFF1F5F9), width: 1.5)),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFFBFAF8),
+        border: Border(
+          top: BorderSide(
+            color: isDark ? Colors.white.withAlpha(20) : const Color(0xFFF1F5F9),
+            width: 1.5,
+          ),
+        ),
       ),
       child: SafeArea(
         top: false, // Only apply safe area logic to the bottom of the screen

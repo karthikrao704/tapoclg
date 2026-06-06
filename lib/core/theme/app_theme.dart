@@ -17,6 +17,18 @@ class AppTheme {
   static const Color outlineColor = Color.fromARGB(255, 167, 167, 167);
   static const Color tertiaryColor = Color.fromARGB(255, 236, 236, 236);
 
+  // --- Dark Mode Colors ---
+  static const Color primaryActionDark = Color(0xFFE5B368);
+  static const Color primaryTextDark = Color(0xFFF8FAFC);
+  static const Color secondaryTextDark = Color(0xFF94A3B8);
+  static const Color cardSurfaceDark = Color(0xFF1E293B);
+  static const Color appBackgroundDark = Color(0xFF0F172A);
+
+  static const Color wellnessTipBgDark = Color.fromARGB(40, 229, 179, 104);
+  static const Color wellnessTipTextDark = Color(0xFFE5B368);
+  static const Color outlineColorDark = Color(0xFF334155);
+  static const Color tertiaryColorDark = Color(0xFF1E293B);
+
   // --- Responsive Light Theme Definition ---
   // We now pass BuildContext to determine the screen size
   static ThemeData getLightTheme(BuildContext context) {
@@ -118,6 +130,109 @@ class AppTheme {
         backgroundColor: appBackground,
         selectedItemColor: primaryAction,
         unselectedItemColor: secondaryText,
+        showUnselectedLabels: true,
+        type: BottomNavigationBarType.fixed,
+        elevation: 8,
+        selectedLabelStyle: TextStyle(
+          fontSize: 12 * scaleFactor,
+          fontWeight: FontWeight.w600,
+        ),
+        unselectedLabelStyle: TextStyle(
+          fontSize: 12 * scaleFactor,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+
+  // --- Responsive Dark Theme Definition ---
+  static ThemeData getDarkTheme(BuildContext context) {
+    const double baseDesignWidth = 375.0;
+    final double screenWidth = MediaQuery.sizeOf(context).width;
+    final double scaleFactor = (screenWidth / baseDesignWidth).clamp(0.8, 1.3);
+
+    return ThemeData(
+      useMaterial3: true,
+      scaffoldBackgroundColor: appBackgroundDark,
+
+      colorScheme: const ColorScheme.dark(
+        primary: primaryActionDark,
+        onPrimary: Colors.black,
+        surface: appBackgroundDark,
+        onSurface: primaryTextDark,
+        secondary: wellnessTipBgDark,
+        onSecondary: wellnessTipTextDark,
+        outline: outlineColorDark,
+        tertiary: tertiaryColorDark,
+      ),
+
+      textTheme: TextTheme(
+        titleLarge: AppFonts.headland(
+          fontSize: 20 * scaleFactor,
+          fontWeight: FontWeight.bold,
+          color: primaryTextDark,
+        ),
+        titleMedium: AppFonts.poppinsSemiBold(
+          fontSize: 16 * scaleFactor,
+          color: primaryTextDark,
+        ),
+        bodyMedium: AppFonts.poppinsRegular(
+          fontSize: 14 * scaleFactor,
+          color: primaryTextDark,
+        ),
+        bodySmall: AppFonts.poppinsRegular(
+          fontSize: 13 * scaleFactor,
+          color: secondaryTextDark,
+        ),
+        labelLarge: AppFonts.poppinsMedium(
+          fontSize: 14 * scaleFactor,
+          color: secondaryTextDark,
+        ),
+      ),
+
+      appBarTheme: const AppBarTheme(
+        backgroundColor: appBackgroundDark,
+        foregroundColor: primaryTextDark,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: false,
+      ),
+
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primaryActionDark,
+          foregroundColor: Colors.black,
+          elevation: 0,
+          padding: EdgeInsets.symmetric(vertical: 16 * scaleFactor),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12 * scaleFactor),
+          ),
+          textStyle: TextStyle(
+            fontSize: 16 * scaleFactor, 
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: primaryTextDark,
+          side: const BorderSide(color: outlineColorDark, width: 1.5),
+          padding: EdgeInsets.symmetric(vertical: 16 * scaleFactor),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12 * scaleFactor),
+          ),
+          textStyle: TextStyle(
+            fontSize: 16 * scaleFactor, 
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: appBackgroundDark,
+        selectedItemColor: primaryActionDark,
+        unselectedItemColor: secondaryTextDark,
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
         elevation: 8,

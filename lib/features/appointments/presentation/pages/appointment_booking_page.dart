@@ -3,10 +3,20 @@ import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'package:tapovana_mobile_app/features/appointments/presentation/widgets/calender_widget.dart';
-//import 'package:tapovana_mobile_app/features/bookings/presentation/pages/my_bookings_page.dart';
+import 'package:tapovana_mobile_app/core/storage/local_database.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tapovana_mobile_app/features/profile/bloc/profile/profile_bloc.dart';
+import 'package:tapovana_mobile_app/features/profile/bloc/profile/profile_event.dart';
 
 class AppointmentBookingPage extends StatefulWidget {
-  const AppointmentBookingPage({super.key});
+  final String? serviceName;
+  final String? price;
+
+  const AppointmentBookingPage({
+    super.key,
+    this.serviceName,
+    this.price,
+  });
 
   @override
   State<AppointmentBookingPage> createState() => _AppointmentBookingPageState();
@@ -16,20 +26,61 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
   DateTime selectedDate = DateTime.now();
   String selectedTime = "10:30 AM";
   String selectedTherapist = "Dr. Aris";
+  String? activePass;
+  int availableCredits = 0;
+  bool useCredits = false;
+
+  int _calculateCreditCost(double price) {
+    if (price <= 1000) return 1;
+    if (price <= 2000) return 2;
+    if (price <= 3000) return 3;
+    if (price <= 4000) return 5;
+    if (price <= 6000) return 8;
+    return 12;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadWellnessPass();
+  }
+
+  Future<void> _loadWellnessPass() async {
+    final pass = await LocalDatabase.getWellnessPass();
+    final credits = await LocalDatabase.getWellnessCredits() ?? 0;
+    if (mounted) {
+      setState(() {
+        activePass = pass;
+        availableCredits = credits;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    double originalPriceValue = 0.0;
+    if (widget.price != null) {
+      final cleanStr = widget.price!.replaceAll(RegExp(r'[^0-9.]'), '');
+      originalPriceValue = double.tryParse(cleanStr) ?? 0.0;
+    }
+    final int creditCost = _calculateCreditCost(originalPriceValue);
+    final bool hasEnoughCredits = availableCredits >= creditCost;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFFFF),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
       appBar: AppBar(
-        backgroundColor: AppColors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         centerTitle: true,
-        leading: const Icon(Icons.arrow_back, color: AppTheme.primaryText),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         title: Text(
           "Book Appointment",
           style: AppFonts.headland(
-            color: AppTheme.primaryText,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w600,
             fontSize: 19,
           ),
@@ -167,13 +218,18 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
 
             TextField(
               maxLines: 3,
-
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
               decoration: InputDecoration(
                 hintText:
                     "e.g., Deep tissue preference, focus on lower back...",
-                hintStyle: const TextStyle(fontSize: 16),
+                hintStyle: TextStyle(
+                  fontSize: 16,
+                  color: Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey,
+                ),
                 filled: true,
-                fillColor: const Color.fromARGB(255, 241, 237, 237),
+                fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : const Color.fromARGB(255, 241, 237, 237),
 
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -182,84 +238,346 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
               ),
             ),
 
-            const SizedBox(height: 24),
-
-            /// ESTIMATED TOTAL
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "ESTIMATED TOTAL",
-                      style: AppFonts.poppinsRegular(
-                        fontSize: 10,
-                        letterSpacing: 1,
-                        color: AppColors.primaryBlack40,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      "₹1200.00",
-                      style: AppFonts.poppinsSemiBold(
-                        fontSize: 20,
-                        color: AppColors.primaryColor,
-                      ),
-                    ),
-                  ],
-                ),
-
-                Text(
-                  "Oct 5, 2023\n10:30 AM (60 min)",
-                  textAlign: TextAlign.right,
-                  style: AppFonts.poppinsRegular(fontSize: 12, color: AppColors.primaryBlack40),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 24),
-
-            /// CONFIRM BUTTON
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //   builder: (context) =>  MyBookingsPage(),
-                  //   ),
-                  // );
-                },
-
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFC9A14A),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+            if (availableCredits > 0) ...[
+              Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: useCredits
+                        ? [const Color(0xFF1E293B), const Color(0xFF334155)]
+                        : (Theme.of(context).brightness == Brightness.dark
+                            ? [const Color(0xFF1E293B), const Color(0xFF1E293B)]
+                            : [const Color(0xFFF8FAFC), const Color(0xFFF8FAFC)]),
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: useCredits ? const Color(0xFFC9A14A) : (Theme.of(context).brightness == Brightness.dark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+                    width: useCredits ? 1.5 : 1,
                   ),
                 ),
-
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      "Confirm Booking",
-                      style: AppFonts.poppinsSemiBold(
-                        fontSize: 16,
-                        color: AppColors.white,
+                    Icon(
+                      Icons.stars_rounded,
+                      color: useCredits ? const Color(0xFFC9A14A) : (hasEnoughCredits ? Colors.amber.shade700 : Colors.grey),
+                      size: 28,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Pay with Wellness Credits",
+                            style: AppFonts.poppinsSemiBold(
+                              fontSize: 14,
+                              color: useCredits ? Colors.white : (hasEnoughCredits ? Theme.of(context).colorScheme.onSurface : Colors.grey),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            hasEnoughCredits
+                                ? "Cost: $creditCost ${creditCost == 1 ? 'Credit' : 'Credits'} ($availableCredits remaining)"
+                                : "Cost: $creditCost ${creditCost == 1 ? 'Credit' : 'Credits'} ($availableCredits remaining) - Insufficient",
+                            style: AppFonts.poppinsRegular(
+                              fontSize: 12,
+                              color: useCredits
+                                  ? Colors.white70
+                                  : (hasEnoughCredits ? (Theme.of(context).textTheme.bodySmall?.color ?? AppTheme.secondaryText) : Colors.red.shade700),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-
-                    SizedBox(width: 8),
-
-                    Icon(Icons.arrow_forward, size: 18, color: Colors.white),
+                    Switch(
+                      value: useCredits,
+                      activeThumbColor: const Color(0xFFC9A14A),
+                      activeTrackColor: const Color(0xFFC9A14A).withValues(alpha: 0.3),
+                      inactiveThumbColor: Colors.grey.shade400,
+                      inactiveTrackColor: Colors.grey.shade200,
+                      onChanged: hasEnoughCredits
+                          ? (value) {
+                              setState(() {
+                                useCredits = value;
+                              });
+                            }
+                          : null,
+                    ),
                   ],
                 ),
               ),
+            ],
+
+            const SizedBox(height: 12),
+
+            /// PRICE BREAKDOWN & ESTIMATED TOTAL
+            Builder(
+              builder: (context) {
+                double originalPrice = 0.0;
+                if (widget.price != null) {
+                  final cleanStr = widget.price!.replaceAll(RegExp(r'[^0-9.]'), '');
+                  originalPrice = double.tryParse(cleanStr) ?? 0.0;
+                }
+
+                double discountPercentage = 0.0;
+                String passLabel = '';
+                if (activePass != null) {
+                  final passUpper = activePass!.toUpperCase();
+                  if (passUpper.contains('SILVER')) {
+                    discountPercentage = 0.10;
+                    passLabel = 'Silver Pass (10%)';
+                  } else if (passUpper.contains('GOLD')) {
+                    discountPercentage = 0.20;
+                    passLabel = 'Gold Pass (20%)';
+                  } else if (passUpper.contains('DIAMOND')) {
+                    discountPercentage = 0.30;
+                    passLabel = 'Diamond Pass (30%)';
+                  }
+                }
+
+                double discountAmount = originalPrice * discountPercentage;
+                double finalPrice = originalPrice - discountAmount;
+
+                String formattedOriginal = '₹${originalPrice.toStringAsFixed(2)}';
+                String formattedDiscount = '-₹${discountAmount.toStringAsFixed(2)}';
+                String formattedFinal = '₹${finalPrice.toStringAsFixed(2)}';
+
+                if (originalPrice == originalPrice.roundToDouble()) {
+                  formattedOriginal = '₹${originalPrice.toInt()}';
+                }
+                if (discountAmount == discountAmount.roundToDouble()) {
+                  formattedDiscount = '-₹${discountAmount.toInt()}';
+                }
+                if (finalPrice == finalPrice.roundToDouble()) {
+                  formattedFinal = '₹${finalPrice.toInt()}';
+                }
+
+                if (useCredits) {
+                  formattedOriginal = '$creditCost ${creditCost == 1 ? 'Credit' : 'Credits'}';
+                  formattedDiscount = '';
+                  formattedFinal = '$creditCost ${creditCost == 1 ? 'Credit' : 'Credits'}';
+                  discountAmount = 0.0;
+                }
+
+                return Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "BILL DETAILS",
+                                style: AppFonts.poppinsSemiBold(
+                                  fontSize: 11,
+                                  letterSpacing: 0.5,
+                                  color: AppTheme.secondaryText,
+                                ),
+                              ),
+                              Text(
+                                "${_formatDate(selectedDate)} at $selectedTime",
+                                style: AppFonts.poppinsRegular(
+                                  fontSize: 11,
+                                  color: AppColors.primaryBlack40,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Subtotal",
+                                style: AppFonts.poppinsRegular(
+                                  fontSize: 14,
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                ),
+                              ),
+                              Text(
+                                formattedOriginal,
+                                style: AppFonts.poppinsMedium(
+                                  fontSize: 14,
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (discountAmount > 0) ...[
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.local_offer_outlined,
+                                      color: AppColors.primaryColor,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      passLabel,
+                                      style: AppFonts.poppinsMedium(
+                                        fontSize: 14,
+                                        color: AppColors.primaryColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Text(
+                                  formattedDiscount,
+                                  style: AppFonts.poppinsMedium(
+                                    fontSize: 14,
+                                    color: AppColors.primaryColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: Divider(
+                              height: 1,
+                              thickness: 1,
+                              color: Theme.of(context).brightness == Brightness.dark
+                                  ? const Color(0xFF334155)
+                                  : const Color(0xFFE2E8F0),
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "ESTIMATED TOTAL",
+                                    style: AppFonts.poppinsSemiBold(
+                                      fontSize: 12,
+                                      letterSpacing: 0.5,
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                  if (useCredits)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 2),
+                                      child: Text(
+                                        "$creditCost Wellness ${creditCost == 1 ? 'Credit' : 'Credits'} will be deducted",
+                                        style: AppFonts.poppinsRegular(
+                                          fontSize: 11,
+                                          color: const Color(0xFFC9A14A),
+                                        ),
+                                      ),
+                                    )
+                                  else if (discountAmount > 0)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 2),
+                                      child: Text(
+                                        "Wellness Pass discount applied",
+                                        style: AppFonts.poppinsRegular(
+                                          fontSize: 11,
+                                          color: AppColors.primaryColor,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              Text(
+                                formattedFinal,
+                                style: AppFonts.poppinsSemiBold(
+                                  fontSize: 20,
+                                  color: AppColors.primaryColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    /// CONFIRM BUTTON
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          final messenger = ScaffoldMessenger.of(context);
+                          final navigator = Navigator.of(context);
+                          final profileBloc = context.read<ProfileBloc>();
+
+                          final String finalPriceToSave = useCredits
+                              ? "$creditCost ${creditCost == 1 ? 'Credit' : 'Credits'}"
+                              : (discountAmount > 0
+                                  ? "$formattedFinal (${activePass!.toUpperCase().replaceAll(' PASS', '')} Pass)"
+                                  : (widget.price ?? "₹1200"));
+
+                          if (useCredits) {
+                            await LocalDatabase.saveWellnessCredits(availableCredits - creditCost);
+                          }
+
+                          await LocalDatabase.insertAppointment(
+                            serviceName: widget.serviceName ?? "Swedish Massage",
+                            date: "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}",
+                            time: selectedTime,
+                            therapist: selectedTherapist,
+                            price: finalPriceToSave,
+                          );
+
+                          try {
+                            profileBloc.add(LoadProfile());
+                          } catch (e) {
+                            debugPrint('Could not reload ProfileBloc: $e');
+                          }
+
+                          messenger.showSnackBar(
+                            SnackBar(
+                              content: Text("Booking Confirmed for ${widget.serviceName ?? 'Swedish Massage'}!"),
+                              backgroundColor: AppColors.primaryColor,
+                            ),
+                          );
+                          navigator.pop(); // Go back
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFC9A14A),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Confirm Booking",
+                              style: AppFonts.poppinsSemiBold(
+                                fontSize: 16,
+                                color: AppColors.white,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Icon(Icons.arrow_forward, size: 18, color: Colors.white),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ],
         ),
@@ -337,6 +655,14 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
       ),
     );
   }
+
+  String _formatDate(DateTime date) {
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return "${months[date.month - 1]} ${date.day}, ${date.year}";
+  }
 }
 
 //sectiontitle
@@ -382,18 +708,19 @@ class TimeSlot extends StatelessWidget {
     Color backgroundColor;
     Color textColor;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     if (isDisabled) {
-      borderColor = Colors.grey.shade300;
-      backgroundColor = Colors.white;
+      borderColor = isDark ? Colors.white24 : Colors.grey.shade300;
+      backgroundColor = isDark ? Colors.transparent : Colors.white;
       textColor = Colors.grey;
     } else if (isSelected) {
       borderColor = const Color(0xFFC9A14A);
-      backgroundColor = const Color(0xFFF5E7C5); // light gold
+      backgroundColor = isDark ? const Color(0x33C9A14A) : const Color(0xFFF5E7C5); // light gold
       textColor = const Color(0xFFC9A14A);
     } else {
-      borderColor = Colors.grey.shade300;
-      backgroundColor = Colors.white;
-      textColor = Colors.black87;
+      borderColor = isDark ? Colors.white24 : Colors.grey.shade300;
+      backgroundColor = isDark ? const Color(0xFF1E293B) : Colors.white;
+      textColor = isDark ? Colors.white70 : Colors.black87;
     }
 
     return GestureDetector(

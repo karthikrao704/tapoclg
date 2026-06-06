@@ -13,7 +13,6 @@ import 'package:tapovana_mobile_app/features/auth/bloc/otp/otp_state.dart';
 import 'package:tapovana_mobile_app/features/auth/data/auth_api_repository.dart';
 import 'package:tapovana_mobile_app/features/auth/domain/entities/app_user.dart';
 import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
-import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 enum OtpType { emailSignup, emailLogin2FA, googleLogin2FA }
@@ -103,79 +102,91 @@ class _OtpPageState extends State<OtpPage> {
           ),
         ],
         child: Scaffold(
-          backgroundColor: const Color(0xFFFFFFFF),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: SafeArea(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                  24,
-                  0,
-                  24,
-                  MediaQuery.of(context).viewInsets.bottom,
-                ),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 120),
-                    Image.asset('assets/logo/logo.png', width: 200),
-                    const SizedBox(height: 20),
-                    Text(
-                      "Confirm Your Code",
-                      style: AppFonts.headland(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.primaryText,
-                      ),
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      24,
+                      0,
+                      24,
+                      MediaQuery.of(context).viewInsets.bottom,
                     ),
-                    const SizedBox(height: 10),
-                    Text(
-                      "Enter the code we sent to ${widget.email}",
-                      textAlign: TextAlign.center,
-                      style: AppFonts.poppinsRegular(
-                        color: AppColors.primaryBlack40,
-                      ),
-                    ),
-                    const SizedBox(height: 40),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 120),
+                        Image.asset('assets/logo/logo.png', width: 200),
+                        const SizedBox(height: 20),
+                        Text(
+                          "Confirm Your Code",
+                          style: AppFonts.headland(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          "Enter the code we sent to ${widget.email}",
+                          textAlign: TextAlign.center,
+                          style: AppFonts.poppinsRegular(
+                            color: Theme.of(context).textTheme.bodySmall?.color ?? AppColors.primaryBlack40,
+                          ),
+                        ),
+                        const SizedBox(height: 40),
 
-                    // OTP Fields
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: List.generate(
-                        4,
-                        (index) => SizedBox(
-                          width: 40,
-                          child: TextField(
-                            controller: otpControllers[index],
-                            focusNode: focusNodes[index],
-                            textAlign: TextAlign.center,
-                            keyboardType: TextInputType.number,
-                            maxLength: 1,
-                            onChanged: (value) {
-                              if (value.isNotEmpty && index < 3) {
-                                FocusScope.of(
-                                  context,
-                                ).requestFocus(focusNodes[index + 1]);
-                              } else if (value.isEmpty && index > 0) {
-                                FocusScope.of(
-                                  context,
-                                ).requestFocus(focusNodes[index - 1]);
-                              } else if (value.isNotEmpty && index == 3) {
-                                FocusScope.of(context).unfocus();
-                              }
-                            },
-                            decoration: const InputDecoration(
-                              counterText: "",
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.black54),
+                        // OTP Fields
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: List.generate(
+                            4,
+                            (index) => SizedBox(
+                              width: 40,
+                              child: TextField(
+                                controller: otpControllers[index],
+                                focusNode: focusNodes[index],
+                                textAlign: TextAlign.center,
+                                keyboardType: TextInputType.number,
+                                maxLength: 1,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                  fontSize: 18,
+                                ),
+                                onChanged: (value) {
+                                  if (value.isNotEmpty && index < 3) {
+                                    FocusScope.of(
+                                      context,
+                                    ).requestFocus(focusNodes[index + 1]);
+                                  } else if (value.isEmpty && index > 0) {
+                                    FocusScope.of(
+                                      context,
+                                    ).requestFocus(focusNodes[index - 1]);
+                                  } else if (value.isNotEmpty && index == 3) {
+                                    FocusScope.of(context).unfocus();
+                                  }
+                                },
+                                decoration: InputDecoration(
+                                  counterText: "",
+                                  enabledBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Theme.of(context).brightness == Brightness.dark
+                                          ? Colors.white54
+                                          : Colors.black54,
+                                    ),
+                                  ),
+                                  focusedBorder: const UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: AppColors.primaryColor,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 70),
-
-                    // Verify Button
+                    const SizedBox(height: 40),
                     _buildVerifyButton(context),
 
                     const SizedBox(height: 40),
@@ -183,10 +194,12 @@ class _OtpPageState extends State<OtpPage> {
                 ),
               ),
             ),
-          ),
+          ],
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 
   Widget _buildVerifyButton(BuildContext context) {

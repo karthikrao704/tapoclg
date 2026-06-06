@@ -27,6 +27,15 @@ class ServiceModel {
   });
 
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
+    String? imageUrl = json['image_url'];
+    if (imageUrl != null && imageUrl.isNotEmpty) {
+      if (!imageUrl.startsWith('http')) {
+        // Handle leading slash safely
+        final prefix = imageUrl.startsWith('/') ? '' : '/';
+        imageUrl = 'https://tapovana.onrender.com$prefix$imageUrl';
+      }
+    }
+
     return ServiceModel(
       id: json['id']?.toString() ?? '',
       serviceId: json['service_id'] ?? '',
@@ -36,7 +45,7 @@ class ServiceModel {
       basePrice: json['base_price'] ?? '0.00',
       durationMinutes: json['duration_minutes'] ?? 0,
       status: json['status'] ?? '',
-      imageUrl: json['image_url'],
+      imageUrl: imageUrl,
       createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
       createdByName: json['created_by_name'] ?? '',
     );

@@ -6,7 +6,7 @@ import 'personal_info_event.dart';
 import 'personal_info_state.dart';
 
 class PersonalInfoBloc extends Bloc<PersonalInfoEvent, PersonalInfoState> {
-  final String _baseUrl = 'https://backend.rosettesmartlife.com';
+  final String _baseUrl = 'https://tapovana.onrender.com';
 
   PersonalInfoBloc() : super(const PersonalInfoState()) {
     on<LoadPersonalInfo>(_onLoadPersonalInfo);

@@ -133,7 +133,7 @@ class _DataEntryPageState extends State<DataEntryPage> {
           }
         },
         child: Scaffold(
-          backgroundColor: const Color(0xFFFFFFFF),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: SafeArea(
             child: SingleChildScrollView(
               child: Padding(
@@ -158,7 +158,7 @@ class _DataEntryPageState extends State<DataEntryPage> {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: isSmallScreen ? 14 : 16,
-                            color: const Color.fromARGB(255, 67, 72, 80),
+                            color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : const Color.fromARGB(255, 67, 72, 80),
                           ),
                         ),
                       ],
@@ -178,7 +178,7 @@ class _DataEntryPageState extends State<DataEntryPage> {
                       style: AppFonts.headland(
                         fontSize: isSmallScreen ? 22 : 26,
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.primaryText,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -187,7 +187,7 @@ class _DataEntryPageState extends State<DataEntryPage> {
                       "wellness journey at Topovan Life Space.",
                       style: AppFonts.poppinsRegular(
                         fontSize: isSmallScreen ? 14 : 16.5,
-                        color: AppColors.primaryBlack40,
+                        color: Theme.of(context).textTheme.bodySmall?.color ?? AppColors.primaryBlack40,
                       ),
                     ),
                     SizedBox(height: isSmallScreen ? 15 : 20),
@@ -196,14 +196,14 @@ class _DataEntryPageState extends State<DataEntryPage> {
                     Container(
                       padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F6),
+                        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : const Color(0xFFF3F4F6),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.verified_user_outlined,
-                            color: Color(0xFF6B7280),
+                            color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : const Color(0xFF6B7280),
                             size: 20,
                           ),
                           const SizedBox(width: 12),
@@ -223,7 +223,7 @@ class _DataEntryPageState extends State<DataEntryPage> {
                                   "shared with third parties.",
                                   style: TextStyle(
                                     fontSize: isSmallScreen ? 11 : 13,
-                                    color: const Color(0xFF6B7280),
+                                    color: Theme.of(context).textTheme.bodySmall?.color ?? const Color(0xFF6B7280),
                                   ),
                                 ),
                               ],
@@ -286,16 +286,25 @@ class _DataEntryPageState extends State<DataEntryPage> {
                     const SizedBox(height: 8),
                     TextField(
                       controller: nameController,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                       decoration: InputDecoration(
                         hintText: "e.g. Elena Vance",
                         hintStyle: TextStyle(
-                          color: const Color(0xFF9CA3AF),
+                          color: Theme.of(context).textTheme.bodySmall?.color ?? const Color(0xFF9CA3AF),
                           fontSize: isSmallScreen ? 14 : 16,
                         ),
-                        border: const UnderlineInputBorder(
+                        border: UnderlineInputBorder(
                           borderSide: BorderSide(
-                            color: Color(0xFFC9A14A),
-                            width: 0,
+                            color: Theme.of(context).brightness == Brightness.dark ? Colors.white24 : const Color(0xFFC9A14A),
+                            width: 1,
+                          ),
+                        ),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Theme.of(context).brightness == Brightness.dark ? Colors.white24 : const Color(0xFFC9A14A),
+                            width: 1,
                           ),
                         ),
                       ),
@@ -335,18 +344,25 @@ class _DataEntryPageState extends State<DataEntryPage> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F6),
+                        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : const Color(0xFFF3F4F6),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: TextField(
                         controller: _cityController,
                         focusNode: _cityFocus,
                         onChanged: _onSearchChanged,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                         decoration: InputDecoration(
-                          icon: const Icon(Icons.search),
+                          icon: Icon(
+                            Icons.search,
+                            color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : const Color(0xFF6B7280),
+                          ),
                           hintText: "Search for your city...",
                           hintStyle: TextStyle(
                             fontSize: isSmallScreen ? 14 : 16,
+                            color: Theme.of(context).textTheme.bodySmall?.color ?? const Color(0xFF9CA3AF),
                           ),
                           border: InputBorder.none,
                         ),
@@ -506,13 +522,13 @@ class _DataEntryPageState extends State<DataEntryPage> {
           vertical: isSmallScreen ? 8 : 10,
         ),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFC9A14A) : const Color(0xFFF3F4F6),
+          color: isSelected ? const Color(0xFFC9A14A) : (Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : const Color(0xFFF3F4F6)),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(
           gender,
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black,
+            color: isSelected ? Colors.white : (Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.black),
             fontWeight: FontWeight.w500,
             fontSize: isSmallScreen ? 12 : 14,
           ),

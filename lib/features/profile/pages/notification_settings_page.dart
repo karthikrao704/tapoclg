@@ -33,7 +33,7 @@ class NotificationSettingsView extends StatelessWidget {
     final hPadding = size.width * 0.05;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: SecondaryAppBar(
         title: 'Notification Settings',
         centerTitle: false,
@@ -71,12 +71,14 @@ class NotificationSettingsView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildSectionHeader(
+                  context,
                   Icons.calendar_today_outlined,
                   'Appointment Notifications',
                   isSmallScreen,
                 ),
-                _buildSwitchGroup([
+                _buildSwitchGroup(context, [
                   _buildSwitchItem(
+                    context: context,
                     title: 'Booking Confirmation',
                     subtitle: 'Get notified when your booking is confirmed',
                     value: state.bookingConfirmation,
@@ -85,6 +87,7 @@ class NotificationSettingsView extends StatelessWidget {
                         _updateSetting(context, bookingConfirmation: val),
                   ),
                   _buildSwitchItem(
+                    context: context,
                     title: 'Reminders',
                     subtitle: 'Receive alerts for upcoming appointments',
                     value: state.reminders,
@@ -92,6 +95,7 @@ class NotificationSettingsView extends StatelessWidget {
                     onChanged: (val) => _updateSetting(context, reminders: val),
                   ),
                   _buildSwitchItem(
+                    context: context,
                     title: 'Reschedule Alerts',
                     subtitle: 'Updates when your session time changes',
                     value: state.rescheduleAlerts,
@@ -104,12 +108,14 @@ class NotificationSettingsView extends StatelessWidget {
                 SizedBox(height: isSmallScreen ? 24 : 32),
 
                 _buildSectionHeader(
+                  context,
                   Icons.spa_outlined,
                   'Program Updates',
                   isSmallScreen,
                 ),
-                _buildSwitchGroup([
+                _buildSwitchGroup(context, [
                   _buildSwitchItem(
+                    context: context,
                     title: 'Workshops',
                     subtitle: 'New skill-based wellness sessions',
                     value: state.workshops,
@@ -117,6 +123,7 @@ class NotificationSettingsView extends StatelessWidget {
                     onChanged: (val) => _updateSetting(context, workshops: val),
                   ),
                   _buildSwitchItem(
+                    context: context,
                     title: 'Programs',
                     subtitle: 'Long-term holistic health tracks',
                     value: state.programs,
@@ -124,6 +131,7 @@ class NotificationSettingsView extends StatelessWidget {
                     onChanged: (val) => _updateSetting(context, programs: val),
                   ),
                   _buildSwitchItem(
+                    context: context,
                     title: 'Retreats',
                     subtitle: 'Immersive wellness getaways',
                     value: state.retreats,
@@ -135,12 +143,14 @@ class NotificationSettingsView extends StatelessWidget {
                 SizedBox(height: isSmallScreen ? 24 : 32),
 
                 _buildSectionHeader(
+                  context,
                   Icons.local_offer_outlined,
                   'Marketing & Offers',
                   isSmallScreen,
                 ),
-                _buildSwitchGroup([
+                _buildSwitchGroup(context, [
                   _buildSwitchItem(
+                    context: context,
                     title: 'Promotions',
                     subtitle: 'Limited time discounts on services',
                     value: state.promotions,
@@ -149,6 +159,7 @@ class NotificationSettingsView extends StatelessWidget {
                         _updateSetting(context, promotions: val),
                   ),
                   _buildSwitchItem(
+                    context: context,
                     title: 'Benefits',
                     subtitle: 'Exclusive member perks and rewards',
                     value: state.benefits,
@@ -156,6 +167,7 @@ class NotificationSettingsView extends StatelessWidget {
                     onChanged: (val) => _updateSetting(context, benefits: val),
                   ),
                   _buildSwitchItem(
+                    context: context,
                     title: 'Seasonal',
                     subtitle: 'Holiday specials and solstice events',
                     value: state.seasonal,
@@ -167,12 +179,14 @@ class NotificationSettingsView extends StatelessWidget {
                 SizedBox(height: isSmallScreen ? 24 : 32),
 
                 _buildSectionHeader(
+                  context,
                   Icons.campaign_outlined,
                   'Notification Channels',
                   isSmallScreen,
                 ),
-                _buildSwitchGroup([
+                _buildSwitchGroup(context, [
                   _buildSwitchItem(
+                    context: context,
                     title: 'Push Notifications',
                     subtitle: '',
                     value: state.pushNotifications,
@@ -182,6 +196,7 @@ class NotificationSettingsView extends StatelessWidget {
                         _updateSetting(context, pushNotifications: val),
                   ),
                   _buildSwitchItem(
+                    context: context,
                     title: 'Email Updates',
                     subtitle: '',
                     value: state.emailUpdates,
@@ -191,6 +206,7 @@ class NotificationSettingsView extends StatelessWidget {
                         _updateSetting(context, emailUpdates: val),
                   ),
                   _buildSwitchItem(
+                    context: context,
                     title: 'SMS Alerts',
                     subtitle: '',
                     value: state.smsAlerts,
@@ -209,7 +225,7 @@ class NotificationSettingsView extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(IconData icon, String title, bool isSmallScreen) {
+  Widget _buildSectionHeader(BuildContext context, IconData icon, String title, bool isSmallScreen) {
     return Padding(
       padding: EdgeInsets.only(left: 4, bottom: isSmallScreen ? 12 : 16),
       child: Row(
@@ -227,7 +243,7 @@ class NotificationSettingsView extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: AppFonts.poppinsSemiBold(
-                color: AppTheme.primaryText,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: isSmallScreen ? 15 : 17,
               ),
             ),
@@ -237,18 +253,22 @@ class NotificationSettingsView extends StatelessWidget {
     );
   }
 
-  Widget _buildSwitchGroup(List<Widget> children) {
+  Widget _buildSwitchGroup(BuildContext context, List<Widget> children) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        border: Border.all(
+          color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withAlpha(20) : const Color(0xFFF1F5F9),
+          width: 1.5,
+        ),
       ),
       child: Column(children: children),
     );
   }
 
   Widget _buildSwitchItem({
+    required BuildContext context,
     required String title,
     required String subtitle,
     required bool value,
@@ -286,7 +306,7 @@ class NotificationSettingsView extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppFonts.poppinsMedium(
-                        color: AppTheme.primaryText,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: isSmallScreen ? 14 : 16,
                       ),
                     ),
@@ -297,7 +317,7 @@ class NotificationSettingsView extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: AppFonts.poppinsRegular(
-                          color: AppColors.primaryBlack40,
+                          color: Theme.of(context).textTheme.bodySmall?.color,
                           fontSize: isSmallScreen ? 11 : 13,
                         ),
                       ),
@@ -323,7 +343,7 @@ class NotificationSettingsView extends StatelessWidget {
           Divider(
             height: 1,
             thickness: 1,
-            color: const Color(0xFFF1F5F9),
+            color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withAlpha(15) : const Color(0xFFF1F5F9),
             indent: isSmallScreen ? 12 : 16,
             endIndent: isSmallScreen ? 12 : 16,
           ),

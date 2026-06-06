@@ -9,9 +9,9 @@ class SupportCenterPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Color(0xFFFAFAFA),
-      body: SupportCenterView(),
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: const SupportCenterView(),
     );
   }
 }
@@ -44,7 +44,7 @@ class _SupportCenterViewState extends State<SupportCenterView> {
     final hPadding = size.width * 0.05;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: SecondaryAppBar(
         title: 'Support Center',
         centerTitle: false,
@@ -68,7 +68,7 @@ class _SupportCenterViewState extends State<SupportCenterView> {
             Text(
               'How can we help you\ntoday?',
               style: AppFonts.poppinsSemiBold(
-                color: AppTheme.primaryText,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: isSmallScreen ? 20 : 24,
                 height: 1.3,
               ),
@@ -77,7 +77,7 @@ class _SupportCenterViewState extends State<SupportCenterView> {
             Text(
               'Search our knowledge base or get in touch with\nour wellness experts.',
               style: AppFonts.poppinsRegular(
-                color: AppTheme.secondaryText,
+                color: Theme.of(context).textTheme.bodySmall?.color,
                 fontSize: isSmallScreen ? 13 : 15,
                 height: 1.4,
               ),
@@ -118,7 +118,7 @@ class _SupportCenterViewState extends State<SupportCenterView> {
             Text(
               'Contact Information',
               style: AppFonts.poppinsSemiBold(
-                color: AppTheme.primaryText,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: isSmallScreen ? 16 : 18,
               ),
             ),
@@ -147,11 +147,15 @@ class _SupportCenterViewState extends State<SupportCenterView> {
   }
 
   Widget _buildSearchBar(bool isSmallScreen) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        border: Border.all(
+          color: isDark ? Colors.white.withAlpha(20) : const Color(0xFFF1F5F9),
+          width: 1.5,
+        ),
       ),
       padding: EdgeInsets.symmetric(
         horizontal: isSmallScreen ? 12 : 16,
@@ -161,7 +165,7 @@ class _SupportCenterViewState extends State<SupportCenterView> {
         controller: _searchController,
         style: AppFonts.poppinsRegular(
           fontSize: isSmallScreen ? 14 : 16,
-          color: AppTheme.primaryText,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
         decoration: InputDecoration(
           icon: Icon(
@@ -189,6 +193,7 @@ class _SupportCenterViewState extends State<SupportCenterView> {
     required bool isSmallScreen,
     required VoidCallback onTap,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: InkWell(
@@ -196,9 +201,12 @@ class _SupportCenterViewState extends State<SupportCenterView> {
         borderRadius: BorderRadius.circular(12),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isDark ? const Color(0xFF1E293B) : Colors.white,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+            border: Border.all(
+              color: isDark ? Colors.white.withAlpha(20) : const Color(0xFFF1F5F9),
+              width: 1.5,
+            ),
           ),
           padding: EdgeInsets.symmetric(
             horizontal: isSmallScreen ? 12 : 16,
@@ -210,7 +218,7 @@ class _SupportCenterViewState extends State<SupportCenterView> {
               Container(
                 padding: EdgeInsets.all(isSmallScreen ? 10 : 12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFDFBF4),
+                  color: isDark ? Colors.white.withAlpha(15) : const Color(0xFFFDFBF4),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
@@ -229,7 +237,7 @@ class _SupportCenterViewState extends State<SupportCenterView> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppFonts.poppinsSemiBold(
-                        color: AppTheme.primaryText,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: isSmallScreen ? 14 : 16,
                       ),
                     ),
@@ -239,7 +247,7 @@ class _SupportCenterViewState extends State<SupportCenterView> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: AppFonts.poppinsRegular(
-                        color: AppTheme.secondaryText,
+                        color: Theme.of(context).textTheme.bodySmall?.color,
                         fontSize: isSmallScreen ? 11 : 13,
                         height: 1.3,
                       ),
@@ -261,11 +269,15 @@ class _SupportCenterViewState extends State<SupportCenterView> {
   }
 
   Widget _buildFeedbackSection(bool isSmallScreen) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFFCFAF7),
+        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFFCFAF7),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1EADE), width: 1),
+        border: Border.all(
+          color: isDark ? Colors.white.withAlpha(20) : const Color(0xFFF1EADE),
+          width: 1,
+        ),
       ),
       padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
       child: Column(
@@ -279,14 +291,13 @@ class _SupportCenterViewState extends State<SupportCenterView> {
                 size: isSmallScreen ? 20 : 24,
               ),
               const SizedBox(width: 8),
-              // 3. Extracted Text into Expanded to prevent row overflow
               Expanded(
                 child: Text(
                   'Feedback Section',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppFonts.poppinsSemiBold(
-                    color: AppTheme.primaryText,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: isSmallScreen ? 16 : 18,
                   ),
                 ),
@@ -297,7 +308,7 @@ class _SupportCenterViewState extends State<SupportCenterView> {
           Text(
             'Your experience matters. Tell us how we can improve Tapovana Wellness.',
             style: AppFonts.poppinsRegular(
-              color: AppTheme.secondaryText,
+              color: Theme.of(context).textTheme.bodySmall?.color,
               fontSize: isSmallScreen ? 13 : 14,
               height: 1.4,
             ),
@@ -307,21 +318,21 @@ class _SupportCenterViewState extends State<SupportCenterView> {
           Text(
             'Subject',
             style: AppFonts.poppinsSemiBold(
-              color: AppTheme.primaryText,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: isSmallScreen ? 13 : 14,
             ),
           ),
           const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? Colors.black26 : Colors.white,
               borderRadius: BorderRadius.circular(10),
             ),
             child: TextField(
               controller: _subjectController,
               style: AppFonts.poppinsRegular(
                 fontSize: isSmallScreen ? 14 : 15,
-                color: AppTheme.primaryText,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               decoration: InputDecoration(
                 hintText: 'e.g., App Improvement, Class Suggestion',
@@ -342,14 +353,14 @@ class _SupportCenterViewState extends State<SupportCenterView> {
           Text(
             'Message',
             style: AppFonts.poppinsSemiBold(
-              color: AppTheme.primaryText,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: isSmallScreen ? 13 : 14,
             ),
           ),
           const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? Colors.black26 : Colors.white,
               borderRadius: BorderRadius.circular(10),
             ),
             child: TextField(
@@ -357,7 +368,7 @@ class _SupportCenterViewState extends State<SupportCenterView> {
               maxLines: 4,
               style: AppFonts.poppinsRegular(
                 fontSize: isSmallScreen ? 14 : 15,
-                color: AppTheme.primaryText,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               decoration: InputDecoration(
                 hintText: "How can we help or what's on your mind?",
@@ -440,11 +451,15 @@ class _SupportCenterViewState extends State<SupportCenterView> {
     required Color iconColor,
     required bool isSmallScreen,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        border: Border.all(
+          color: isDark ? Colors.white.withAlpha(20) : const Color(0xFFF1F5F9),
+          width: 1.5,
+        ),
       ),
       padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 16 : 20),
       child: Center(
@@ -455,7 +470,7 @@ class _SupportCenterViewState extends State<SupportCenterView> {
             Text(
               title,
               style: AppFonts.poppinsSemiBold(
-                color: AppTheme.primaryText,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: isSmallScreen ? 13 : 15,
               ),
             ),
@@ -463,7 +478,7 @@ class _SupportCenterViewState extends State<SupportCenterView> {
             Text(
               subtitle,
               style: AppFonts.poppinsRegular(
-                color: AppTheme.secondaryText,
+                color: Theme.of(context).textTheme.bodySmall?.color,
                 fontSize: isSmallScreen ? 11 : 13,
               ),
             ),
@@ -497,7 +512,7 @@ class _SupportCenterViewState extends State<SupportCenterView> {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: AppFonts.poppinsMedium(
-                      color: AppTheme.primaryText,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: isSmallScreen ? 14 : 16,
                     ),
                   ),
@@ -512,16 +527,21 @@ class _SupportCenterViewState extends State<SupportCenterView> {
           ),
         ),
         if (showDivider)
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF1F5F9)),
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withAlpha(15) : const Color(0xFFF1F5F9),
+          ),
       ],
     );
   }
 
   Widget _buildFooterBanner(bool isSmallScreen) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFFFDFBF4),
+        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFFDFBF4),
         borderRadius: BorderRadius.circular(16),
       ),
       child: ClipRRect(
@@ -533,8 +553,8 @@ class _SupportCenterViewState extends State<SupportCenterView> {
               child: Container(
                 width: isSmallScreen ? 110 : 140,
                 height: isSmallScreen ? 110 : 140,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.white.withAlpha(15) : Colors.white,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -558,7 +578,7 @@ class _SupportCenterViewState extends State<SupportCenterView> {
                     'Join 50,000+ members on their journey to\npeace.',
                     textAlign: TextAlign.center,
                     style: AppFonts.poppinsRegular(
-                      color: const Color(0xFF475569),
+                      color: isDark ? Colors.white70 : const Color(0xFF475569),
                       fontSize: isSmallScreen ? 11 : 13,
                       height: 1.4,
                     ),

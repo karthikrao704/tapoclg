@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:tapovana_mobile_app/core/services/notification_service.dart';
 
 /// Initialization result — holds initialized services
 class InitResult {
@@ -37,7 +38,7 @@ class AppInitializer {
       );
 
       // ✅ Step 2: Initialize other services here if needed
-      // e.g., Firebase, Analytics, SharedPreferences, etc.
+      await NotificationService().initialize();
 
       return const InitResult(dotenvLoaded: true);
     } catch (e) {

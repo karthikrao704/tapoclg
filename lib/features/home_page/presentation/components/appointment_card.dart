@@ -25,6 +25,8 @@ class AppointmentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Card(
       child: InkWell(
@@ -33,8 +35,8 @@ class AppointmentCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
-            color: const Color(0xFFF9F9F9),
-            border: Border.all(color: const Color(0xFFF1F1F1)),
+            color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF9F9F9),
+            border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFF1F1F1)),
             borderRadius: BorderRadius.circular(16.0),
           ),
           child: Row(
@@ -47,9 +49,9 @@ class AppointmentCard extends StatelessWidget {
                   vertical: 12.0,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.white,
+                  color: isDark ? const Color(0xFF0F172A) : AppColors.white,
                   border: Border.all(
-                    color: const Color(0xFFF1F1F1),
+                    color: isDark ? const Color(0xFF334155) : const Color(0xFFF1F1F1),
                   ),
                   borderRadius: BorderRadius.circular(12.0),
                 ),
@@ -61,7 +63,7 @@ class AppointmentCard extends StatelessWidget {
                       // Mapping: Special Card Text (Olive) used for the gold/olive text tone
                       style: AppFonts.poppinsBold(
                         fontSize: 13,
-                        color: AppTheme.wellnessTipText,
+                        color: isDark ? const Color(0xFFC9A14A) : AppTheme.wellnessTipText,
                       ),
                     ),
                     const SizedBox(height: 4.0),
@@ -70,7 +72,7 @@ class AppointmentCard extends StatelessWidget {
                       // Mapping: Primary Dark Text (Headers)
                       style: AppFonts.poppinsBold(
                         fontSize: 22,
-                        color: AppTheme.primaryText,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
                   ],
@@ -90,7 +92,7 @@ class AppointmentCard extends StatelessWidget {
                       // Mapping: Primary Dark Text
                       style: AppFonts.poppinsSemiBold(
                         fontSize: 16,
-                        color: AppTheme.primaryText,
+                        color: theme.colorScheme.onSurface,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -101,7 +103,7 @@ class AppointmentCard extends StatelessWidget {
                       // Mapping: Secondary Grey Text
                       style: AppFonts.poppinsRegular(
                         fontSize: 14,
-                        color: AppTheme.secondaryText,
+                        color: theme.textTheme.bodySmall?.color ?? AppTheme.secondaryText,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -122,7 +124,7 @@ class AppointmentCard extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             // Mapping: Special Card Bg (Light Green)
-                            color: AppTheme.wellnessTipBg,
+                            color: isDark ? const Color(0x22C9A14A) : AppTheme.wellnessTipBg,
                             borderRadius: BorderRadius.circular(12.0),
                           ),
                           child: Text(
@@ -130,7 +132,7 @@ class AppointmentCard extends StatelessWidget {
                             // Mapping: Special Card Text (Olive)
                             style: AppFonts.poppinsSemiBold(
                               fontSize: 12,
-                              color: AppTheme.wellnessTipText,
+                              color: isDark ? const Color(0xFFC9A14A) : AppTheme.wellnessTipText,
                             ),
                           ),
                         ),
@@ -139,14 +141,14 @@ class AppointmentCard extends StatelessWidget {
                           '•',
                           style: AppFonts.poppinsRegular(
                             fontSize: 12,
-                            color: AppTheme.secondaryText,
+                            color: theme.textTheme.bodySmall?.color ?? AppTheme.secondaryText,
                           ),
                         ),
                         Text(
                           room,
                           style: AppFonts.poppinsRegular(
                             fontSize: 12,
-                            color: AppTheme.secondaryText,
+                            color: theme.textTheme.bodySmall?.color ?? AppTheme.secondaryText,
                           ),
                         ),
                       ],
@@ -161,7 +163,7 @@ class AppointmentCard extends StatelessWidget {
               Icon(
                 Icons.chevron_right_rounded,
                 // Mapping: Borders/Dividers (used here for neutral grey icon tint)
-                color: AppTheme.outlineColor,
+                color: isDark ? Colors.white38 : AppTheme.outlineColor,
                 size: 28.0,
               ),
             ],

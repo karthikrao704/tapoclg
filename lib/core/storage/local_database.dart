@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 class LocalDatabase {
   static Database? _database;
   static const String _dbName = 'tapovana.db';
-  static const int _dbVersion = 2;  
+  static const int _dbVersion = 3;  
   static const String _userTable = 'local_user';
   static const String _userInfoTable = 'user_info';  
 
@@ -52,6 +52,18 @@ class LocalDatabase {
       )
     ''');
 
+    await db.execute('''
+      CREATE TABLE appointments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        service_name TEXT,
+        date TEXT,
+        time TEXT,
+        therapist TEXT,
+        price TEXT,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+    ''');
+
     debugPrint('✅ Local database created (version $version)');
   }
 
@@ -64,6 +76,20 @@ class LocalDatabase {
         )
       ''');
       debugPrint('✅ Database upgraded: v$oldVersion → v$newVersion (added user_info table)');
+    }
+    if (oldVersion < 3) {
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS appointments (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          service_name TEXT,
+          date TEXT,
+          time TEXT,
+          therapist TEXT,
+          price TEXT,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+      ''');
+      debugPrint('✅ Database upgraded: v$oldVersion → v$newVersion (added appointments table)');
     }
   }
 
@@ -178,6 +204,54 @@ class LocalDatabase {
   }
 
   // ═══════════════════════════════════════
+  //          WELLNESS PASS
+  // ═══════════════════════════════════════
+
+  static Future<void> saveWellnessPass(String passType) async {
+    final db = await database;
+    await db.rawInsert(
+      "INSERT OR REPLACE INTO $_userInfoTable (key, value) VALUES ('wellness_pass', ?)",
+      [passType],
+    );
+    debugPrint('✅ Wellness pass saved locally: $passType');
+  }
+
+  static Future<String?> getWellnessPass() async {
+    final db = await database;
+    final result = await db.rawQuery(
+      "SELECT value FROM $_userInfoTable WHERE key = 'wellness_pass'",
+    );
+    if (result.isNotEmpty) {
+      return result.first['value'] as String?;
+    }
+    return null;
+  }
+
+  // ═══════════════════════════════════════
+  //          WELLNESS CREDITS
+  // ═══════════════════════════════════════
+
+  static Future<void> saveWellnessCredits(int credits) async {
+    final db = await database;
+    await db.rawInsert(
+      "INSERT OR REPLACE INTO $_userInfoTable (key, value) VALUES ('wellness_credits', ?)",
+      [credits.toString()],
+    );
+    debugPrint('✅ Wellness credits saved locally: $credits');
+  }
+
+  static Future<int?> getWellnessCredits() async {
+    final db = await database;
+    final result = await db.rawQuery(
+      "SELECT value FROM $_userInfoTable WHERE key = 'wellness_credits'",
+    );
+    if (result.isNotEmpty) {
+      return int.tryParse(result.first['value'] as String? ?? '');
+    }
+    return null;
+  }
+
+  // ═══════════════════════════════════════
   //          DELETE USER (on logout)
   // ═══════════════════════════════════════
 
@@ -186,6 +260,33 @@ class LocalDatabase {
     await db.delete(_userTable);
     await db.delete(_userInfoTable); 
     debugPrint('✅ User deleted from local DB');
+  }
+
+  // ═══════════════════════════════════════
+  //          APPOINTMENTS CRUD
+  // ═══════════════════════════════════════
+
+  static Future<void> insertAppointment({
+    required String serviceName,
+    required String date,
+    required String time,
+    required String therapist,
+    required String price,
+  }) async {
+    final db = await database;
+    await db.insert('appointments', {
+      'service_name': serviceName,
+      'date': date,
+      'time': time,
+      'therapist': therapist,
+      'price': price,
+    });
+    debugPrint('✅ Appointment saved locally: $serviceName');
+  }
+
+  static Future<List<Map<String, dynamic>>> getAppointments() async {
+    final db = await database;
+    return await db.query('appointments', orderBy: 'id DESC');
   }
 
   // ═══════════════════════════════════════

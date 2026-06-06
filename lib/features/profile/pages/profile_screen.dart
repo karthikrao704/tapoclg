@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:tapovana_mobile_app/core/theme/theme_cubit.dart';
 import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
@@ -22,10 +23,7 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => ProfileBloc()..add(LoadProfile()),
-      child: const ProfileView(),
-    );
+    return const ProfileView();
   }
 }
 
@@ -154,9 +152,10 @@ class ProfileView extends StatelessWidget {
     final size = MediaQuery.sizeOf(context);
     final isSmallScreen = size.height < 650;
     final horizontalPadding = size.width * 0.05; // Flexible side margins
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
           'Profile',
@@ -164,9 +163,21 @@ class ProfileView extends StatelessWidget {
           style: AppFonts.headland(
             fontSize: isSmallScreen ? 20 : 22,
             fontWeight: FontWeight.w400,
-            color: AppTheme.primaryText,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+              color: isDark ? Colors.amberAccent : AppTheme.primaryText,
+            ),
+            onPressed: () {
+              context.read<ThemeCubit>().toggleTheme();
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: BlocConsumer<ProfileBloc, ProfileState>(
         listener: (context, state) {
@@ -207,7 +218,7 @@ class ProfileView extends StatelessWidget {
                   isSmallScreen,
                   horizontalPadding,
                 ),
-                _buildLegalLinks(isSmallScreen),
+                _buildLegalLinks(context, isSmallScreen),
                 _buildLogoutButton(context, isSmallScreen, horizontalPadding),
                 _buildAppVersion(state, isSmallScreen),
                 SizedBox(height: isSmallScreen ? 15 : 20),
@@ -233,7 +244,7 @@ class ProfileView extends StatelessWidget {
     final double avatarSize = isSmallScreen ? 90 : 110;
 
     return Container(
-      color: Colors.white,
+      color: Theme.of(context).scaffoldBackgroundColor,
       padding: EdgeInsets.only(top: 8, bottom: isSmallScreen ? 16 : 24),
       child: Column(
         children: [
@@ -312,7 +323,7 @@ class ProfileView extends StatelessWidget {
             state.name,
             style: AppFonts.poppinsMedium(
               fontSize: isSmallScreen ? 20 : 24,
-              color: AppTheme.primaryText,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 8),
@@ -342,7 +353,7 @@ class ProfileView extends StatelessWidget {
             Text(
               'Member since ${state.memberSince}',
               style: AppFonts.poppinsRegular(
-                color: AppTheme.secondaryText,
+                color: Theme.of(context).textTheme.bodySmall?.color,
                 fontSize: isSmallScreen ? 13 : 15,
                 letterSpacing: -0.3,
               ),
@@ -360,12 +371,36 @@ class ProfileView extends StatelessWidget {
     bool isSmallScreen,
     double hPadding,
   ) {
+    // Determine card gradient and title based on the active pass
+    final passType = state.membershipType.toUpperCase();
+    List<Color> cardGradient;
+    String passTitle;
+
+    if (passType.contains('SILVER')) {
+      cardGradient = const [Color(0xFFCBD5E1), Color(0xFF64748B)]; // Silver grey
+      passTitle = 'Silver Wellness Pass';
+    } else if (passType.contains('GOLD')) {
+      cardGradient = const [Color(0xFFFBBF24), Color(0xFFD97706)]; // Gold/amber
+      passTitle = 'Gold Wellness Pass';
+    } else if (passType.contains('DIAMOND')) {
+      cardGradient = const [Color(0xFF60A5FA), Color(0xFF1D4ED8)]; // Diamond blue
+      passTitle = 'Diamond Wellness Pass';
+    } else {
+      cardGradient = const [Color(0xFF34D399), Color(0xFF059669)]; // Standard green/teal
+      passTitle = 'Get Wellness Pass';
+    }
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: hPadding, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        border: Border.all(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white.withAlpha(20)
+              : const Color(0xFFF1F5F9),
+          width: 1.5,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -373,13 +408,13 @@ class ProfileView extends StatelessWidget {
           Container(
             width: double.infinity,
             height: isSmallScreen ? 90 : 110,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFFDCA730), Color(0xFF9DC970)],
+                colors: cardGradient,
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
               ),
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),
               ),
@@ -391,7 +426,7 @@ class ProfileView extends StatelessWidget {
                   left: 20,
                   top: isSmallScreen ? 30 : 40,
                   child: Text(
-                    'Premium Wellness Pass',
+                    passTitle,
                     style: AppFonts.poppinsMedium(
                       color: AppColors.white,
                       fontSize: isSmallScreen ? 16 : 18,
@@ -425,7 +460,7 @@ class ProfileView extends StatelessWidget {
                       Text(
                         'AVAILABLE CREDITS',
                         style: AppFonts.poppinsSemiBold(
-                          color: AppTheme.secondaryText,
+                          color: Theme.of(context).textTheme.bodySmall?.color,
                           fontSize: isSmallScreen ? 10 : 12,
                           letterSpacing: 0.5,
                         ),
@@ -434,7 +469,7 @@ class ProfileView extends StatelessWidget {
                       Text(
                         '${state.availableCredits} Credits remaining',
                         style: AppFonts.poppinsSemiBold(
-                          color: AppTheme.primaryText,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: isSmallScreen ? 16 : 18,
                         ),
                       ),
@@ -442,7 +477,7 @@ class ProfileView extends StatelessWidget {
                       Text(
                         'Next renewal: ${state.nextRenewal}',
                         style: AppFonts.poppinsRegular(
-                          color: AppColors.primaryBlack40,
+                          color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7) ?? AppColors.primaryBlack40,
                           fontSize: isSmallScreen ? 11 : 13,
                         ),
                       ),
@@ -450,8 +485,8 @@ class ProfileView extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: isSmallScreen ? 8 : 12),
-                ElevatedButton(
-                  onPressed: () {},
+                 ElevatedButton(
+                  onPressed: () => _showPassPickerBottomSheet(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryColor,
                     foregroundColor: Colors.white,
@@ -479,6 +514,305 @@ class ProfileView extends StatelessWidget {
     );
   }
 
+  // ─── Wellness Pass Picker Bottom Sheet ────────────────────────────────────
+
+  void _showPassPickerBottomSheet(BuildContext context) {
+    final profileBloc = context.read<ProfileBloc>();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.85,
+          minChildSize: 0.6,
+          maxChildSize: 0.95,
+          builder: (_, scrollController) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : Colors.white,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: ListView(
+                controller: scrollController,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFCBD5E1),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Select Wellness Pass',
+                    textAlign: TextAlign.center,
+                    style: AppFonts.headland(
+                      fontSize: 24,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Choose a pass to unlock exclusive discounts and monthly wellness credits.',
+                    textAlign: TextAlign.center,
+                    style: AppFonts.poppinsRegular(
+                      fontSize: 14,
+                      color: Theme.of(context).textTheme.bodySmall?.color,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Pass Card - Silver
+                  _buildPassOptionCard(
+                    context: context,
+                    profileBloc: profileBloc,
+                    title: 'SILVER PASS',
+                    gradient: const [Color(0xFFCBD5E1), Color(0xFF94A3B8)],
+                    price: '₹2,999/mo',
+                    discount: '10%',
+                    credits: '5 Credits',
+                    benefits: [
+                      '10% Discount on all packages & services',
+                      '5 Monthly wellness credits',
+                      'Standard booking priority'
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Pass Card - Gold
+                  _buildPassOptionCard(
+                    context: context,
+                    profileBloc: profileBloc,
+                    title: 'GOLD PASS',
+                    gradient: const [Color(0xFFFBBF24), Color(0xFFD97706)],
+                    price: '₹5,999/mo',
+                    discount: '20%',
+                    credits: '12 Credits',
+                    isPopular: true,
+                    benefits: [
+                      '20% Discount on all packages & services',
+                      '12 Monthly wellness credits',
+                      'High booking priority',
+                      '1 Free expert consultation session'
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Pass Card - Diamond
+                  _buildPassOptionCard(
+                    context: context,
+                    profileBloc: profileBloc,
+                    title: 'DIAMOND PASS',
+                    gradient: const [Color(0xFF60A5FA), Color(0xFF1D4ED8)],
+                    price: '₹9,999/mo',
+                    discount: '30%',
+                    credits: '25 Credits',
+                    benefits: [
+                      '30% Discount on all packages & services',
+                      '25 Monthly wellness credits',
+                      'Instant VIP booking priority',
+                      'Unlimited expert consultation sessions',
+                      'VIP Lounge & Refreshment access'
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildPassOptionCard({
+    required BuildContext context,
+    required ProfileBloc profileBloc,
+    required String title,
+    required List<Color> gradient,
+    required String price,
+    required String discount,
+    required String credits,
+    required List<String> benefits,
+    bool isPopular = false,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isPopular ? const Color(0xFFD97706) : const Color(0xFFE2E8F0),
+          width: isPopular ? 2 : 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: Column(
+          children: [
+            // Card Header
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: gradient,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (isPopular)
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            'MOST POPULAR',
+                            style: AppFonts.poppinsSemiBold(
+                              color: const Color(0xFFD97706),
+                              fontSize: 9,
+                            ),
+                          ),
+                        ),
+                      Text(
+                        title,
+                        style: AppFonts.poppinsSemiBold(
+                          color: Colors.white,
+                          fontSize: 18,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        credits,
+                        style: AppFonts.poppinsRegular(
+                          color: Colors.white70,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        price,
+                        style: AppFonts.poppinsSemiBold(
+                          color: Colors.white,
+                          fontSize: 18,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '$discount OFF',
+                          style: AppFonts.poppinsSemiBold(
+                            color: Colors.white,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // Benefits List & Apply Button
+            Container(
+              color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : Colors.white,
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  ...benefits.map((benefit) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Icons.check_circle_outline,
+                            color: AppColors.primaryColor,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              benefit,
+                              style: AppFonts.poppinsRegular(
+                                color: Theme.of(context).textTheme.bodySmall?.color,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 46,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        profileBloc.add(UpgradeWellnessPass(passType: title));
+                        Navigator.of(context).pop();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Applied for $title successfully!'),
+                            backgroundColor: AppColors.primaryColor,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        'Apply for $title',
+                        style: AppFonts.poppinsSemiBold(fontSize: 14),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // ─── History card ─────────────────────────────────────────────────────────
 
   Widget _buildHistoryCard(
@@ -497,9 +831,14 @@ class ProfileView extends StatelessWidget {
         margin: EdgeInsets.symmetric(horizontal: hPadding, vertical: 8),
         padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+          border: Border.all(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white.withAlpha(20)
+                : const Color(0xFFF1F5F9),
+            width: 1.5,
+          ),
         ),
         child: Row(
           children: [
@@ -507,7 +846,7 @@ class ProfileView extends StatelessWidget {
               width: isSmallScreen ? 38 : 44,
               height: isSmallScreen ? 38 : 44,
               decoration: BoxDecoration(
-                color: const Color(0xFFF2F7E6),
+                color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withAlpha(15) : const Color(0xFFF2F7E6),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
@@ -530,7 +869,7 @@ class ProfileView extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: AppFonts.poppinsRegular(
                       fontSize: isSmallScreen ? 14 : 16,
-                      color: AppTheme.primaryText,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -566,7 +905,7 @@ class ProfileView extends StatelessWidget {
             'ACCOUNT SETTINGS',
             style: AppFonts.poppinsSemiBold(
               fontSize: isSmallScreen ? 11 : 13,
-              color: AppTheme.secondaryText,
+              color: Theme.of(context).textTheme.bodySmall?.color,
               letterSpacing: 0.8,
             ),
           ),
@@ -575,14 +914,20 @@ class ProfileView extends StatelessWidget {
           margin: EdgeInsets.symmetric(horizontal: hPadding),
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : Colors.white,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+            border: Border.all(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white.withAlpha(20)
+                  : const Color(0xFFF1F5F9),
+              width: 1.5,
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildSettingsItem(
+                context,
                 Icons.person_outline,
                 'Personal Information',
                 () => _navigateToPage(context, const PersonalInfoPage()),
@@ -590,6 +935,7 @@ class ProfileView extends StatelessWidget {
                 showDivider: true,
               ),
               _buildSettingsItem(
+                context,
                 Icons.notifications_none,
                 'Notifications',
                 () =>
@@ -598,6 +944,7 @@ class ProfileView extends StatelessWidget {
                 showDivider: true,
               ),
               _buildSettingsItem(
+                context,
                 Icons.security_outlined,
                 'Privacy & Security',
                 () => _navigateToPage(context, const PrivacySecurityPage()),
@@ -605,6 +952,7 @@ class ProfileView extends StatelessWidget {
                 showDivider: true,
               ),
               _buildSettingsItem(
+                context,
                 Icons.help_outline,
                 'Support Center',
                 () => _navigateToPage(context, const SupportCenterPage()),
@@ -619,6 +967,7 @@ class ProfileView extends StatelessWidget {
   }
 
   Widget _buildSettingsItem(
+    BuildContext context,
     IconData icon,
     String title,
     VoidCallback onTap,
@@ -642,7 +991,7 @@ class ProfileView extends StatelessWidget {
             title,
             style: AppFonts.poppinsMedium(
               fontSize: isSmallScreen ? 13 : 15,
-              color: AppTheme.primaryText,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           trailing: Icon(
@@ -653,10 +1002,10 @@ class ProfileView extends StatelessWidget {
           onTap: onTap,
         ),
         if (showDivider)
-          const Divider(
+          Divider(
             height: 1,
             thickness: 1,
-            color: Color(0xFFF1F5F9),
+            color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withAlpha(15) : const Color(0xFFF1F5F9),
             indent: 52,
             endIndent: 0,
           ),
@@ -666,7 +1015,7 @@ class ProfileView extends StatelessWidget {
 
   // ─── Legal / logout / version ─────────────────────────────────────────────
 
-  Widget _buildLegalLinks(bool isSmallScreen) {
+  Widget _buildLegalLinks(BuildContext context, bool isSmallScreen) {
     return Padding(
       padding: EdgeInsets.only(top: isSmallScreen ? 16 : 24, bottom: 16),
       child: Column(
@@ -675,7 +1024,7 @@ class ProfileView extends StatelessWidget {
             'Terms &\nConditions',
             textAlign: TextAlign.center,
             style: AppFonts.poppinsRegular(
-              color: AppTheme.secondaryText,
+              color: Theme.of(context).textTheme.bodySmall?.color,
               fontSize: isSmallScreen ? 12 : 14,
               height: 1.3,
             ),
@@ -684,7 +1033,7 @@ class ProfileView extends StatelessWidget {
           Text(
             'Privacy Policy',
             style: AppFonts.poppinsRegular(
-              color: AppTheme.secondaryText,
+              color: Theme.of(context).textTheme.bodySmall?.color,
               fontSize: isSmallScreen ? 12 : 14,
             ),
           ),

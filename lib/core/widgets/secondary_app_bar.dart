@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
-import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 
 class SecondaryAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -23,19 +22,23 @@ class SecondaryAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Color(0xFF333333)),
+        icon: Icon(
+          Icons.arrow_back,
+          color: isDark ? Colors.white : const Color(0xFF333333),
+        ),
         onPressed: () => Navigator.of(context).pop(),
       ),
       titleSpacing: titleSpacing,
       title: Text(
         title,
         style: AppFonts.headland(
-          color: AppTheme.primaryText,
+          color: Theme.of(context).colorScheme.onSurface,
           fontSize: 20,
           fontWeight: FontWeight.w400,
         ),

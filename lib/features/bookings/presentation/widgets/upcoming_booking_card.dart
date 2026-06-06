@@ -21,9 +21,9 @@ class _UpcomingBookingCardState extends State<UpcomingBookingCard> {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: const [BoxShadow(blurRadius: 6, color: Colors.black12)],
+        boxShadow: Theme.of(context).brightness == Brightness.dark ? null : const [BoxShadow(blurRadius: 6, color: Colors.black12)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,7 +70,7 @@ class _UpcomingBookingCardState extends State<UpcomingBookingCard> {
                         vertical: isSmallScreen ? 3 : 4,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 254, 246, 230),
+                        color: Theme.of(context).brightness == Brightness.dark ? const Color(0x22D9A04B) : const Color.fromARGB(255, 254, 246, 230),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -105,7 +105,7 @@ class _UpcomingBookingCardState extends State<UpcomingBookingCard> {
                             overflow: TextOverflow.ellipsis,
                             style: AppFonts.poppinsRegular(
                               fontSize: isSmallScreen ? 13 : 14,
-                              color: AppTheme.secondaryText,
+                              color: Theme.of(context).textTheme.bodySmall?.color ?? AppTheme.secondaryText,
                             ),
                           ),
                         ),
@@ -130,7 +130,7 @@ class _UpcomingBookingCardState extends State<UpcomingBookingCard> {
                             overflow: TextOverflow.ellipsis,
                             style: AppFonts.poppinsRegular(
                               fontSize: isSmallScreen ? 13 : 14,
-                              color: AppTheme.secondaryText,
+                              color: Theme.of(context).textTheme.bodySmall?.color ?? AppTheme.secondaryText,
                             ),
                           ),
                         ),
@@ -157,7 +157,7 @@ class _UpcomingBookingCardState extends State<UpcomingBookingCard> {
                           decoration: BoxDecoration(
                             color: isRescheduleSelected
                                 ? AppColors.primaryColor
-                                : AppColors.white,
+                                : (Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : AppColors.white),
                             borderRadius: BorderRadius.circular(6),
                             border: Border.all(color: AppColors.primaryColor),
                           ),
@@ -199,7 +199,7 @@ class _UpcomingBookingCardState extends State<UpcomingBookingCard> {
                           decoration: BoxDecoration(
                             color: !isRescheduleSelected
                                 ? AppColors.primaryColor
-                                : AppColors.white,
+                                : (Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : AppColors.white),
                             borderRadius: BorderRadius.circular(6),
                             border: Border.all(color: AppColors.primaryColor),
                           ),

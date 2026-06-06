@@ -51,6 +51,22 @@ class ServiceDetailModel {
   });
 
   factory ServiceDetailModel.fromJson(Map<String, dynamic> json) {
+    String? imageUrl = json['image_url'];
+    if (imageUrl != null && imageUrl.isNotEmpty) {
+      if (!imageUrl.startsWith('http')) {
+        final prefix = imageUrl.startsWith('/') ? '' : '/';
+        imageUrl = 'https://tapovana.onrender.com$prefix$imageUrl';
+      }
+    }
+
+    String? avatarUrl = json['avatar_url'];
+    if (avatarUrl != null && avatarUrl.isNotEmpty) {
+      if (!avatarUrl.startsWith('http')) {
+        final prefix = avatarUrl.startsWith('/') ? '' : '/';
+        avatarUrl = 'https://tapovana.onrender.com$prefix$avatarUrl';
+      }
+    }
+
     return ServiceDetailModel(
       id: json['id']?.toString() ?? '',
       serviceId: json['service_id'] ?? '',
@@ -65,7 +81,7 @@ class ServiceDetailModel {
       durationMinutes: json['duration_minutes'] ?? 0,
       requiredCertification: json['required_certification'],
       experienceLevel: json['experience_level'],
-      imageUrl: json['image_url'],
+      imageUrl: imageUrl,
       imageNextcloudPath: json['image_nextcloud_path'],
       status: json['status'] ?? '',
       createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
@@ -76,7 +92,7 @@ class ServiceDetailModel {
       firstName: json['first_name'] ?? '',
       lastName: json['last_name'] ?? '',
       specialization: json['specialization'],
-      avatarUrl: json['avatar_url'],
+      avatarUrl: avatarUrl,
     );
   }
 

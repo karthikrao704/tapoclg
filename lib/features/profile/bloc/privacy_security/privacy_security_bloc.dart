@@ -6,7 +6,7 @@ import 'privacy_security_event.dart';
 import 'privacy_security_state.dart';
 
 class PrivacySecurityBloc extends Bloc<PrivacySecurityEvent, PrivacySecurityState> {
-  static const String _baseUrl = 'https://backend.rosettesmartlife.com';
+  static const String _baseUrl = 'https://tapovana.onrender.com';
 
   PrivacySecurityBloc() : super(const PrivacySecurityState()) {
     on<LoadPrivacySettings>(_onLoadPrivacySettings);
