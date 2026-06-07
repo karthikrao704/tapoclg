@@ -8,15 +8,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tapovana_mobile_app/features/profile/bloc/profile/profile_bloc.dart';
 import 'package:tapovana_mobile_app/features/profile/bloc/profile/profile_event.dart';
 import 'package:tapovana_mobile_app/features/appointments/data/repositories/booking_repository.dart';
+import 'package:tapovana_mobile_app/features/services/data/models/service_detail_model.dart';
 
 class AppointmentBookingPage extends StatefulWidget {
   final String? serviceName;
   final String? price;
+  final List<StaffDetail>? therapists;
 
   const AppointmentBookingPage({
     super.key,
     this.serviceName,
     this.price,
+    this.therapists,
   });
 
   @override
@@ -52,6 +55,9 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
   void initState() {
     super.initState();
     _loadWellnessPass();
+    if (widget.therapists != null && widget.therapists!.isNotEmpty) {
+      selectedTherapist = widget.therapists!.first.fullName;
+    }
   }
 
   Future<void> _loadWellnessPass() async {
@@ -195,28 +201,45 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
 
             const SizedBox(height: 14),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                therapistCard(
-                  "Dr. Aris",
-                  "LEAD",
-                  "assets/appointments/dr_1.png",
-                ),
+            if (widget.therapists != null && widget.therapists!.isNotEmpty)
+              Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                alignment: WrapAlignment.spaceEvenly,
+                children: widget.therapists!.map((staff) {
+                  return SizedBox(
+                    width: 105,
+                    child: therapistCard(
+                      staff.fullName,
+                      staff.email,
+                      imageUrl: staff.avatarUrl,
+                    ),
+                  );
+                }).toList(),
+              )
+            else
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  therapistCard(
+                    "Dr. Aris",
+                    "LEAD",
+                    assetImage: "assets/appointments/dr_1.png",
+                  ),
 
-                therapistCard(
-                  "Sarah W.",
-                  "Massage",
-                  "assets/appointments/dr_2.png",
-                ),
+                  therapistCard(
+                    "Sarah W.",
+                    "Massage",
+                    assetImage: "assets/appointments/dr_2.png",
+                  ),
 
-                therapistCard(
-                  "Michael K.",
-                  "Yoga",
-                  "assets/appointments/dr_3.png",
-                ),
-              ],
-            ),
+                  therapistCard(
+                    "Michael K.",
+                    "Yoga",
+                    assetImage: "assets/appointments/dr_3.png",
+                  ),
+                ],
+              ),
 
             const SizedBox(height: 40),
 
@@ -656,8 +679,31 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
   }
 
   //therapist card
-  Widget therapistCard(String name, String role, String image) {
+  Widget therapistCard(String name, String role, {String? imageUrl, String? assetImage}) {
     bool isSelected = selectedTherapist == name;
+
+    Widget imageWidget;
+    if (imageUrl != null && imageUrl.isNotEmpty) {
+      imageWidget = Image.network(
+        imageUrl,
+        width: 64,
+        height: 64,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => Image.asset(
+          assetImage ?? "assets/appointments/dr_1.png",
+          width: 64,
+          height: 64,
+          fit: BoxFit.cover,
+        ),
+      );
+    } else {
+      imageWidget = Image.asset(
+        assetImage ?? "assets/appointments/dr_1.png",
+        width: 64,
+        height: 64,
+        fit: BoxFit.cover,
+      );
+    }
 
     return GestureDetector(
       onTap: () {
@@ -667,6 +713,7 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
       },
 
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Stack(
             children: [
@@ -683,12 +730,7 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child: Image.asset(
-                    image,
-                    width: 64,
-                    height: 64,
-                    fit: BoxFit.cover,
-                  ),
+                  child: imageWidget,
                 ),
               ),
 
@@ -717,10 +759,19 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
 
           Text(
             name,
-            style: AppFonts.poppinsSemiBold(fontSize: 16),
+            style: AppFonts.poppinsSemiBold(fontSize: 14),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
           ),
 
-          Text(role, style: AppFonts.poppinsRegular(fontSize: 11, color: AppColors.primaryBlack40)),
+          Text(
+            role,
+            style: AppFonts.poppinsRegular(fontSize: 10, color: AppColors.primaryBlack40),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );

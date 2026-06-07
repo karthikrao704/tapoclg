@@ -326,6 +326,16 @@ class _ServiceDetailsContent extends StatelessWidget {
                     const SizedBox(height: 40),
                   ],
 
+                  /// ASSIGNED THERAPISTS
+                  if (service.assignedStaffDetails.isNotEmpty) ...[
+                    _sectionHeader("Available Therapists"),
+                    const SizedBox(height: 14),
+                    ...service.assignedStaffDetails.map(
+                      (staff) => _buildTherapistCard(context, staff),
+                    ),
+                    const SizedBox(height: 40),
+                  ],
+
                   /// ADDITIONAL INFO
                   if (service.requiredCertification != null ||
                       service.experienceLevel != null) ...[
@@ -357,6 +367,7 @@ class _ServiceDetailsContent extends StatelessWidget {
                         builder: (context) => AppointmentBookingPage(
                           serviceName: service.name,
                           price: service.formattedPrice,
+                          therapists: service.assignedStaffDetails,
                         ),
                       ),
                     );
@@ -479,6 +490,62 @@ class _ServiceDetailsContent extends StatelessWidget {
                       color: AppTheme.secondaryText,
                     ),
                   ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Assigned therapist card widget
+  Widget _buildTherapistCard(BuildContext context, StaffDetail staff) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.tagBackground,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 24,
+            backgroundColor: AppColors.primaryColor.withAlpha(50),
+            backgroundImage: staff.avatarUrl != null
+                ? NetworkImage(staff.avatarUrl!)
+                : null,
+            child: staff.avatarUrl == null
+                ? Text(
+                    staff.firstName.isNotEmpty
+                        ? staff.firstName[0].toUpperCase()
+                        : '?',
+                    style: AppFonts.poppinsSemiBold(
+                      fontSize: 20,
+                      color: AppColors.primaryColor,
+                    ),
+                  )
+                : null,
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  staff.fullName,
+                  style: AppFonts.poppinsSemiBold(
+                    fontSize: 16,
+                    color: AppTheme.primaryText,
+                  ),
+                ),
+                Text(
+                  staff.email,
+                  style: AppFonts.poppinsRegular(
+                    fontSize: 13,
+                    color: AppTheme.secondaryText,
+                  ),
+                ),
               ],
             ),
           ),

@@ -23,6 +23,7 @@ class ServiceDetailModel {
   final String lastName;
   final String? specialization;
   final String? avatarUrl;
+  final List<StaffDetail> assignedStaffDetails;
 
   const ServiceDetailModel({
     required this.id,
@@ -48,6 +49,7 @@ class ServiceDetailModel {
     required this.lastName,
     this.specialization,
     this.avatarUrl,
+    this.assignedStaffDetails = const [],
   });
 
   factory ServiceDetailModel.fromJson(Map<String, dynamic> json) {
@@ -66,6 +68,11 @@ class ServiceDetailModel {
         avatarUrl = 'https://tapovana.onrender.com$prefix$avatarUrl';
       }
     }
+
+    final List<dynamic>? staffJson = json['assigned_staff_details'];
+    final List<StaffDetail> staffList = staffJson != null
+        ? staffJson.map((s) => StaffDetail.fromJson(s)).toList()
+        : [];
 
     return ServiceDetailModel(
       id: json['id']?.toString() ?? '',
@@ -93,6 +100,7 @@ class ServiceDetailModel {
       lastName: json['last_name'] ?? '',
       specialization: json['specialization'],
       avatarUrl: avatarUrl,
+      assignedStaffDetails: staffList,
     );
   }
 
@@ -114,3 +122,37 @@ class ServiceDetailModel {
   List<String> get toolsList =>
       tools.split('\n').where((t) => t.trim().isNotEmpty).toList();
 }
+
+class StaffDetail {
+  final String id;
+  final String firstName;
+  final String lastName;
+  final String email;
+  final String? avatarUrl;
+
+  const StaffDetail({
+    required this.id,
+    required this.firstName,
+    required this.lastName,
+    required this.email,
+    this.avatarUrl,
+  });
+
+  String get fullName => '$firstName $lastName'.trim();
+
+  factory StaffDetail.fromJson(Map<String, dynamic> json) {
+    String? avatar = json['avatar_url'] ?? json['profile_pic'];
+    if (avatar != null && avatar.isNotEmpty && !avatar.startsWith('http')) {
+      final prefix = avatar.startsWith('/') ? '' : '/';
+      avatar = 'https://tapovana.onrender.com$prefix$avatar';
+    }
+    return StaffDetail(
+      id: json['id']?.toString() ?? '',
+      firstName: json['first_name'] ?? json['name'] ?? '',
+      lastName: json['last_name'] ?? '',
+      email: json['email'] ?? '',
+      avatarUrl: avatar,
+    );
+  }
+}
+
