@@ -7,6 +7,7 @@ import 'package:tapovana_mobile_app/core/storage/local_database.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tapovana_mobile_app/features/profile/bloc/profile/profile_bloc.dart';
 import 'package:tapovana_mobile_app/features/profile/bloc/profile/profile_event.dart';
+import 'package:tapovana_mobile_app/features/appointments/data/repositories/booking_repository.dart';
 
 class AppointmentBookingPage extends StatefulWidget {
   final String? serviceName;
@@ -29,6 +30,14 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
   String? activePass;
   int availableCredits = 0;
   bool useCredits = false;
+
+  final TextEditingController _noteController = TextEditingController();
+
+  @override
+  void dispose() {
+    _noteController.dispose();
+    super.dispose();
+  }
 
   int _calculateCreditCost(double price) {
     if (price <= 1000) return 1;
@@ -217,6 +226,7 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
             const SizedBox(height: 12),
 
             TextField(
+              controller: _noteController,
               maxLines: 3,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
@@ -518,6 +528,7 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
                           final messenger = ScaffoldMessenger.of(context);
                           final navigator = Navigator.of(context);
                           final profileBloc = context.read<ProfileBloc>();
+                          final profileState = profileBloc.state;
 
                           final String finalPriceToSave = useCredits
                               ? "$creditCost ${creditCost == 1 ? 'Credit' : 'Credits'}"
@@ -525,13 +536,63 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
                                   ? "$formattedFinal (${activePass!.toUpperCase().replaceAll(' PASS', '')} Pass)"
                                   : (widget.price ?? "₹1200"));
 
+                          // Show progress loader
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) => const Center(
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFC9A14A)),
+                              ),
+                            ),
+                          );
+
+                          // Prepare database payload
+                          final userName = profileState.name.isNotEmpty
+                              ? profileState.name
+                              : 'Guest User';
+                          final profilePic = profileState.profilePhotoUrl;
+                          final serviceName = widget.serviceName ?? "Swedish Massage";
+                          final dateStr = "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
+                          final note = _noteController.text;
+
+                          String? passDetails;
+                          if (useCredits) {
+                            final mType = profileState.membershipType.toUpperCase();
+                            if (mType.contains('SILVER')) {
+                              passDetails = 'SILVER';
+                            } else if (mType.contains('GOLD')) {
+                              passDetails = 'GOLD';
+                            } else if (mType.contains('DIAMOND')) {
+                              passDetails = 'DIAMOND';
+                            } else {
+                              passDetails = profileState.membershipType;
+                            }
+                          }
+
+                          // Sync to PostgreSQL DB (via Node.js backend)
+                          final syncSuccess = await BookingRepository.createBooking(
+                            userName: userName,
+                            profilePic: profilePic,
+                            serviceName: serviceName,
+                            bookingDate: dateStr,
+                            bookingTime: selectedTime,
+                            therapistName: selectedTherapist,
+                            note: note.isNotEmpty ? note : null,
+                            totalAmount: finalPriceToSave,
+                            passDetails: passDetails,
+                          );
+
+                          // Close loader
+                          navigator.pop();
+
                           if (useCredits) {
                             await LocalDatabase.saveWellnessCredits(availableCredits - creditCost);
                           }
 
                           await LocalDatabase.insertAppointment(
-                            serviceName: widget.serviceName ?? "Swedish Massage",
-                            date: "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}",
+                            serviceName: serviceName,
+                            date: dateStr,
                             time: selectedTime,
                             therapist: selectedTherapist,
                             price: finalPriceToSave,
@@ -543,12 +604,21 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
                             debugPrint('Could not reload ProfileBloc: $e');
                           }
 
-                          messenger.showSnackBar(
-                            SnackBar(
-                              content: Text("Booking Confirmed for ${widget.serviceName ?? 'Swedish Massage'}!"),
-                              backgroundColor: AppColors.primaryColor,
-                            ),
-                          );
+                          if (syncSuccess) {
+                            messenger.showSnackBar(
+                              SnackBar(
+                                content: Text("Booking Confirmed & Synced for $serviceName!"),
+                                backgroundColor: AppColors.primaryColor,
+                              ),
+                            );
+                          } else {
+                            messenger.showSnackBar(
+                              const SnackBar(
+                                content: Text("Booking Saved Locally (Cloud Sync Failed)."),
+                                backgroundColor: Colors.orange,
+                              ),
+                            );
+                          }
                           navigator.pop(); // Go back
                         },
                         style: ElevatedButton.styleFrom(
