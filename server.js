@@ -56,6 +56,11 @@ app.get('/', (req, res) => {
   res.json({ status: 'ok', message: 'Tapovana Wellness Backend is running.' });
 });
 
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', message: 'Tapovana Wellness Backend is healthy.' });
+});
+
+
 // Booking Endpoint
 app.post('/api/bookings', async (req, res) => {
   const {
