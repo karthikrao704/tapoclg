@@ -136,6 +136,13 @@ async function initDatabase() {
       );
     `);
 
+    // Auto-migrate users table if it already existed but was missing columns
+    await client.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS google_uid TEXT;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS provider VARCHAR(50) DEFAULT 'email';
+    `);
+
     // OTP codes table
     await client.query(`
       CREATE TABLE IF NOT EXISTS otp_codes (
