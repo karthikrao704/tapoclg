@@ -13,6 +13,7 @@ import 'package:tapovana_mobile_app/features/bookings/presentation/pages/my_book
 import '../bloc/profile/profile_bloc.dart';
 import '../bloc/profile/profile_event.dart';
 import '../bloc/profile/profile_state.dart';
+import 'package:tapovana_mobile_app/core/widgets/media_helper.dart';
 import 'personal_info_page.dart';
 import 'notification_settings_page.dart';
 import 'privacy_security_page.dart';
@@ -262,19 +263,15 @@ class ProfileView extends StatelessWidget {
                     border: Border.all(color: Colors.white, width: 4),
                   ),
                   child: ClipOval(
-                    child: hasNetworkPhoto
-                        ? Image.network(
-                            state.profilePhotoUrl!,
-                            fit: BoxFit.cover,
-                            alignment: Alignment.topCenter,
-                            errorBuilder: (_, __, ___) =>
-                                Image.asset(state.avatar, fit: BoxFit.cover),
-                          )
-                        : Image.asset(
-                            state.avatar,
-                            fit: BoxFit.cover,
-                            alignment: Alignment.topCenter,
-                          ),
+                    child: MediaHelper.buildServiceImage(
+                      state.profilePhotoUrl,
+                      fit: BoxFit.cover,
+                      fallbackWidget: Image.asset(
+                        state.avatar,
+                        fit: BoxFit.cover,
+                        alignment: Alignment.topCenter,
+                      ),
+                    ),
                   ),
                 ),
 
@@ -1104,6 +1101,7 @@ class ProfileView extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
+              context.read<ProfileBloc>().add(Logout());
               context.read<AuthCubit>().signOut();
               Navigator.of(context).pop();
             },

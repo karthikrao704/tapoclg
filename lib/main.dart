@@ -2,13 +2,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:clerk_flutter/clerk_flutter.dart';
 import 'package:tapovana_mobile_app/core/app_initializer.dart';
 import 'package:tapovana_mobile_app/core/storage/secure_storage.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/routing/app_router.dart';
 import 'package:tapovana_mobile_app/features/auth/bloc/auth/auth_cubit.dart';
+import 'package:tapovana_mobile_app/features/auth/bloc/auth/auth_state.dart';
 import 'package:tapovana_mobile_app/features/auth/data/auth_api_repository.dart';
 import 'package:tapovana_mobile_app/features/auth/data/firebase_auth_repo.dart';
 import 'package:tapovana_mobile_app/features/profile/bloc/profile/profile_bloc.dart';
@@ -43,11 +42,11 @@ class MyApp extends StatefulWidget {
   final SecureStorage secureStorage;
 
   const MyApp({
-    key,
+    super.key,
     required this.firebaseAuthRepo,
     required this.apiAuthRepo,
     required this.secureStorage,
-  }) : super(key: key);
+  });
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -76,20 +75,22 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    final publishableKey = dotenv.env['CLERK_PUBLISHABLE_KEY'] ?? 'pk_test_dW5pdGVkLW11bGxldC05My5jbGVyay5hY2NvdW50cy5kZXYk';
-
-    return ClerkAuth(
-      config: ClerkAuthConfig(publishableKey: publishableKey),
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: _authCubit),
-          BlocProvider(create: (context) => ProfileBloc()..add(LoadProfile())),
-          BlocProvider(create: (context) => ThemeCubit()),
-        ],
-        child: BlocBuilder<ThemeCubit, ThemeMode>(
-          builder: (context, themeMode) {
-            final isDark = themeMode == ThemeMode.dark;
-            return MaterialApp.router(
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: _authCubit),
+        BlocProvider(create: (context) => ProfileBloc()..add(LoadProfile())),
+        BlocProvider(create: (context) => ThemeCubit()),
+      ],
+      child: BlocBuilder<ThemeCubit, ThemeMode>(
+        builder: (context, themeMode) {
+          final isDark = themeMode == ThemeMode.dark;
+          return BlocListener<AuthCubit, AuthState>(
+            listener: (context, authState) {
+              if (authState is Authenticated) {
+                context.read<ProfileBloc>().add(LoadProfile());
+              }
+            },
+            child: MaterialApp.router(
               title: 'Tapovana',
               debugShowCheckedModeBanner: false,
               theme: AppTheme.getLightTheme(context),
@@ -100,30 +101,13 @@ class _MyAppState extends State<MyApp> {
                   data: isDark
                       ? AppTheme.getDarkTheme(context)
                       : AppTheme.getLightTheme(context),
-                  child: ClerkAuthBuilder(
-                    signedInBuilder: (context, authState) {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        _authCubit.syncClerkSession(authState);
-                      });
-                      return child!;
-                    },
-                    signedOutBuilder: (context, authState) {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        _authCubit.handleClerkSignOut();
-                      });
-                      return const Scaffold(
-                        body: SafeArea(
-                          child: ClerkAuthentication(),
-                        ),
-                      );
-                    },
-                  ),
+                  child: child!,
                 );
               },
               routerConfig: _router,
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }

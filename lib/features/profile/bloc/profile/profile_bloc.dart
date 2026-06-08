@@ -20,7 +20,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<UseWellnessCredit>(_onUseWellnessCredit);
   }
 
-  // ─── Load profile from API ────────────────────────────────────────────────
+  // ─── Load profile from local storage (no API call) ───────────────────────
 
   Future<void> _onLoadProfile(
     LoadProfile event,
@@ -29,15 +29,21 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     emit(state.copyWith(isLoading: true, clearError: true));
 
     try {
-      final profile = await _repository.getUserDetails();
+      // Load name & email from local DB
+      final user = await LocalDatabase.getUser();
+      final name = (user?['name'] as String?)?.isNotEmpty == true
+          ? user!['name'] as String
+          : '';
+      final email = user?['email'] as String? ?? '';
 
-      // ✅ Save profile photo URL locally for AppBar to use
-      await LocalDatabase.saveProfilePhotoUrl(profile.profilePhotoUrl);
+      // Load profile photo URL from local DB
+      final photoUrl = await LocalDatabase.getProfilePhotoUrl();
 
-      // ✅ Fetch local wellness pass
+      // Load wellness pass from local DB
       final savedPass = await LocalDatabase.getWellnessPass();
-      final String currentMembership = savedPass ?? profile.membership ?? 'GOLD';
+      final String currentMembership = savedPass ?? 'GOLD';
 
+      // Load wellness credits from local DB
       int credits = 0;
       final savedCredits = await LocalDatabase.getWellnessCredits();
       if (savedCredits != null) {
@@ -55,11 +61,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
       emit(
         state.copyWith(
-          name: profile.name,
-          email: profile.email,
-          profilePhotoUrl: profile.profilePhotoUrl,
-          memberSince: profile.memberSinceFormatted,
-          membershipType: currentMembership.toUpperCase().endsWith('PASS') || currentMembership.toUpperCase().endsWith('MEMBER')
+          name: name,
+          email: email,
+          profilePhotoUrl: photoUrl,
+          memberSince: '',
+          membershipType: currentMembership.toUpperCase().endsWith('PASS') ||
+                  currentMembership.toUpperCase().endsWith('MEMBER')
               ? currentMembership.toUpperCase()
               : '${currentMembership.toUpperCase()} PASS',
           availableCredits: credits,
@@ -73,7 +80,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       emit(
         state.copyWith(
           error: 'Failed to load profile: ${e.toString()}',
-          errorType: AppError.classify(e),
+          errorType: AppErrorType.server,
           isLoading: false,
         ),
       );
@@ -209,16 +216,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   // ─── Logout ───────────────────────────────────────────────────────────────
 
   Future<void> _onLogout(Logout event, Emitter<ProfileState> emit) async {
-    emit(state.copyWith(isLoading: true));
-    try {
-      emit(state.copyWith(isLoading: false));
-    } catch (e) {
-      emit(
-        state.copyWith(
-          error: 'Failed to logout: ${e.toString()}',
-          isLoading: false,
-        ),
-      );
-    }
+    emit(const ProfileState());
   }
 }
