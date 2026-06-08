@@ -2,12 +2,11 @@ import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import '../../../../core/storage/local_database.dart';
-import '../../../../core/config/api_config.dart';
 import 'personal_info_event.dart';
 import 'personal_info_state.dart';
 
 class PersonalInfoBloc extends Bloc<PersonalInfoEvent, PersonalInfoState> {
-  String get _baseUrl => ApiConfig.backendUrl;
+  final String _baseUrl = 'https://tapovana.onrender.com';
 
   PersonalInfoBloc() : super(const PersonalInfoState()) {
     on<LoadPersonalInfo>(_onLoadPersonalInfo);

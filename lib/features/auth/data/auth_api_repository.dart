@@ -2,10 +2,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:tapovana_mobile_app/core/storage/secure_storage.dart';
-import '../../../core/config/api_config.dart';
 
 class AuthApiRepository {
-  String get baseUrl => ApiConfig.backendUrl;
+  final String baseUrl = "https://tapovana.onrender.com";
   final SecureStorage _secureStorage = SecureStorage();
 
   // ═══════════════════════════════════════

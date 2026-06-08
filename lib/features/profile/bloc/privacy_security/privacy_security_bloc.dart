@@ -2,12 +2,11 @@ import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import '../../../../core/storage/local_database.dart';
-import '../../../../core/config/api_config.dart';
 import 'privacy_security_event.dart';
 import 'privacy_security_state.dart';
 
 class PrivacySecurityBloc extends Bloc<PrivacySecurityEvent, PrivacySecurityState> {
-  String get _baseUrl => ApiConfig.backendUrl;
+  static const String _baseUrl = 'https://tapovana.onrender.com';
 
   PrivacySecurityBloc() : super(const PrivacySecurityState()) {
     on<LoadPrivacySettings>(_onLoadPrivacySettings);

@@ -3,10 +3,8 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart'; 
 import '../../../../core/storage/local_database.dart';
-import '../../../../core/config/api_config.dart';
-
 class ProfileRepository {
-  String get _baseUrl => '${ApiConfig.backendUrl}/api/details';
+  static const String _baseUrl = 'https://tapovana.onrender.com/api/details';
 
   // ─── Helper: resolve userId from local DB ────────────────────────────────
 
