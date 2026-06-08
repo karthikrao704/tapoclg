@@ -22,19 +22,21 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false },
 });
 
-// ─── Nodemailer transporter (optional — logs to console if not configured) ───
+// ─── Nodemailer transporter (Brevo SMTP — free 300 emails/day) ──────────────
 let transporter = null;
-if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+if (process.env.BREVO_EMAIL && process.env.BREVO_SMTP_KEY) {
   transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp-relay.brevo.com',
+    port: 587,
+    secure: false,
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
+      user: process.env.BREVO_EMAIL,
+      pass: process.env.BREVO_SMTP_KEY,
     },
   });
-  console.log('📧 Email transporter configured for:', process.env.EMAIL_USER);
+  console.log('📧 Brevo email transporter configured for:', process.env.BREVO_EMAIL);
 } else {
-  console.log('⚠️  No email credentials set — OTPs will be logged to console only.');
+  console.log('⚠️  No Brevo credentials set — OTPs will be logged to console only.');
 }
 
 // ─── Send OTP helper ──────────────────────────────────────────────────────────
@@ -51,7 +53,7 @@ async function sendOtpEmail(email, otp, purpose) {
 
   if (transporter) {
     await transporter.sendMail({
-      from: `"Tapovana Wellness" <${process.env.EMAIL_USER}>`,
+      from: `"Tapovana Wellness" <${process.env.BREVO_EMAIL}>`,
       to: email,
       subject,
       html,
