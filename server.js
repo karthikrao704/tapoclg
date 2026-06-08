@@ -2,193 +2,601 @@ const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
 const morgan = require('morgan');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const JWT_SECRET = process.env.JWT_SECRET || 'tapovana_fallback_secret';
 
-// Middleware
+// ─── Middleware ───────────────────────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-// PostgreSQL Neon DB Pool Connection
+// ─── PostgreSQL Pool ──────────────────────────────────────────────────────────
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false // Required for Neon SSL connection
-  }
+  ssl: { rejectUnauthorized: false },
 });
 
-// Initialize Database Table
-async function initDatabase() {
-  const createTableQuery = `
-    CREATE TABLE IF NOT EXISTS service_bookings (
-      id SERIAL PRIMARY KEY,
-      user_name VARCHAR(255) NOT NULL,
-      profile_pic TEXT,
-      service_name VARCHAR(255) NOT NULL,
-      booking_date DATE NOT NULL,
-      booking_time VARCHAR(50) NOT NULL,
-      therapist_name VARCHAR(255) NOT NULL,
-      note TEXT,
-      total_amount VARCHAR(100) NOT NULL,
-      pass_details VARCHAR(100),
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
+// ─── Nodemailer transporter (optional — logs to console if not configured) ───
+let transporter = null;
+if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+  transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+  console.log('📧 Email transporter configured for:', process.env.EMAIL_USER);
+} else {
+  console.log('⚠️  No email credentials set — OTPs will be logged to console only.');
+}
+
+// ─── Send OTP helper ──────────────────────────────────────────────────────────
+async function sendOtpEmail(email, otp, purpose) {
+  const subject = purpose === 'signup' ? 'Tapovana — Verify your email' : 'Tapovana — Login OTP';
+  const html = `
+    <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px;border:1px solid #e2e8f0;border-radius:12px">
+      <h2 style="color:#58B814">Tapovana Wellness</h2>
+      <p>Your one-time password is:</p>
+      <div style="font-size:36px;font-weight:bold;letter-spacing:8px;color:#1e293b;padding:16px;background:#f8fafc;border-radius:8px;text-align:center">${otp}</div>
+      <p style="color:#64748b;font-size:13px">This OTP expires in <strong>10 minutes</strong>. Do not share it with anyone.</p>
+    </div>
   `;
+
+  if (transporter) {
+    await transporter.sendMail({
+      from: `"Tapovana Wellness" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject,
+      html,
+    });
+    console.log(`📧 OTP sent to ${email}`);
+  } else {
+    // Fallback: log to console (visible in Render logs)
+    console.log(`\n🔐 ===== OTP FOR ${email} =====`);
+    console.log(`   OTP: ${otp}`);
+    console.log(`   Purpose: ${purpose}`);
+    console.log(`================================\n`);
+  }
+}
+
+// ─── Generate 6-digit OTP ─────────────────────────────────────────────────────
+function generateOtp() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+// ─── JWT helper ───────────────────────────────────────────────────────────────
+function generateToken(userId) {
+  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '30d' });
+}
+
+// ─── Database Init ────────────────────────────────────────────────────────────
+async function initDatabase() {
+  const client = await pool.connect();
   try {
-    const client = await pool.connect();
     console.log('🔌 Connected to Neon PostgreSQL database.');
-    await client.query(createTableQuery);
-    console.log('✅ Table "service_bookings" is ready.');
-    client.release();
+
+    // Bookings table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS service_bookings (
+        id SERIAL PRIMARY KEY,
+        user_name VARCHAR(255) NOT NULL,
+        profile_pic TEXT,
+        service_name VARCHAR(255) NOT NULL,
+        booking_date DATE NOT NULL,
+        booking_time VARCHAR(50) NOT NULL,
+        therapist_name VARCHAR(255) NOT NULL,
+        note TEXT,
+        total_amount VARCHAR(100) NOT NULL,
+        pass_details VARCHAR(100),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Users table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password_hash TEXT,
+        google_uid TEXT,
+        provider VARCHAR(50) DEFAULT 'email',
+        name VARCHAR(255),
+        gender VARCHAR(50),
+        city VARCHAR(255),
+        address TEXT,
+        phone VARCHAR(50),
+        dob DATE,
+        health_concerns TEXT,
+        preferred_therapies TEXT,
+        allergies TEXT,
+        membership VARCHAR(100) DEFAULT 'FREE',
+        profile_photo_url TEXT,
+        two_step_verification BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // OTP codes table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS otp_codes (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) NOT NULL,
+        otp VARCHAR(6) NOT NULL,
+        purpose VARCHAR(20) NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        used BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    console.log('✅ All tables are ready.');
   } catch (err) {
-    console.error('❌ Database connection or initialization failed:', err);
+    console.error('❌ Database initialization failed:', err);
     process.exit(1);
+  } finally {
+    client.release();
   }
 }
 
 initDatabase();
 
-// Health Check
+// ═══════════════════════════════════════════════════════════════════════════════
+//   HEALTH CHECKS
+// ═══════════════════════════════════════════════════════════════════════════════
+
 app.get('/', (req, res) => {
-  res.json({ status: 'ok', message: 'Tapovana Wellness Backend is running.' });
+  res.json({ status: 'ok', message: 'Tapovana Backend is running.' });
 });
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Tapovana Wellness Backend is healthy.' });
+  res.json({ status: 'ok', message: 'Tapovana Backend is healthy.' });
 });
 
+// ═══════════════════════════════════════════════════════════════════════════════
+//   AUTH — SIGNUP: SEND OTP
+//   Body: { email, password } OR { email, provider: "google" }
+// ═══════════════════════════════════════════════════════════════════════════════
 
-// Booking Endpoint
-app.post('/api/bookings', async (req, res) => {
-  const {
-    userName,
-    profilePic,
-    serviceName,
-    bookingDate,
-    bookingTime,
-    therapistName,
-    note,
-    totalAmount,
-    passDetails
-  } = req.body;
+app.post('/api/auth/signup/send-otp', async (req, res) => {
+  const { email, password, provider } = req.body;
 
-  // Basic Validation
-  if (!userName || !serviceName || !bookingDate || !bookingTime || !therapistName || !totalAmount) {
-    return res.status(400).json({
-      error: 'Missing required fields. Required: userName, serviceName, bookingDate, bookingTime, therapistName, totalAmount'
-    });
-  }
-
-  const insertQuery = `
-    INSERT INTO service_bookings (
-      user_name,
-      profile_pic,
-      service_name,
-      booking_date,
-      booking_time,
-      therapist_name,
-      note,
-      total_amount,
-      pass_details
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-    RETURNING id, created_at;
-  `;
-
-  const values = [
-    userName,
-    profilePic || null,
-    serviceName,
-    bookingDate,
-    bookingTime,
-    therapistName,
-    note || null,
-    totalAmount,
-    passDetails || null
-  ];
+  if (!email) return res.status(400).json({ success: false, message: 'Email is required.' });
 
   try {
-    const result = await pool.query(insertQuery, values);
-    const newBooking = result.rows[0];
-    
-    console.log(`🎉 Booking saved successfully: ID ${newBooking.id} for ${userName} (${serviceName})`);
-    
-    return res.status(201).json({
-      success: true,
-      message: 'Booking successfully stored in PostgreSQL!',
-      bookingId: newBooking.id,
-      createdAt: newBooking.created_at
-    });
+    // Check if user already exists
+    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+
+    if (provider === 'google') {
+      // Google signup — no OTP needed, just check existence
+      if (existing.rows.length > 0) {
+        return res.json({ success: true, exists: true, message: 'User already exists.' });
+      }
+      return res.json({ success: true, exists: false, message: 'User does not exist.' });
+    }
+
+    // Email signup
+    if (existing.rows.length > 0) {
+      return res.status(409).json({ success: false, message: 'An account with this email already exists.' });
+    }
+
+    if (!password) return res.status(400).json({ success: false, message: 'Password is required.' });
+
+    // Generate & store OTP
+    const otp = generateOtp();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+
+    await pool.query(
+      'INSERT INTO otp_codes (email, otp, purpose, expires_at) VALUES ($1, $2, $3, $4)',
+      [email, otp, 'signup', expiresAt]
+    );
+
+    await sendOtpEmail(email, otp, 'signup');
+
+    return res.json({ success: true, message: 'OTP sent to your email.' });
   } catch (err) {
-    console.error('❌ Failed to insert booking into database:', err);
-    return res.status(500).json({
-      error: 'Database error. Failed to save booking details.'
-    });
+    console.error('❌ send-otp error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
   }
 });
 
-// Fetch all bookings (optionally filter by userName query parameter)
+// ═══════════════════════════════════════════════════════════════════════════════
+//   AUTH — SIGNUP: VERIFY OTP
+//   Body: { email, otp }
+// ═══════════════════════════════════════════════════════════════════════════════
+
+app.post('/api/auth/signup/verify-otp', async (req, res) => {
+  const { email, otp } = req.body;
+
+  if (!email || !otp) return res.status(400).json({ success: false, message: 'Email and OTP are required.' });
+
+  try {
+    const result = await pool.query(
+      `SELECT * FROM otp_codes
+       WHERE email = $1 AND otp = $2 AND purpose = 'signup'
+         AND used = false AND expires_at > NOW()
+       ORDER BY created_at DESC LIMIT 1`,
+      [email, otp]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired OTP.' });
+    }
+
+    // Mark OTP as used
+    await pool.query('UPDATE otp_codes SET used = true WHERE id = $1', [result.rows[0].id]);
+
+    return res.json({ success: true, message: 'OTP verified.' });
+  } catch (err) {
+    console.error('❌ verify-otp error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//   AUTH — SIGNUP: COMPLETE
+//   Email body: { email, password, name, gender, city }
+//   Google body: { email, uid, provider: "google", name, gender, city }
+// ═══════════════════════════════════════════════════════════════════════════════
+
+app.post('/api/auth/signup/complete', async (req, res) => {
+  const { email, password, uid, provider, name, gender, city } = req.body;
+
+  if (!email || !name) {
+    return res.status(400).json({ success: false, message: 'Email and name are required.' });
+  }
+
+  try {
+    // Check not already registered
+    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+    if (existing.rows.length > 0) {
+      return res.status(409).json({ success: false, message: 'User already exists.' });
+    }
+
+    let passwordHash = null;
+    if (provider !== 'google') {
+      if (!password) return res.status(400).json({ success: false, message: 'Password is required.' });
+      passwordHash = await bcrypt.hash(password, 10);
+    }
+
+    const result = await pool.query(
+      `INSERT INTO users (email, password_hash, google_uid, provider, name, gender, city)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING id, email, name, gender, city, membership, created_at`,
+      [email, passwordHash, uid || null, provider || 'email', name, gender || null, city || null]
+    );
+
+    const user = result.rows[0];
+    const token = generateToken(user.id);
+
+    return res.status(201).json({
+      success: true,
+      message: 'Account created successfully.',
+      token,
+      user,
+    });
+  } catch (err) {
+    console.error('❌ signup/complete error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//   AUTH — LOGIN
+//   Email body: { email, password }
+//   Google body: { email, uid, provider: "google" }
+// ═══════════════════════════════════════════════════════════════════════════════
+
+app.post('/api/auth/login', async (req, res) => {
+  const { email, password, uid, provider } = req.body;
+
+  if (!email) return res.status(400).json({ success: false, message: 'Email is required.' });
+
+  try {
+    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'No account found with this email.' });
+    }
+
+    const user = result.rows[0];
+
+    // Google login
+    if (provider === 'google') {
+      const token = generateToken(user.id);
+      return res.json({
+        success: true,
+        requires_otp: false,
+        token,
+        user: { id: user.id, email: user.email, name: user.name },
+      });
+    }
+
+    // Email login — verify password
+    if (!password) return res.status(400).json({ success: false, message: 'Password is required.' });
+
+    const passwordMatch = await bcrypt.compare(password, user.password_hash || '');
+    if (!passwordMatch) {
+      return res.status(401).json({ success: false, message: 'Incorrect password.' });
+    }
+
+    // Check if 2FA is enabled
+    if (user.two_step_verification) {
+      const otp = generateOtp();
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+      await pool.query(
+        'INSERT INTO otp_codes (email, otp, purpose, expires_at) VALUES ($1, $2, $3, $4)',
+        [email, otp, 'login', expiresAt]
+      );
+      await sendOtpEmail(email, otp, 'login');
+
+      return res.json({
+        success: true,
+        requires_otp: true,
+        message: 'OTP sent to your email for 2FA.',
+      });
+    }
+
+    const token = generateToken(user.id);
+    return res.json({
+      success: true,
+      requires_otp: false,
+      token,
+      user: { id: user.id, email: user.email, name: user.name },
+    });
+  } catch (err) {
+    console.error('❌ login error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//   AUTH — LOGIN: VERIFY OTP (2FA)
+//   Body: { email, otp }
+// ═══════════════════════════════════════════════════════════════════════════════
+
+app.post('/api/auth/login/verify-otp', async (req, res) => {
+  const { email, otp } = req.body;
+
+  if (!email || !otp) return res.status(400).json({ success: false, message: 'Email and OTP are required.' });
+
+  try {
+    const otpResult = await pool.query(
+      `SELECT * FROM otp_codes
+       WHERE email = $1 AND otp = $2 AND purpose = 'login'
+         AND used = false AND expires_at > NOW()
+       ORDER BY created_at DESC LIMIT 1`,
+      [email, otp]
+    );
+
+    if (otpResult.rows.length === 0) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired OTP.' });
+    }
+
+    await pool.query('UPDATE otp_codes SET used = true WHERE id = $1', [otpResult.rows[0].id]);
+
+    const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    const user = userResult.rows[0];
+    const token = generateToken(user.id);
+
+    return res.json({
+      success: true,
+      token,
+      user: { id: user.id, email: user.email, name: user.name },
+    });
+  } catch (err) {
+    console.error('❌ login/verify-otp error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//   AUTH — TWO-STEP STATUS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+app.get('/api/auth/two-step/status/:userId', async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const result = await pool.query('SELECT two_step_verification FROM users WHERE id = $1', [userId]);
+    if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'User not found.' });
+    return res.json({ success: true, two_step_verification: result.rows[0].two_step_verification });
+  } catch (err) {
+    console.error('❌ two-step/status error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+app.post('/api/auth/two-step/toggle', async (req, res) => {
+  const { id, enabled } = req.body;
+  if (!id) return res.status(400).json({ success: false, message: 'User ID is required.' });
+  try {
+    await pool.query('UPDATE users SET two_step_verification = $1 WHERE id = $2', [enabled, id]);
+    return res.json({ success: true, message: `2FA ${enabled ? 'enabled' : 'disabled'}.` });
+  } catch (err) {
+    console.error('❌ two-step/toggle error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//   USER DETAILS — GET
+// ═══════════════════════════════════════════════════════════════════════════════
+
+app.get('/api/details/:userId', async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const result = await pool.query(
+      `SELECT id, email, name, gender, city, address, phone, dob,
+              health_concerns, preferred_therapies, allergies,
+              membership, profile_photo_url, two_step_verification, created_at
+       FROM users WHERE id = $1`,
+      [userId]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'User not found.' });
+    return res.json({ success: true, user: result.rows[0] });
+  } catch (err) {
+    console.error('❌ GET /api/details error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//   USER DETAILS — PATCH (update personal info)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+app.patch('/api/details/:userId', async (req, res) => {
+  const { userId } = req.params;
+  const { name, email, phone, dob, gender, city, address, health_concerns, preferred_therapies, allergies } = req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE users SET
+        name = COALESCE($1, name),
+        email = COALESCE($2, email),
+        phone = COALESCE($3, phone),
+        dob = COALESCE($4::DATE, dob),
+        gender = COALESCE($5, gender),
+        city = COALESCE($6, city),
+        address = COALESCE($7, address),
+        health_concerns = COALESCE($8, health_concerns),
+        preferred_therapies = COALESCE($9, preferred_therapies),
+        allergies = COALESCE($10, allergies)
+       WHERE id = $11
+       RETURNING id, email, name, gender, city, address, phone, dob,
+                 health_concerns, preferred_therapies, allergies, membership, profile_photo_url`,
+      [name, email, phone, dob || null, gender, city, address, health_concerns, preferred_therapies, allergies, userId]
+    );
+
+    if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'User not found.' });
+
+    return res.json({ success: true, message: 'Profile updated.', user: result.rows[0] });
+  } catch (err) {
+    console.error('❌ PATCH /api/details error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//   USER DETAILS — PATCH profile photo
+// ═══════════════════════════════════════════════════════════════════════════════
+
+app.patch('/api/details/:userId/profile-photo', async (req, res) => {
+  const { userId } = req.params;
+  // Accept photo URL from body (base64 or hosted URL)
+  const { profile_photo_url } = req.body;
+
+  try {
+    const result = await pool.query(
+      'UPDATE users SET profile_photo_url = $1 WHERE id = $2 RETURNING profile_photo_url',
+      [profile_photo_url, userId]
+    );
+
+    if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'User not found.' });
+
+    return res.json({
+      success: true,
+      message: 'Profile photo updated.',
+      data: { profile_photo_url: result.rows[0].profile_photo_url },
+    });
+  } catch (err) {
+    console.error('❌ PATCH /profile-photo error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//   USER DETAILS — DELETE profile photo
+// ═══════════════════════════════════════════════════════════════════════════════
+
+app.delete('/api/details/:userId/profile-photo', async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const result = await pool.query(
+      'UPDATE users SET profile_photo_url = NULL WHERE id = $1 RETURNING id',
+      [userId]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'User not found.' });
+    return res.json({ success: true, message: 'Profile photo deleted.' });
+  } catch (err) {
+    console.error('❌ DELETE /profile-photo error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//   BOOKINGS — POST
+// ═══════════════════════════════════════════════════════════════════════════════
+
+app.post('/api/bookings', async (req, res) => {
+  const { userName, profilePic, serviceName, bookingDate, bookingTime, therapistName, note, totalAmount, passDetails } = req.body;
+
+  if (!userName || !serviceName || !bookingDate || !bookingTime || !therapistName || !totalAmount) {
+    return res.status(400).json({ error: 'Missing required fields.' });
+  }
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO service_bookings (user_name, profile_pic, service_name, booking_date, booking_time, therapist_name, note, total_amount, pass_details)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       RETURNING id, created_at`,
+      [userName, profilePic || null, serviceName, bookingDate, bookingTime, therapistName, note || null, totalAmount, passDetails || null]
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: 'Booking saved.',
+      bookingId: result.rows[0].id,
+      createdAt: result.rows[0].created_at,
+    });
+  } catch (err) {
+    console.error('❌ POST /api/bookings error:', err);
+    return res.status(500).json({ error: 'Database error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//   BOOKINGS — GET ALL (optional ?userName= filter)
+// ═══════════════════════════════════════════════════════════════════════════════
+
 app.get('/api/bookings', async (req, res) => {
   const { userName } = req.query;
   try {
     let result;
     if (userName) {
-      const query = `
-        SELECT * FROM service_bookings 
-        WHERE user_name = $1 
-        ORDER BY id DESC;
-      `;
-      result = await pool.query(query, [userName]);
+      result = await pool.query('SELECT * FROM service_bookings WHERE user_name = $1 ORDER BY id DESC', [userName]);
     } else {
-      const query = `
-        SELECT * FROM service_bookings 
-        ORDER BY id DESC;
-      `;
-      result = await pool.query(query);
+      result = await pool.query('SELECT * FROM service_bookings ORDER BY id DESC');
     }
-    
-    return res.json({
-      success: true,
-      count: result.rows.length,
-      bookings: result.rows
-    });
+    return res.json({ success: true, count: result.rows.length, bookings: result.rows });
   } catch (err) {
-    console.error('❌ Failed to fetch bookings from database:', err);
-    return res.status(500).json({
-      error: 'Database error. Failed to retrieve booking details.'
-    });
+    console.error('❌ GET /api/bookings error:', err);
+    return res.status(500).json({ error: 'Database error.' });
   }
 });
 
-// Fetch a single booking by ID
+// ═══════════════════════════════════════════════════════════════════════════════
+//   BOOKINGS — GET SINGLE
+// ═══════════════════════════════════════════════════════════════════════════════
+
 app.get('/api/bookings/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    const query = 'SELECT * FROM service_bookings WHERE id = $1;';
-    const result = await pool.query(query, [id]);
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        error: `Booking with ID ${id} not found.`
-      });
-    }
-    
-    return res.json({
-      success: true,
-      booking: result.rows[0]
-    });
+    const result = await pool.query('SELECT * FROM service_bookings WHERE id = $1', [id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: `Booking ${id} not found.` });
+    return res.json({ success: true, booking: result.rows[0] });
   } catch (err) {
-    console.error(`❌ Failed to fetch booking with ID ${id}:`, err);
-    return res.status(500).json({
-      error: 'Database error. Failed to retrieve booking details.'
-    });
+    console.error('❌ GET /api/bookings/:id error:', err);
+    return res.status(500).json({ error: 'Database error.' });
   }
 });
 
-
-// Start Server
+// ─── Start Server ─────────────────────────────────────────────────────────────
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Server listening on http://0.0.0.0:${PORT}`);
+  console.log(`🚀 Tapovana Backend running on http://0.0.0.0:${PORT}`);
 });
