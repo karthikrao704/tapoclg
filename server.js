@@ -7,9 +7,12 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const https = require('https');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 require('dotenv').config();
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }
+});
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -19,23 +22,6 @@ const JWT_SECRET = process.env.JWT_SECRET || 'tapovana_fallback_secret';
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
-
-// ─── Multer Storage configuration & static serving ──────────────────────────────
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    if (!fs.existsSync('uploads')) {
-      fs.mkdirSync('uploads');
-    }
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  }
-});
-const upload = multer({ storage: storage });
-
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ─── PostgreSQL Pool ──────────────────────────────────────────────────────────
 const pool = new Pool({
@@ -577,13 +563,15 @@ app.patch('/api/details/:userId', async (req, res) => {
 app.patch('/api/details/:userId/profile-photo', upload.single('profile_photo'), async (req, res) => {
   const { userId } = req.params;
 
-  if (!req.file) {
-    return res.status(400).json({ success: false, message: 'No file uploaded.' });
-  }
-
-  const profile_photo_url = `/uploads/${req.file.filename}`;
-
   try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded.' });
+    }
+
+    const base64Data = req.file.buffer.toString('base64');
+    const mimeType = req.file.mimetype || 'image/jpeg';
+    const profile_photo_url = `data:${mimeType};base64,${base64Data}`;
+
     const result = await pool.query(
       'UPDATE users SET profile_photo_url = $1 WHERE id = $2 RETURNING profile_photo_url',
       [profile_photo_url, userId]
