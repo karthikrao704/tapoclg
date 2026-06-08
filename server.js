@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const https = require('https');
+const { clerkMiddleware, getAuth } = require('@clerk/express');
 require('dotenv').config();
 
 const app = express();
@@ -16,6 +17,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'tapovana_fallback_secret';
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
+app.use(clerkMiddleware());
 
 // ─── PostgreSQL Pool ──────────────────────────────────────────────────────────
 const pool = new Pool({
@@ -164,6 +166,7 @@ async function initDatabase() {
     await client.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
+        clerk_id VARCHAR(255) UNIQUE,
         email VARCHAR(255) UNIQUE NOT NULL,
         password_hash TEXT,
         google_uid TEXT,
@@ -186,6 +189,7 @@ async function initDatabase() {
 
     // Auto-migrate users table if it already existed but was missing columns
     await client.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS clerk_id VARCHAR(255) UNIQUE;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS google_uid TEXT;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS provider VARCHAR(50) DEFAULT 'email';
@@ -215,6 +219,60 @@ async function initDatabase() {
 
 initDatabase();
 
+// ─── Query helper for flexible user matching ────────────────────────────────
+function getUserQuery(identifier) {
+  if (isNaN(parseInt(identifier))) {
+    return {
+      query: `SELECT id, email, name, gender, city, address, phone, dob,
+                     health_concerns, preferred_therapies, allergies,
+                     membership, profile_photo_url, two_step_verification, created_at, clerk_id
+              FROM users WHERE clerk_id = $1 OR email = $1`,
+      updateQuery: `UPDATE users SET
+                      name = COALESCE($1, name),
+                      email = COALESCE($2, email),
+                      phone = COALESCE($3, phone),
+                      dob = COALESCE($4::DATE, dob),
+                      gender = COALESCE($5, gender),
+                      city = COALESCE($6, city),
+                      address = COALESCE($7, address),
+                      health_concerns = COALESCE($8, health_concerns),
+                      preferred_therapies = COALESCE($9, preferred_therapies),
+                      allergies = COALESCE($10, allergies)
+                    WHERE clerk_id = $11 OR email = $11
+                    RETURNING id, email, name, gender, city, address, phone, dob,
+                              health_concerns, preferred_therapies, allergies, membership, profile_photo_url, clerk_id`,
+      photoQuery: 'UPDATE users SET profile_photo_url = $1 WHERE clerk_id = $2 OR email = $2 RETURNING profile_photo_url',
+      deletePhotoQuery: 'UPDATE users SET profile_photo_url = NULL WHERE clerk_id = $1 OR email = $1 RETURNING id',
+      params: [identifier]
+    };
+  } else {
+    const id = parseInt(identifier);
+    return {
+      query: `SELECT id, email, name, gender, city, address, phone, dob,
+                     health_concerns, preferred_therapies, allergies,
+                     membership, profile_photo_url, two_step_verification, created_at, clerk_id
+              FROM users WHERE id = $1`,
+      updateQuery: `UPDATE users SET
+                      name = COALESCE($1, name),
+                      email = COALESCE($2, email),
+                      phone = COALESCE($3, phone),
+                      dob = COALESCE($4::DATE, dob),
+                      gender = COALESCE($5, gender),
+                      city = COALESCE($6, city),
+                      address = COALESCE($7, address),
+                      health_concerns = COALESCE($8, health_concerns),
+                      preferred_therapies = COALESCE($9, preferred_therapies),
+                      allergies = COALESCE($10, allergies)
+                    WHERE id = $11
+                    RETURNING id, email, name, gender, city, address, phone, dob,
+                              health_concerns, preferred_therapies, allergies, membership, profile_photo_url, clerk_id`,
+      photoQuery: 'UPDATE users SET profile_photo_url = $1 WHERE id = $2 RETURNING profile_photo_url',
+      deletePhotoQuery: 'UPDATE users SET profile_photo_url = NULL WHERE id = $1 RETURNING id',
+      params: [id]
+    };
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 //   HEALTH CHECKS
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -225,6 +283,41 @@ app.get('/', (req, res) => {
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Tapovana Backend is healthy.' });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//   CLERK — SYNC USER
+//   Body: { clerkId, email, name }
+// ═══════════════════════════════════════════════════════════════════════════════
+
+app.post('/api/auth/clerk-sync', async (req, res) => {
+  const { clerkId, email, name } = req.body;
+
+  if (!clerkId || !email) {
+    return res.status(400).json({ success: false, message: 'clerkId and email are required.' });
+  }
+
+  try {
+    const existing = await pool.query('SELECT * FROM users WHERE clerk_id = $1 OR email = $2', [clerkId, email]);
+    
+    if (existing.rows.length > 0) {
+      const user = existing.rows[0];
+      const updated = await pool.query(
+        'UPDATE users SET clerk_id = $1, name = COALESCE($2, name) WHERE id = $3 RETURNING *',
+        [clerkId, name || user.name, user.id]
+      );
+      return res.json({ success: true, message: 'User synced successfully.', user: updated.rows[0] });
+    } else {
+      const inserted = await pool.query(
+        'INSERT INTO users (clerk_id, email, name) VALUES ($1, $2, $3) RETURNING *',
+        [clerkId, email, name || '']
+      );
+      return res.status(201).json({ success: true, message: 'User registered and synced successfully.', user: inserted.rows[0] });
+    }
+  } catch (err) {
+    console.error('❌ clerk-sync error:', err);
+    return res.status(500).json({ success: false, message: 'Server error during sync.' });
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -484,7 +577,12 @@ app.post('/api/auth/two-step/toggle', async (req, res) => {
   const { id, enabled } = req.body;
   if (!id) return res.status(400).json({ success: false, message: 'User ID is required.' });
   try {
-    await pool.query('UPDATE users SET two_step_verification = $1 WHERE id = $2', [enabled, id]);
+    // Check if ID is integer or string
+    let query = 'UPDATE users SET two_step_verification = $1 WHERE id = $2';
+    if (isNaN(parseInt(id))) {
+      query = 'UPDATE users SET two_step_verification = $1 WHERE clerk_id = $2';
+    }
+    await pool.query(query, [enabled, id]);
     return res.json({ success: true, message: `2FA ${enabled ? 'enabled' : 'disabled'}.` });
   } catch (err) {
     console.error('❌ two-step/toggle error:', err);
@@ -499,13 +597,8 @@ app.post('/api/auth/two-step/toggle', async (req, res) => {
 app.get('/api/details/:userId', async (req, res) => {
   const { userId } = req.params;
   try {
-    const result = await pool.query(
-      `SELECT id, email, name, gender, city, address, phone, dob,
-              health_concerns, preferred_therapies, allergies,
-              membership, profile_photo_url, two_step_verification, created_at
-       FROM users WHERE id = $1`,
-      [userId]
-    );
+    const q = getUserQuery(userId);
+    const result = await pool.query(q.query, q.params);
     if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'User not found.' });
     return res.json({ success: true, user: result.rows[0] });
   } catch (err) {
@@ -523,22 +616,10 @@ app.patch('/api/details/:userId', async (req, res) => {
   const { name, email, phone, dob, gender, city, address, health_concerns, preferred_therapies, allergies } = req.body;
 
   try {
+    const q = getUserQuery(userId);
     const result = await pool.query(
-      `UPDATE users SET
-        name = COALESCE($1, name),
-        email = COALESCE($2, email),
-        phone = COALESCE($3, phone),
-        dob = COALESCE($4::DATE, dob),
-        gender = COALESCE($5, gender),
-        city = COALESCE($6, city),
-        address = COALESCE($7, address),
-        health_concerns = COALESCE($8, health_concerns),
-        preferred_therapies = COALESCE($9, preferred_therapies),
-        allergies = COALESCE($10, allergies)
-       WHERE id = $11
-       RETURNING id, email, name, gender, city, address, phone, dob,
-                 health_concerns, preferred_therapies, allergies, membership, profile_photo_url`,
-      [name, email, phone, dob || null, gender, city, address, health_concerns, preferred_therapies, allergies, userId]
+      q.updateQuery,
+      [name, email, phone, dob || null, gender, city, address, health_concerns, preferred_therapies, allergies, q.params[0]]
     );
 
     if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'User not found.' });
@@ -556,14 +637,11 @@ app.patch('/api/details/:userId', async (req, res) => {
 
 app.patch('/api/details/:userId/profile-photo', async (req, res) => {
   const { userId } = req.params;
-  // Accept photo URL from body (base64 or hosted URL)
   const { profile_photo_url } = req.body;
 
   try {
-    const result = await pool.query(
-      'UPDATE users SET profile_photo_url = $1 WHERE id = $2 RETURNING profile_photo_url',
-      [profile_photo_url, userId]
-    );
+    const q = getUserQuery(userId);
+    const result = await pool.query(q.photoQuery, [profile_photo_url, q.params[0]]);
 
     if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'User not found.' });
 
@@ -585,10 +663,8 @@ app.patch('/api/details/:userId/profile-photo', async (req, res) => {
 app.delete('/api/details/:userId/profile-photo', async (req, res) => {
   const { userId } = req.params;
   try {
-    const result = await pool.query(
-      'UPDATE users SET profile_photo_url = NULL WHERE id = $1 RETURNING id',
-      [userId]
-    );
+    const q = getUserQuery(userId);
+    const result = await pool.query(q.deletePhotoQuery, [q.params[0]]);
     if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'User not found.' });
     return res.json({ success: true, message: 'Profile photo deleted.' });
   } catch (err) {
@@ -656,7 +732,7 @@ app.get('/api/bookings/:id', async (req, res) => {
   const { id } = req.params;
   try {
     const result = await pool.query('SELECT * FROM service_bookings WHERE id = $1', [id]);
-    if (result.rows.length === 0) return res.status(404).json({ error: `Booking ${id} not found.` });
+    if (result.rows.length === 0) return res.status(404).error(`Booking ${id} not found.`);
     return res.json({ success: true, booking: result.rows[0] });
   } catch (err) {
     console.error('❌ GET /api/bookings/:id error:', err);
