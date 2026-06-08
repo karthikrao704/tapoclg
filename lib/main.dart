@@ -2,6 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:clerk_flutter/clerk_flutter.dart';
 import 'package:tapovana_mobile_app/core/app_initializer.dart';
 import 'package:tapovana_mobile_app/core/storage/secure_storage.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
@@ -41,11 +43,11 @@ class MyApp extends StatefulWidget {
   final SecureStorage secureStorage;
 
   const MyApp({
-    super.key,
+    key,
     required this.firebaseAuthRepo,
     required this.apiAuthRepo,
     required this.secureStorage,
-  });
+  }) : super(key: key);
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -74,32 +76,54 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider.value(value: _authCubit),
-        BlocProvider(create: (context) => ProfileBloc()..add(LoadProfile())),
-        BlocProvider(create: (context) => ThemeCubit()),
-      ],
-      child: BlocBuilder<ThemeCubit, ThemeMode>(
-        builder: (context, themeMode) {
-          final isDark = themeMode == ThemeMode.dark;
-          return MaterialApp.router(
-            title: 'Tapovana',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.getLightTheme(context),
-            darkTheme: AppTheme.getDarkTheme(context),
-            themeMode: themeMode,
-            builder: (context, child) {
-              return Theme(
-                data: isDark
-                    ? AppTheme.getDarkTheme(context)
-                    : AppTheme.getLightTheme(context),
-                child: child!,
-              );
-            },
-            routerConfig: _router,
-          );
-        },
+    final publishableKey = dotenv.env['CLERK_PUBLISHABLE_KEY'] ?? 'pk_test_dW5pdGVkLW11bGxldC05My5jbGVyay5hY2NvdW50cy5kZXYk';
+
+    return ClerkAuth(
+      config: ClerkAuthConfig(publishableKey: publishableKey),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: _authCubit),
+          BlocProvider(create: (context) => ProfileBloc()..add(LoadProfile())),
+          BlocProvider(create: (context) => ThemeCubit()),
+        ],
+        child: BlocBuilder<ThemeCubit, ThemeMode>(
+          builder: (context, themeMode) {
+            final isDark = themeMode == ThemeMode.dark;
+            return MaterialApp.router(
+              title: 'Tapovana',
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.getLightTheme(context),
+              darkTheme: AppTheme.getDarkTheme(context),
+              themeMode: themeMode,
+              builder: (context, child) {
+                return Theme(
+                  data: isDark
+                      ? AppTheme.getDarkTheme(context)
+                      : AppTheme.getLightTheme(context),
+                  child: ClerkAuthBuilder(
+                    signedInBuilder: (context, authState) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _authCubit.syncClerkSession(authState);
+                      });
+                      return child!;
+                    },
+                    signedOutBuilder: (context, authState) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _authCubit.handleClerkSignOut();
+                      });
+                      return const Scaffold(
+                        body: SafeArea(
+                          child: ClerkAuthentication(),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+              routerConfig: _router,
+            );
+          },
+        ),
       ),
     );
   }
