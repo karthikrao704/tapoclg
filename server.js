@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const https = require('https');
 require('dotenv').config();
 
 const app = express();
@@ -62,6 +63,53 @@ async function sendOtpEmail(email, otp, purpose) {
     </div>
   `;
 
+  // 1. Try Resend HTTP API (Recommended for Render Free Tier)
+  if (process.env.RESEND_API_KEY) {
+    return new Promise((resolve, reject) => {
+      const data = JSON.stringify({
+        from: 'onboarding@resend.dev',
+        to: email,
+        subject: subject,
+        html: html,
+      });
+
+      const options = {
+        hostname: 'api.resend.com',
+        port: 443,
+        path: '/emails',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+          'Content-Length': Buffer.byteLength(data),
+        },
+      };
+
+      const req = https.request(options, (res) => {
+        let responseBody = '';
+        res.on('data', (chunk) => { responseBody += chunk; });
+        res.on('end', () => {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            console.log(`📧 OTP sent via Resend API to ${email}`);
+            resolve();
+          } else {
+            console.error('❌ Resend API Error Response:', responseBody);
+            reject(new Error(`Resend API returned status ${res.statusCode}`));
+          }
+        });
+      });
+
+      req.on('error', (err) => {
+        console.error('❌ Resend HTTP request error:', err);
+        reject(err);
+      });
+
+      req.write(data);
+      req.end();
+    });
+  }
+
+  // 2. Try Nodemailer SMTP (Gmail / Brevo)
   if (transporter && emailSender) {
     await transporter.sendMail({
       from: `"Tapovana Wellness" <${emailSender}>`,
