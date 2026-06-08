@@ -577,7 +577,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
           children: [
             if (_errorMessage.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.bottom(12.0),
+                padding: const EdgeInsets.only(bottom: 12.0),
                 child: Text(
                   _errorMessage,
                   style: const TextStyle(color: Colors.redAccent, fontSize: 13),
