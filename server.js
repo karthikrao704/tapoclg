@@ -7,10 +7,29 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const https = require('https');
 const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadsDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname) || '.jpg';
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+  }
+});
+
 const upload = multer({
-  storage: multer.memoryStorage(),
+  storage: storage,
   limits: { fileSize: 5 * 1024 * 1024 }
 });
 
@@ -22,6 +41,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'tapovana_fallback_secret';
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
+app.use('/uploads', express.static(uploadsDir));
 
 // ─── PostgreSQL Pool ──────────────────────────────────────────────────────────
 const pool = new Pool({
@@ -59,7 +79,9 @@ if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
 
 // ─── Send OTP helper ──────────────────────────────────────────────────────────
 async function sendOtpEmail(email, otp, purpose) {
-  const subject = purpose === 'signup' ? 'Tapovana — Verify your email' : 'Tapovana — Login OTP';
+  const subject = purpose === 'signup'
+    ? 'Tapovana — Verify your email'
+    : (purpose === 'reset_password' ? 'Tapovana — Reset your password' : 'Tapovana — Login OTP');
   const html = `
     <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px;border:1px solid #e2e8f0;border-radius:12px">
       <h2 style="color:#58B814">Tapovana Wellness</h2>
@@ -309,6 +331,90 @@ app.post('/api/auth/signup/verify-otp', async (req, res) => {
     return res.json({ success: true, message: 'OTP verified.' });
   } catch (err) {
     console.error('❌ verify-otp error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//   AUTH — FORGOT PASSWORD: SEND OTP
+//   Body: { email }
+// ═══════════════════════════════════════════════════════════════════════════════
+app.post('/api/auth/forgot-password/send-otp', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ success: false, message: 'Email is required.' });
+
+  try {
+    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'No account found with this email.' });
+    }
+
+    const otp = generateOtp();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+
+    await pool.query(
+      'INSERT INTO otp_codes (email, otp, purpose, expires_at) VALUES ($1, $2, $3, $4)',
+      [email, otp, 'reset_password', expiresAt]
+    );
+
+    await sendOtpEmail(email, otp, 'reset_password');
+
+    return res.json({ success: true, message: 'Reset OTP sent to your email.' });
+  } catch (err) {
+    console.error('❌ forgot-password/send-otp error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//   AUTH — FORGOT PASSWORD: VERIFY OTP
+//   Body: { email, otp }
+// ═══════════════════════════════════════════════════════════════════════════════
+app.post('/api/auth/forgot-password/verify-otp', async (req, res) => {
+  const { email, otp } = req.body;
+  if (!email || !otp) return res.status(400).json({ success: false, message: 'Email and OTP are required.' });
+
+  try {
+    const result = await pool.query(
+      `SELECT * FROM otp_codes
+       WHERE email = $1 AND otp = $2 AND purpose = 'reset_password'
+         AND used = false AND expires_at > NOW()
+       ORDER BY created_at DESC LIMIT 1`,
+      [email, otp]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired OTP.' });
+    }
+
+    await pool.query('UPDATE otp_codes SET used = true WHERE id = $1', [result.rows[0].id]);
+    return res.json({ success: true, message: 'OTP verified.' });
+  } catch (err) {
+    console.error('❌ forgot-password/verify-otp error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//   AUTH — FORGOT PASSWORD: RESET PASSWORD
+//   Body: { email, new_password }
+// ═══════════════════════════════════════════════════════════════════════════════
+app.post('/api/auth/forgot-password/reset', async (req, res) => {
+  const { email, new_password } = req.body;
+  if (!email || !new_password) return res.status(400).json({ success: false, message: 'Email and new password are required.' });
+
+  try {
+    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    const passwordHash = await bcrypt.hash(new_password, 10);
+    await pool.query('UPDATE users SET password_hash = $1 WHERE email = $2', [passwordHash, email]);
+
+    return res.json({ success: true, message: 'Password reset successful.' });
+  } catch (err) {
+    console.error('❌ forgot-password/reset error:', err);
     return res.status(500).json({ success: false, message: 'Server error.' });
   }
 });
@@ -568,9 +674,7 @@ app.patch('/api/details/:userId/profile-photo', upload.single('profile_photo'), 
       return res.status(400).json({ success: false, message: 'No file uploaded.' });
     }
 
-    const base64Data = req.file.buffer.toString('base64');
-    const mimeType = req.file.mimetype || 'image/jpeg';
-    const profile_photo_url = `data:${mimeType};base64,${base64Data}`;
+    const profile_photo_url = `/uploads/${req.file.filename}`;
 
     const result = await pool.query(
       'UPDATE users SET profile_photo_url = $1 WHERE id = $2 RETURNING profile_photo_url',
