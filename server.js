@@ -339,7 +339,7 @@ app.post('/api/auth/signup/verify-otp', async (req, res) => {
 //   AUTH — FORGOT PASSWORD: SEND OTP
 //   Body: { email }
 // ═══════════════════════════════════════════════════════════════════════════════
-app.post('/api/auth/forgot-password/send-otp', async (req, res) => {
+app.post('/api/auth/signup/forgot-password/send-otp', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ success: false, message: 'Email is required.' });
 
@@ -370,7 +370,7 @@ app.post('/api/auth/forgot-password/send-otp', async (req, res) => {
 //   AUTH — FORGOT PASSWORD: VERIFY OTP
 //   Body: { email, otp }
 // ═══════════════════════════════════════════════════════════════════════════════
-app.post('/api/auth/forgot-password/verify-otp', async (req, res) => {
+app.post('/api/auth/signup/forgot-password/verify-otp', async (req, res) => {
   const { email, otp } = req.body;
   if (!email || !otp) return res.status(400).json({ success: false, message: 'Email and OTP are required.' });
 
@@ -399,7 +399,7 @@ app.post('/api/auth/forgot-password/verify-otp', async (req, res) => {
 //   AUTH — FORGOT PASSWORD: RESET PASSWORD
 //   Body: { email, new_password }
 // ═══════════════════════════════════════════════════════════════════════════════
-app.post('/api/auth/forgot-password/reset', async (req, res) => {
+app.post('/api/auth/signup/forgot-password/reset', async (req, res) => {
   const { email, new_password } = req.body;
   if (!email || !new_password) return res.status(400).json({ success: false, message: 'Email and new password are required.' });
 
