@@ -10,6 +10,12 @@ class MediaHelper {
   /// Resolves any relative URL (starting with `/uploads/` or `/`) to the production backend host.
   static String resolveMediaUrl(String? url) {
     if (url == null || url.isEmpty) return '';
+
+    // Convert http:// to https:// to prevent Android/iOS cleartext traffic blocks
+    if (url.startsWith('http://')) {
+      url = url.replaceFirst('http://', 'https://');
+    }
+
     if (url.startsWith('/uploads/') || url.startsWith('/')) {
       final backendUrl = ApiConfig.authProfileBackendUrl;
       final prefix = url.startsWith('/') ? '' : '/';
