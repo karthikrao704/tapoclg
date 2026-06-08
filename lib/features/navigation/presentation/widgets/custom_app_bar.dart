@@ -5,6 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tapovana_mobile_app/core/theme/theme_cubit.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import '../../../../core/storage/local_database.dart';
+import 'package:tapovana_mobile_app/core/widgets/media_helper.dart';
+import 'package:tapovana_mobile_app/features/profile/bloc/profile/profile_bloc.dart';
+import 'package:tapovana_mobile_app/features/profile/bloc/profile/profile_state.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String greetingMessage;
@@ -45,26 +48,23 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.primaryColor.withAlpha(50), width: 1.5),
             ),
-            child: FutureBuilder<String?>(
-              future: LocalDatabase.getProfilePhotoUrl(),
-              builder: (context, snapshot) {
-                final photoUrl = snapshot.data;
+            child: BlocBuilder<ProfileBloc, ProfileState>(
+              builder: (context, state) {
+                final photoUrl = state.profilePhotoUrl;
 
                 if (photoUrl != null && photoUrl.isNotEmpty) {
                   return ClipOval(
-                    child: Image.network(
+                    child: MediaHelper.buildServiceImage(
                       photoUrl,
                       fit: BoxFit.fill,
                       width: 40,
                       height: 40,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Image.asset(
-                          'assets/images/profile.png',
-                          fit: BoxFit.fill,
-                          width: 50,
-                          height: 50,
-                        );
-                      },
+                      fallbackWidget: Image.asset(
+                        'assets/images/profile.png',
+                        fit: BoxFit.fill,
+                        width: 50,
+                        height: 50,
+                      ),
                     ),
                   );
                 }
