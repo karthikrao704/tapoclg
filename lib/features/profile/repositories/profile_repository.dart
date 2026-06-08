@@ -4,11 +4,9 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart'; 
 import '../../../../core/storage/local_database.dart';
 import '../../../../core/config/api_config.dart';
-import '../../../../core/storage/secure_storage.dart';
 
 class ProfileRepository {
-  String get _baseUrl => '${ApiConfig.backendUrl}/api/details';
-  final SecureStorage _secureStorage = SecureStorage();
+  String get _baseUrl => '${ApiConfig.authProfileBackendUrl}/api/details';
 
   // ─── Helper: resolve userId from local DB ────────────────────────────────
 
@@ -25,15 +23,8 @@ class ProfileRepository {
   Future<UserProfile> getUserDetails() async {
     final userId = await _getLocalUserId();
     final uri = Uri.parse('$_baseUrl/$userId');
-    final token = await _secureStorage.getToken();
 
-    final response = await http.get(
-      uri,
-      headers: {
-        "Content-Type": "application/json",
-        if (token != null) "Authorization": "Bearer $token",
-      },
-    );
+    final response = await http.get(uri);
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -80,10 +71,6 @@ class ProfileRepository {
     }
 
     final request = http.MultipartRequest('PATCH', uri);
-    final token = await _secureStorage.getToken();
-    if (token != null) {
-      request.headers['Authorization'] = 'Bearer $token';
-    }
     request.files.add(
       await http.MultipartFile.fromPath(
         'profile_photo',
@@ -124,15 +111,8 @@ class ProfileRepository {
   Future<void> deleteProfilePhoto() async {
     final userId = await _getLocalUserId();
     final uri = Uri.parse('$_baseUrl/$userId/profile-photo');
-    final token = await _secureStorage.getToken();
 
-    final response = await http.delete(
-      uri,
-      headers: {
-        "Content-Type": "application/json",
-        if (token != null) "Authorization": "Bearer $token",
-      },
-    );
+    final response = await http.delete(uri);
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body) as Map<String, dynamic>;

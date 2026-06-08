@@ -5,7 +5,7 @@ import 'package:tapovana_mobile_app/core/storage/secure_storage.dart';
 import '../../../core/config/api_config.dart';
 
 class AuthApiRepository {
-  String get baseUrl => ApiConfig.backendUrl;
+  String get baseUrl => ApiConfig.authProfileBackendUrl;
   final SecureStorage _secureStorage = SecureStorage();
 
   // ═══════════════════════════════════════

@@ -3,12 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import '../../../../core/storage/local_database.dart';
 import '../../../../core/config/api_config.dart';
-import '../../../../core/storage/secure_storage.dart';
 import 'privacy_security_event.dart';
 import 'privacy_security_state.dart';
 
 class PrivacySecurityBloc extends Bloc<PrivacySecurityEvent, PrivacySecurityState> {
-  String get _baseUrl => ApiConfig.backendUrl;
+  String get _baseUrl => ApiConfig.authProfileBackendUrl;
 
   PrivacySecurityBloc() : super(const PrivacySecurityState()) {
     on<LoadPrivacySettings>(_onLoadPrivacySettings);
@@ -30,15 +29,8 @@ class PrivacySecurityBloc extends Bloc<PrivacySecurityEvent, PrivacySecurityStat
         return;
       }
 
-      final secureStorage = SecureStorage();
-      final token = await secureStorage.getToken();
-
       final response = await http.get(
         Uri.parse('$_baseUrl/api/auth/two-step/status/$userId'),
-        headers: {
-          'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
-        },
       );
       
       if (response.statusCode == 200) {
@@ -78,15 +70,9 @@ class PrivacySecurityBloc extends Bloc<PrivacySecurityEvent, PrivacySecurityStat
         return;
       }
 
-      final secureStorage = SecureStorage();
-      final token = await secureStorage.getToken();
-
       final response = await http.post(
         Uri.parse('$_baseUrl/api/auth/two-step/toggle'),
-        headers: {
-          'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'id': userId,
           'enabled': event.twoFactorAuth,

@@ -3,12 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import '../../../../core/storage/local_database.dart';
 import '../../../../core/config/api_config.dart';
-import '../../../../core/storage/secure_storage.dart';
 import 'personal_info_event.dart';
 import 'personal_info_state.dart';
 
 class PersonalInfoBloc extends Bloc<PersonalInfoEvent, PersonalInfoState> {
-  String get _baseUrl => ApiConfig.backendUrl;
+  String get _baseUrl => ApiConfig.authProfileBackendUrl;
 
   PersonalInfoBloc() : super(const PersonalInfoState()) {
     on<LoadPersonalInfo>(_onLoadPersonalInfo);
@@ -29,15 +28,8 @@ class PersonalInfoBloc extends Bloc<PersonalInfoEvent, PersonalInfoState> {
         return;
       }
 
-      final secureStorage = SecureStorage();
-      final token = await secureStorage.getToken();
-
       final response = await http.get(
         Uri.parse('$_baseUrl/api/details/$userId'),
-        headers: {
-          'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
-        },
       );
 
       if (response.statusCode == 200) {
@@ -144,15 +136,9 @@ class PersonalInfoBloc extends Bloc<PersonalInfoEvent, PersonalInfoState> {
         return;
       }
 
-      final secureStorage = SecureStorage();
-      final token = await secureStorage.getToken();
-
       final response = await http.patch(
         Uri.parse('$_baseUrl/api/details/$userId'),
-        headers: {
-          'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode(body),
       );
 
