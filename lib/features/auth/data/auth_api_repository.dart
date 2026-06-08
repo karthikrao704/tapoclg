@@ -216,4 +216,38 @@ class AuthApiRepository {
 
     return data;
   }
+
+  // ═══════════════════════════════════════
+  //   FORGOT PASSWORD
+  // ═══════════════════════════════════════
+
+  Future<Map<String, dynamic>> sendForgotPasswordOtp({required String email}) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/auth/forgot-password/send-otp'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"email": email}),
+    );
+    debugPrint("FORGOT PASSWORD SEND OTP: ${response.body}");
+    return jsonDecode(response.body);
+  }
+
+  Future<Map<String, dynamic>> verifyForgotPasswordOtp({required String email, required String otp}) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/auth/forgot-password/verify-otp'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"email": email, "otp": otp}),
+    );
+    debugPrint("FORGOT PASSWORD VERIFY OTP: ${response.body}");
+    return jsonDecode(response.body);
+  }
+
+  Future<Map<String, dynamic>> resetPassword({required String email, required String newPassword}) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/auth/forgot-password/reset'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"email": email, "new_password": newPassword}),
+    );
+    debugPrint("FORGOT PASSWORD RESET: ${response.body}");
+    return jsonDecode(response.body);
+  }
 }

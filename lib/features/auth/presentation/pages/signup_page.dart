@@ -225,22 +225,7 @@ class _SignupPageState extends State<SignupPage> {
                           ),
                         ),
 
-                        SizedBox(height: isSmallScreen ? 4 : 8),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: () {},
-                            child: Text(
-                              "Forgot Password?",
-                              style: TextStyle(
-                                color: const Color(0xFF6B6B6B),
-                                fontSize: isSmallScreen ? 11 : 13,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        SizedBox(height: isSmallScreen ? 5 : 10),
+                        SizedBox(height: isSmallScreen ? 10 : 15),
 
                         // Get OTP Button
                         BlocBuilder<SignupBloc, SignupState>(
