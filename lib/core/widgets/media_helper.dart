@@ -8,16 +8,10 @@ class MediaHelper {
   MediaHelper._();
 
   /// Resolves any relative URL (starting with `/uploads/` or `/`) to the production backend host.
-  static String resolveMediaUrl(String? url) {
+  static String resolveMediaUrl(String? url, {bool isProfile = false}) {
     if (url == null || url.isEmpty) return '';
-
-    // Convert http:// to https:// to prevent Android/iOS cleartext traffic blocks
-    if (url.startsWith('http://')) {
-      url = url.replaceFirst('http://', 'https://');
-    }
-
     if (url.startsWith('/uploads/') || url.startsWith('/')) {
-      final backendUrl = ApiConfig.authProfileBackendUrl;
+      final backendUrl = isProfile ? ApiConfig.authProfileBackendUrl : "https://tapovana.onrender.com";
       final prefix = url.startsWith('/') ? '' : '/';
       return "$backendUrl$prefix$url";
     }
@@ -31,6 +25,7 @@ class MediaHelper {
     double? width,
     double? height,
     Widget? fallbackWidget,
+    bool isProfile = false,
   }) {
     final fallback = fallbackWidget ?? Image.network(
       'https://placehold.co/600x400?text=No+Image',
@@ -68,7 +63,7 @@ class MediaHelper {
     }
 
     // Scenario B: It's a local file path or standard URL
-    final resolvedUrl = resolveMediaUrl(url);
+    final resolvedUrl = resolveMediaUrl(url, isProfile: isProfile);
     return Image.network(
       resolvedUrl,
       fit: fit,

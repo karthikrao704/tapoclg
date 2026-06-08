@@ -265,6 +265,7 @@ class ProfileView extends StatelessWidget {
                   child: ClipOval(
                     child: MediaHelper.buildServiceImage(
                       state.profilePhotoUrl,
+                      isProfile: true,
                       fit: BoxFit.cover,
                       fallbackWidget: Image.asset(
                         state.avatar,
@@ -1101,7 +1102,6 @@ class ProfileView extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              context.read<ProfileBloc>().add(Logout());
               context.read<AuthCubit>().signOut();
               Navigator.of(context).pop();
             },
