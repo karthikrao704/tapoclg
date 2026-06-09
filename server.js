@@ -92,68 +92,76 @@ async function sendOtpEmail(email, otp, purpose) {
     </div>
   `;
 
-  // 1. Try Resend HTTP API (Recommended for Render Free Tier)
-  if (process.env.RESEND_API_KEY) {
+  // ── Helper: make an HTTPS POST request (works on Render — port 443 is never blocked)
+  function httpsPost(hostname, path, headers, body) {
     return new Promise((resolve, reject) => {
-      const data = JSON.stringify({
-        from: 'onboarding@resend.dev',
-        to: email,
-        subject: subject,
-        html: html,
-      });
-
-      const options = {
-        hostname: 'api.resend.com',
-        port: 443,
-        path: '/emails',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-          'Content-Length': Buffer.byteLength(data),
-        },
-      };
-
-      const req = https.request(options, (res) => {
-        let responseBody = '';
-        res.on('data', (chunk) => { responseBody += chunk; });
-        res.on('end', () => {
-          if (res.statusCode >= 200 && res.statusCode < 300) {
-            console.log(`📧 OTP sent via Resend API to ${email}`);
-            resolve();
-          } else {
-            console.error('❌ Resend API Error Response:', responseBody);
-            reject(new Error(`Resend API returned status ${res.statusCode}`));
-          }
-        });
-      });
-
-      req.on('error', (err) => {
-        console.error('❌ Resend HTTP request error:', err);
-        reject(err);
-      });
-
+      const data = JSON.stringify(body);
+      const req = https.request(
+        { hostname, port: 443, path, method: 'POST', headers: { ...headers, 'Content-Length': Buffer.byteLength(data) } },
+        (res) => {
+          let buf = '';
+          res.on('data', (c) => { buf += c; });
+          res.on('end', () => {
+            if (res.statusCode >= 200 && res.statusCode < 300) resolve(buf);
+            else reject(new Error(`HTTP ${res.statusCode}: ${buf}`));
+          });
+        }
+      );
+      req.on('error', reject);
       req.write(data);
       req.end();
     });
   }
 
-  // 2. Try Nodemailer SMTP (Gmail / Brevo)
-  if (transporter && emailSender) {
-    await transporter.sendMail({
-      from: `"Tapovana Wellness" <${emailSender}>`,
-      to: email,
-      subject,
-      html,
-    });
-    console.log(`📧 OTP sent to ${email}`);
-  } else {
-    // Fallback: log to console (visible in Render logs)
-    console.log(`\n🔐 ===== OTP FOR ${email} =====`);
-    console.log(`   OTP: ${otp}`);
-    console.log(`   Purpose: ${purpose}`);
-    console.log(`================================\n`);
+  // 1. Resend HTTP API — best for Render free tier (port 443, 3 000 emails/month free)
+  if (process.env.RESEND_API_KEY) {
+    try {
+      await httpsPost('api.resend.com', '/emails',
+        { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.RESEND_API_KEY}` },
+        { from: 'onboarding@resend.dev', to: email, subject, html }
+      );
+      console.log(`📧 OTP sent via Resend to ${email}`);
+      return;
+    } catch (err) {
+      console.error('❌ Resend failed, trying next provider:', err.message);
+    }
   }
+
+  // 2. Brevo HTTP API — also port 443, free 300 emails/day
+  if (process.env.BREVO_API_KEY) {
+    try {
+      await httpsPost('api.brevo.com', '/v3/smtp/email',
+        { 'Content-Type': 'application/json', 'api-key': process.env.BREVO_API_KEY },
+        { sender: { name: 'Tapovana Wellness', email: process.env.BREVO_EMAIL || 'no-reply@tapovana.com' },
+          to: [{ email }], subject, htmlContent: html }
+      );
+      console.log(`📧 OTP sent via Brevo to ${email}`);
+      return;
+    } catch (err) {
+      console.error('❌ Brevo failed, trying next provider:', err.message);
+    }
+  }
+
+  // 3. Nodemailer SMTP — may be blocked on Render free tier (ports 465/587)
+  if (transporter && emailSender) {
+    try {
+      await transporter.sendMail({
+        from: `"Tapovana Wellness" <${emailSender}>`,
+        to: email, subject, html,
+      });
+      console.log(`📧 OTP sent via SMTP to ${email}`);
+      return;
+    } catch (err) {
+      console.error('❌ SMTP failed (likely blocked by Render free tier):', err.message);
+    }
+  }
+
+  // 4. Fallback — log OTP to Render console (visible in Logs tab)
+  console.log(`\n🔐 ===== OTP FOR ${email} =====`);
+  console.log(`   OTP  : ${otp}`);
+  console.log(`   Purpose: ${purpose}`);
+  console.log(`   ⚠️  No email provider worked — check Render Logs for OTP`);
+  console.log(`================================\n`);
 }
 
 // ─── Generate 6-digit OTP ─────────────────────────────────────────────────────
