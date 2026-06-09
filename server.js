@@ -345,11 +345,7 @@ app.post('/api/auth/signup/forgot-password/send-otp', async (req, res) => {
   if (!email) return res.status(400).json({ success: false, message: 'Email is required.' });
 
   try {
-    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
-    if (existing.rows.length === 0) {
-      return res.status(404).json({ success: false, message: 'No account found with this email.' });
-    }
-
+    // No user-exists check — works for users registered on any backend (Rosette, etc.)
     const otp = generateOtp();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
 
@@ -405,13 +401,20 @@ app.post('/api/auth/signup/forgot-password/reset', async (req, res) => {
   if (!email || !new_password) return res.status(400).json({ success: false, message: 'Email and new password are required.' });
 
   try {
-    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
-    if (existing.rows.length === 0) {
-      return res.status(404).json({ success: false, message: 'User not found.' });
-    }
-
     const passwordHash = await bcrypt.hash(new_password, 10);
-    await pool.query('UPDATE users SET password_hash = $1 WHERE email = $2', [passwordHash, email]);
+
+    // UPSERT: if user exists in our DB, update their password.
+    // If not (e.g. they registered via Rosette), create them so they can login here.
+    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+    if (existing.rows.length > 0) {
+      await pool.query('UPDATE users SET password_hash = $1, provider = $2 WHERE email = $3',
+        [passwordHash, 'email', email]);
+    } else {
+      await pool.query(
+        `INSERT INTO users (email, password_hash, provider) VALUES ($1, $2, $3)`,
+        [email, passwordHash, 'email']
+      );
+    }
 
     return res.json({ success: true, message: 'Password reset successful.' });
   } catch (err) {
