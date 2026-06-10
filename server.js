@@ -1,4 +1,3 @@
-// Tapovana Backend v2 — includes auth, forgot-password, profile, bookings
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
@@ -92,76 +91,68 @@ async function sendOtpEmail(email, otp, purpose) {
     </div>
   `;
 
-  // ── Helper: make an HTTPS POST request (works on Render — port 443 is never blocked)
-  function httpsPost(hostname, path, headers, body) {
+  // 1. Try Resend HTTP API (Recommended for Render Free Tier)
+  if (process.env.RESEND_API_KEY) {
     return new Promise((resolve, reject) => {
-      const data = JSON.stringify(body);
-      const req = https.request(
-        { hostname, port: 443, path, method: 'POST', headers: { ...headers, 'Content-Length': Buffer.byteLength(data) } },
-        (res) => {
-          let buf = '';
-          res.on('data', (c) => { buf += c; });
-          res.on('end', () => {
-            if (res.statusCode >= 200 && res.statusCode < 300) resolve(buf);
-            else reject(new Error(`HTTP ${res.statusCode}: ${buf}`));
-          });
-        }
-      );
-      req.on('error', reject);
+      const data = JSON.stringify({
+        from: 'onboarding@resend.dev',
+        to: email,
+        subject: subject,
+        html: html,
+      });
+
+      const options = {
+        hostname: 'api.resend.com',
+        port: 443,
+        path: '/emails',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+          'Content-Length': Buffer.byteLength(data),
+        },
+      };
+
+      const req = https.request(options, (res) => {
+        let responseBody = '';
+        res.on('data', (chunk) => { responseBody += chunk; });
+        res.on('end', () => {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            console.log(`📧 OTP sent via Resend API to ${email}`);
+            resolve();
+          } else {
+            console.error('❌ Resend API Error Response:', responseBody);
+            reject(new Error(`Resend API returned status ${res.statusCode}`));
+          }
+        });
+      });
+
+      req.on('error', (err) => {
+        console.error('❌ Resend HTTP request error:', err);
+        reject(err);
+      });
+
       req.write(data);
       req.end();
     });
   }
 
-  // 1. Resend HTTP API — best for Render free tier (port 443, 3 000 emails/month free)
-  if (process.env.RESEND_API_KEY) {
-    try {
-      await httpsPost('api.resend.com', '/emails',
-        { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.RESEND_API_KEY}` },
-        { from: 'onboarding@resend.dev', to: email, subject, html }
-      );
-      console.log(`📧 OTP sent via Resend to ${email}`);
-      return;
-    } catch (err) {
-      console.error('❌ Resend failed, trying next provider:', err.message);
-    }
-  }
-
-  // 2. Brevo HTTP API — also port 443, free 300 emails/day
-  if (process.env.BREVO_API_KEY) {
-    try {
-      await httpsPost('api.brevo.com', '/v3/smtp/email',
-        { 'Content-Type': 'application/json', 'api-key': process.env.BREVO_API_KEY },
-        { sender: { name: 'Tapovana Wellness', email: process.env.BREVO_EMAIL || 'no-reply@tapovana.com' },
-          to: [{ email }], subject, htmlContent: html }
-      );
-      console.log(`📧 OTP sent via Brevo to ${email}`);
-      return;
-    } catch (err) {
-      console.error('❌ Brevo failed, trying next provider:', err.message);
-    }
-  }
-
-  // 3. Nodemailer SMTP — may be blocked on Render free tier (ports 465/587)
+  // 2. Try Nodemailer SMTP (Gmail / Brevo)
   if (transporter && emailSender) {
-    try {
-      await transporter.sendMail({
-        from: `"Tapovana Wellness" <${emailSender}>`,
-        to: email, subject, html,
-      });
-      console.log(`📧 OTP sent via SMTP to ${email}`);
-      return;
-    } catch (err) {
-      console.error('❌ SMTP failed (likely blocked by Render free tier):', err.message);
-    }
+    await transporter.sendMail({
+      from: `"Tapovana Wellness" <${emailSender}>`,
+      to: email,
+      subject,
+      html,
+    });
+    console.log(`📧 OTP sent to ${email}`);
+  } else {
+    // Fallback: log to console (visible in Render logs)
+    console.log(`\n🔐 ===== OTP FOR ${email} =====`);
+    console.log(`   OTP: ${otp}`);
+    console.log(`   Purpose: ${purpose}`);
+    console.log(`================================\n`);
   }
-
-  // 4. Fallback — log OTP to Render console (visible in Logs tab)
-  console.log(`\n🔐 ===== OTP FOR ${email} =====`);
-  console.log(`   OTP  : ${otp}`);
-  console.log(`   Purpose: ${purpose}`);
-  console.log(`   ⚠️  No email provider worked — check Render Logs for OTP`);
-  console.log(`================================\n`);
 }
 
 // ─── Generate 6-digit OTP ─────────────────────────────────────────────────────
@@ -237,6 +228,17 @@ async function initDatabase() {
         purpose VARCHAR(20) NOT NULL,
         expires_at TIMESTAMP NOT NULL,
         used BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // User memberships table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS user_memberships (
+        user_id INT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+        membership_name VARCHAR(255) NOT NULL DEFAULT 'FREE',
+        purchase_date DATE,
+        available_credits INT NOT NULL DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
@@ -353,7 +355,11 @@ app.post('/api/auth/signup/forgot-password/send-otp', async (req, res) => {
   if (!email) return res.status(400).json({ success: false, message: 'Email is required.' });
 
   try {
-    // No user-exists check — works for users registered on any backend (Rosette, etc.)
+    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'No account found with this email.' });
+    }
+
     const otp = generateOtp();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
 
@@ -409,20 +415,13 @@ app.post('/api/auth/signup/forgot-password/reset', async (req, res) => {
   if (!email || !new_password) return res.status(400).json({ success: false, message: 'Email and new password are required.' });
 
   try {
-    const passwordHash = await bcrypt.hash(new_password, 10);
-
-    // UPSERT: if user exists in our DB, update their password.
-    // If not (e.g. they registered via Rosette), create them so they can login here.
     const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
-    if (existing.rows.length > 0) {
-      await pool.query('UPDATE users SET password_hash = $1, provider = $2 WHERE email = $3',
-        [passwordHash, 'email', email]);
-    } else {
-      await pool.query(
-        `INSERT INTO users (email, password_hash, provider) VALUES ($1, $2, $3)`,
-        [email, passwordHash, 'email']
-      );
+    if (existing.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
     }
+
+    const passwordHash = await bcrypt.hash(new_password, 10);
+    await pool.query('UPDATE users SET password_hash = $1 WHERE email = $2', [passwordHash, email]);
 
     return res.json({ success: true, message: 'Password reset successful.' });
   } catch (err) {
@@ -779,7 +778,6 @@ app.get('/api/bookings', async (req, res) => {
 // ═══════════════════════════════════════════════════════════════════════════════
 //   BOOKINGS — GET SINGLE
 // ═══════════════════════════════════════════════════════════════════════════════
-
 app.get('/api/bookings/:id', async (req, res) => {
   const { id } = req.params;
   try {
@@ -789,6 +787,122 @@ app.get('/api/bookings/:id', async (req, res) => {
   } catch (err) {
     console.error('❌ GET /api/bookings/:id error:', err);
     return res.status(500).json({ error: 'Database error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//   USER MEMBERSHIPS — GET
+// ═══════════════════════════════════════════════════════════════════════════════
+app.get('/api/membership', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT 
+        m.user_id,
+        m.membership_name, 
+        m.purchase_date, 
+        m.available_credits, 
+        u.name AS customer_name, 
+        u.profile_photo_url AS profile_pic,
+        u.email AS customer_email
+       FROM user_memberships m
+       JOIN users u ON m.user_id = u.id
+       ORDER BY m.created_at DESC`
+    );
+    return res.json({ success: true, count: result.rows.length, memberships: result.rows });
+  } catch (err) {
+    console.error('❌ GET /api/membership error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+app.get('/api/membership/:userId', async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const result = await pool.query(
+      `SELECT 
+        m.membership_name, 
+        m.purchase_date, 
+        m.available_credits, 
+        u.name AS customer_name, 
+        u.profile_photo_url AS profile_pic
+       FROM user_memberships m
+       JOIN users u ON m.user_id = u.id
+       WHERE m.user_id = $1`,
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      // Return default FREE membership if user exists
+      const userCheck = await pool.query('SELECT name, profile_photo_url FROM users WHERE id = $1', [userId]);
+      if (userCheck.rows.length === 0) {
+        return res.status(404).json({ success: false, message: 'User not found.' });
+      }
+      return res.json({
+        success: true,
+        membership: {
+          membership_name: 'FREE',
+          purchase_date: null,
+          available_credits: 0,
+          customer_name: userCheck.rows[0].name,
+          profile_pic: userCheck.rows[0].profile_photo_url
+        }
+      });
+    }
+
+    return res.json({ success: true, membership: result.rows[0] });
+  } catch (err) {
+    console.error('❌ GET /api/membership/:userId error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//   USER MEMBERSHIPS — POST (SAVE/UPDATE)
+// ═══════════════════════════════════════════════════════════════════════════════
+app.post('/api/membership/:userId', async (req, res) => {
+  const { userId } = req.params;
+  const { membership_name, purchase_date, available_credits } = req.body;
+
+  if (!membership_name) {
+    return res.status(400).json({ success: false, message: 'Membership name is required.' });
+  }
+
+  try {
+    // Check if user exists
+    const userCheck = await pool.query('SELECT name, profile_photo_url FROM users WHERE id = $1', [userId]);
+    if (userCheck.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    // Upsert membership details
+    const result = await pool.query(
+      `INSERT INTO user_memberships (user_id, membership_name, purchase_date, available_credits)
+       VALUES ($1, $2, COALESCE($3, NOW()), COALESCE($4, 0))
+       ON CONFLICT (user_id) DO UPDATE 
+       SET membership_name = EXCLUDED.membership_name,
+           purchase_date = EXCLUDED.purchase_date,
+           available_credits = EXCLUDED.available_credits
+       RETURNING *`,
+      [userId, membership_name, purchase_date || null, available_credits || 0]
+    );
+
+    // Keep the users table membership column in sync
+    await pool.query('UPDATE users SET membership = $1 WHERE id = $2', [membership_name, userId]);
+
+    return res.json({
+      success: true,
+      message: 'Membership saved successfully.',
+      membership: {
+        membership_name: result.rows[0].membership_name,
+        purchase_date: result.rows[0].purchase_date,
+        available_credits: result.rows[0].available_credits,
+        customer_name: userCheck.rows[0].name,
+        profile_pic: userCheck.rows[0].profile_photo_url
+      }
+    });
+  } catch (err) {
+    console.error('❌ POST /api/membership/:userId error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
   }
 });
 
