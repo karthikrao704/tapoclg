@@ -794,64 +794,61 @@ app.get('/api/bookings/:id', async (req, res) => {
 //   USER MEMBERSHIPS — GET
 // ═══════════════════════════════════════════════════════════════════════════════
 app.get('/api/membership', async (req, res) => {
+  const { userId } = req.query;
   try {
-    const result = await pool.query(
-      `SELECT 
-        m.user_id,
-        m.membership_name, 
-        m.purchase_date, 
-        m.available_credits, 
-        u.name AS customer_name, 
-        u.profile_photo_url AS profile_pic,
-        u.email AS customer_email
-       FROM user_memberships m
-       JOIN users u ON m.user_id = u.id
-       ORDER BY m.created_at DESC`
-    );
-    return res.json({ success: true, count: result.rows.length, memberships: result.rows });
+    if (userId) {
+      // Fetch details for a specific user
+      const result = await pool.query(
+        `SELECT 
+          m.membership_name, 
+          m.purchase_date, 
+          m.available_credits, 
+          u.name AS customer_name, 
+          u.profile_photo_url AS profile_pic
+         FROM user_memberships m
+         JOIN users u ON m.user_id = u.id
+         WHERE m.user_id = $1`,
+        [userId]
+      );
+
+      if (result.rows.length === 0) {
+        // Return default FREE membership if user exists
+        const userCheck = await pool.query('SELECT name, profile_photo_url FROM users WHERE id = $1', [userId]);
+        if (userCheck.rows.length === 0) {
+          return res.status(404).json({ success: false, message: 'User not found.' });
+        }
+        return res.json({
+          success: true,
+          membership: {
+            membership_name: 'FREE',
+            purchase_date: null,
+            available_credits: 0,
+            customer_name: userCheck.rows[0].name,
+            profile_pic: userCheck.rows[0].profile_photo_url
+          }
+        });
+      }
+
+      return res.json({ success: true, membership: result.rows[0] });
+    } else {
+      // Fetch all customer memberships
+      const result = await pool.query(
+        `SELECT 
+          m.user_id,
+          m.membership_name, 
+          m.purchase_date, 
+          m.available_credits, 
+          u.name AS customer_name, 
+          u.profile_photo_url AS profile_pic,
+          u.email AS customer_email
+         FROM user_memberships m
+         JOIN users u ON m.user_id = u.id
+         ORDER BY m.created_at DESC`
+      );
+      return res.json({ success: true, count: result.rows.length, memberships: result.rows });
+    }
   } catch (err) {
     console.error('❌ GET /api/membership error:', err);
-    return res.status(500).json({ success: false, message: 'Server error.' });
-  }
-});
-
-app.get('/api/membership/:userId', async (req, res) => {
-  const { userId } = req.params;
-  try {
-    const result = await pool.query(
-      `SELECT 
-        m.membership_name, 
-        m.purchase_date, 
-        m.available_credits, 
-        u.name AS customer_name, 
-        u.profile_photo_url AS profile_pic
-       FROM user_memberships m
-       JOIN users u ON m.user_id = u.id
-       WHERE m.user_id = $1`,
-      [userId]
-    );
-
-    if (result.rows.length === 0) {
-      // Return default FREE membership if user exists
-      const userCheck = await pool.query('SELECT name, profile_photo_url FROM users WHERE id = $1', [userId]);
-      if (userCheck.rows.length === 0) {
-        return res.status(404).json({ success: false, message: 'User not found.' });
-      }
-      return res.json({
-        success: true,
-        membership: {
-          membership_name: 'FREE',
-          purchase_date: null,
-          available_credits: 0,
-          customer_name: userCheck.rows[0].name,
-          profile_pic: userCheck.rows[0].profile_photo_url
-        }
-      });
-    }
-
-    return res.json({ success: true, membership: result.rows[0] });
-  } catch (err) {
-    console.error('❌ GET /api/membership/:userId error:', err);
     return res.status(500).json({ success: false, message: 'Server error.' });
   }
 });
@@ -859,10 +856,12 @@ app.get('/api/membership/:userId', async (req, res) => {
 // ═══════════════════════════════════════════════════════════════════════════════
 //   USER MEMBERSHIPS — POST (SAVE/UPDATE)
 // ═══════════════════════════════════════════════════════════════════════════════
-app.post('/api/membership/:userId', async (req, res) => {
-  const { userId } = req.params;
-  const { membership_name, purchase_date, available_credits } = req.body;
+app.post('/api/membership', async (req, res) => {
+  const { userId, membership_name, purchase_date, available_credits } = req.body;
 
+  if (!userId) {
+    return res.status(400).json({ success: false, message: 'User ID is required.' });
+  }
   if (!membership_name) {
     return res.status(400).json({ success: false, message: 'Membership name is required.' });
   }
@@ -901,7 +900,7 @@ app.post('/api/membership/:userId', async (req, res) => {
       }
     });
   } catch (err) {
-    console.error('❌ POST /api/membership/:userId error:', err);
+    console.error('❌ POST /api/membership error:', err);
     return res.status(500).json({ success: false, message: 'Server error.' });
   }
 });
