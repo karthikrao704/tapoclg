@@ -239,16 +239,8 @@ async function initDatabase() {
         membership_name VARCHAR(255) NOT NULL DEFAULT 'FREE',
         purchase_date DATE,
         available_credits INT NOT NULL DEFAULT 0,
-        customer_name VARCHAR(255),
-        profile_pic TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
-    `);
-
-    // Migrate user memberships if columns are missing
-    await client.query(`
-      ALTER TABLE user_memberships ADD COLUMN IF NOT EXISTS customer_name VARCHAR(255);
-      ALTER TABLE user_memberships ADD COLUMN IF NOT EXISTS profile_pic TEXT;
     `);
 
     console.log('✅ All tables are ready.');
@@ -808,13 +800,14 @@ app.get('/api/membership', async (req, res) => {
       // Fetch details for a specific user
       const result = await pool.query(
         `SELECT 
-          membership_name, 
-          purchase_date, 
-          available_credits, 
-          customer_name, 
-          profile_pic
-         FROM user_memberships
-         WHERE user_id = $1`,
+          m.membership_name, 
+          m.purchase_date, 
+          m.available_credits, 
+          u.name AS customer_name, 
+          u.profile_photo_url AS profile_pic
+         FROM user_memberships m
+         JOIN users u ON m.user_id = u.id
+         WHERE m.user_id = $1`,
         [userId]
       );
 
@@ -845,8 +838,8 @@ app.get('/api/membership', async (req, res) => {
           m.membership_name, 
           m.purchase_date, 
           m.available_credits, 
-          m.customer_name, 
-          m.profile_pic,
+          u.name AS customer_name, 
+          u.profile_photo_url AS profile_pic,
           u.email AS customer_email
          FROM user_memberships m
          JOIN users u ON m.user_id = u.id
@@ -864,10 +857,7 @@ app.get('/api/membership', async (req, res) => {
 //   USER MEMBERSHIPS — POST (SAVE/UPDATE)
 // ═══════════════════════════════════════════════════════════════════════════════
 app.post('/api/membership', async (req, res) => {
-  const { userId, membership_name, purchase_date, available_credits, customerName, userName, profilePic, profile_pic } = req.body;
-
-  const finalName = customerName || userName || null;
-  const finalPic = profilePic || profile_pic || null;
+  const { userId, membership_name, purchase_date, available_credits } = req.body;
 
   if (!userId) {
     return res.status(400).json({ success: false, message: 'User ID is required.' });
@@ -883,21 +873,16 @@ app.post('/api/membership', async (req, res) => {
       return res.status(404).json({ success: false, message: 'User not found.' });
     }
 
-    const nameToStore = finalName || userCheck.rows[0].name;
-    const picToStore = finalPic || userCheck.rows[0].profile_photo_url;
-
     // Upsert membership details
     const result = await pool.query(
-      `INSERT INTO user_memberships (user_id, membership_name, purchase_date, available_credits, customer_name, profile_pic)
-       VALUES ($1, $2, COALESCE($3, NOW()), COALESCE($4, 0), $5, $6)
+      `INSERT INTO user_memberships (user_id, membership_name, purchase_date, available_credits)
+       VALUES ($1, $2, COALESCE($3, NOW()), COALESCE($4, 0))
        ON CONFLICT (user_id) DO UPDATE 
        SET membership_name = EXCLUDED.membership_name,
            purchase_date = EXCLUDED.purchase_date,
-           available_credits = EXCLUDED.available_credits,
-           customer_name = COALESCE(EXCLUDED.customer_name, user_memberships.customer_name),
-           profile_pic = COALESCE(EXCLUDED.profile_pic, user_memberships.profile_pic)
+           available_credits = EXCLUDED.available_credits
        RETURNING *`,
-      [userId, membership_name, purchase_date || null, available_credits || 0, nameToStore, picToStore]
+      [userId, membership_name, purchase_date || null, available_credits || 0]
     );
 
     // Keep the users table membership column in sync
@@ -910,8 +895,8 @@ app.post('/api/membership', async (req, res) => {
         membership_name: result.rows[0].membership_name,
         purchase_date: result.rows[0].purchase_date,
         available_credits: result.rows[0].available_credits,
-        customer_name: result.rows[0].customer_name,
-        profile_pic: result.rows[0].profile_pic
+        customer_name: userCheck.rows[0].name,
+        profile_pic: userCheck.rows[0].profile_photo_url
       }
     });
   } catch (err) {
