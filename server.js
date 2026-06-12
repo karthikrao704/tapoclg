@@ -188,6 +188,11 @@ async function initDatabase() {
       );
     `);
 
+    // Auto-migrate service_bookings table
+    await client.query(`
+      ALTER TABLE service_bookings ADD COLUMN IF NOT EXISTS email VARCHAR(255);
+    `);
+
     // Users table
     await client.query(`
       CREATE TABLE IF NOT EXISTS users (
@@ -729,18 +734,18 @@ app.delete('/api/details/:userId/profile-photo', async (req, res) => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 app.post('/api/bookings', async (req, res) => {
-  const { userName, profilePic, serviceName, bookingDate, bookingTime, therapistName, note, totalAmount, passDetails } = req.body;
+  const { userName, email, profilePic, serviceName, bookingDate, bookingTime, note, totalAmount, passDetails } = req.body;
 
-  if (!userName || !serviceName || !bookingDate || !bookingTime || !therapistName || !totalAmount) {
+  if (!userName || !serviceName || !bookingDate || !bookingTime || !totalAmount) {
     return res.status(400).json({ error: 'Missing required fields.' });
   }
 
   try {
     const result = await pool.query(
-      `INSERT INTO service_bookings (user_name, profile_pic, service_name, booking_date, booking_time, therapist_name, note, total_amount, pass_details)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      `INSERT INTO service_bookings (user_name, email, profile_pic, service_name, booking_date, booking_time, therapist_name, note, total_amount, pass_details)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
        RETURNING id, created_at`,
-      [userName, profilePic || null, serviceName, bookingDate, bookingTime, therapistName, note || null, totalAmount, passDetails || null]
+      [userName, email || null, profilePic || null, serviceName, bookingDate, bookingTime, "Not Assigned", note || null, totalAmount, passDetails || null]
     );
 
     return res.status(201).json({
