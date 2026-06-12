@@ -355,7 +355,7 @@ app.post('/api/auth/signup/verify-otp', async (req, res) => {
 //   AUTH — FORGOT PASSWORD: SEND OTP
 //   Body: { email }
 // ═══════════════════════════════════════════════════════════════════════════════
-app.post('/api/auth/signup/forgot-password/send-otp', async (req, res) => {
+app.post('/api/auth/forgot-password/send-otp', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ success: false, message: 'Email is required.' });
 
@@ -375,7 +375,7 @@ app.post('/api/auth/signup/forgot-password/send-otp', async (req, res) => {
 
     await sendOtpEmail(email, otp, 'reset_password');
 
-    return res.json({ success: true, message: 'Reset OTP sent to your email.' });
+    return res.json({ success: true, message: 'OTP sent to your email.' });
   } catch (err) {
     console.error('❌ forgot-password/send-otp error:', err);
     return res.status(500).json({ success: false, message: 'Server error.' });
@@ -386,7 +386,7 @@ app.post('/api/auth/signup/forgot-password/send-otp', async (req, res) => {
 //   AUTH — FORGOT PASSWORD: VERIFY OTP
 //   Body: { email, otp }
 // ═══════════════════════════════════════════════════════════════════════════════
-app.post('/api/auth/signup/forgot-password/verify-otp', async (req, res) => {
+app.post('/api/auth/forgot-password/verify-otp', async (req, res) => {
   const { email, otp } = req.body;
   if (!email || !otp) return res.status(400).json({ success: false, message: 'Email and OTP are required.' });
 
@@ -404,7 +404,7 @@ app.post('/api/auth/signup/forgot-password/verify-otp', async (req, res) => {
     }
 
     await pool.query('UPDATE otp_codes SET used = true WHERE id = $1', [result.rows[0].id]);
-    return res.json({ success: true, message: 'OTP verified.' });
+    return res.json({ success: true, message: 'OTP verified. You can now reset your password.' });
   } catch (err) {
     console.error('❌ forgot-password/verify-otp error:', err);
     return res.status(500).json({ success: false, message: 'Server error.' });
@@ -415,7 +415,7 @@ app.post('/api/auth/signup/forgot-password/verify-otp', async (req, res) => {
 //   AUTH — FORGOT PASSWORD: RESET PASSWORD
 //   Body: { email, new_password }
 // ═══════════════════════════════════════════════════════════════════════════════
-app.post('/api/auth/signup/forgot-password/reset', async (req, res) => {
+app.post('/api/auth/forgot-password/reset', async (req, res) => {
   const { email, new_password } = req.body;
   if (!email || !new_password) return res.status(400).json({ success: false, message: 'Email and new password are required.' });
 
@@ -428,7 +428,7 @@ app.post('/api/auth/signup/forgot-password/reset', async (req, res) => {
     const passwordHash = await bcrypt.hash(new_password, 10);
     await pool.query('UPDATE users SET password_hash = $1 WHERE email = $2', [passwordHash, email]);
 
-    return res.json({ success: true, message: 'Password reset successful.' });
+    return res.json({ success: true, message: 'Password reset successfully. Please login with your new password.' });
   } catch (err) {
     console.error('❌ forgot-password/reset error:', err);
     return res.status(500).json({ success: false, message: 'Server error.' });
