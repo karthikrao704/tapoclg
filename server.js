@@ -975,6 +975,106 @@ app.get('/api/vedic-packages/members', async (req, res) => {
   }
 });
 
+// ═══════════════════════════════════════════════════════════════════════════════
+//   STATIC DATA FOR MORE TAB (Workshops, Blogs, Vedic Programs)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+app.get('/api/workshops', (req, res) => {
+  return res.json({
+    success: true,
+    workshops: [
+      {
+        id: "1",
+        title: "Mindfulness Basics\nWorkshop",
+        description: "Learn the core techniques of mindfulness to reduce daily stress and improve focus. This interactive session covers breathing exercises and mental framing.",
+        imagePath: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=600&auto=format&fit=crop",
+        tag: "MEDITATION",
+        date: "Jul 15, 2026",
+        time: "10:00 AM",
+        duration: "2 Hours",
+        instructorName: "Dr. Ananya Sharma",
+        price: "₹500",
+        requirements: ["Comfortable clothing", "Notebook and pen"]
+      },
+      {
+        id: "2",
+        title: "Advanced Yoga\nFlow",
+        description: "Deepen your practice with advanced asanas focusing on core strength and flexibility. Suitable for intermediate practitioners.",
+        imagePath: "https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?q=80&w=600&auto=format&fit=crop",
+        tag: "YOGA",
+        date: "Jul 20, 2026",
+        time: "06:30 AM",
+        duration: "90 Mins",
+        instructorName: "Yogi Rahul",
+        price: "₹800",
+        requirements: ["Yoga mat", "Water bottle"]
+      }
+    ]
+  });
+});
+
+app.get('/api/blogs', (req, res) => {
+  return res.json({
+    success: true,
+    blogs: [
+      {
+        id: "1",
+        title: "5 Simple Ayurvedic Habits for Morning Energy",
+        category: "AYURVEDA",
+        date: "Jun 10, 2026",
+        readTime: "5 min read",
+        author: "Vaidya Meera",
+        imagePath: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?q=80&w=600&auto=format&fit=crop",
+        content: "Starting your day with Ayurvedic practices can dramatically improve your energy levels. Here are five simple habits: 1. Wake up before sunrise (Brahma Muhurta). 2. Scrape your tongue to remove toxins. 3. Drink warm water with lemon. 4. Practice oil pulling (Gandusha). 5. Do light morning stretches (Surya Namaskar)."
+      },
+      {
+        id: "2",
+        title: "Understanding Your Dosha: Vata, Pitta, Kapha",
+        category: "WELLNESS",
+        date: "Jun 05, 2026",
+        readTime: "8 min read",
+        author: "Vaidya Meera",
+        imagePath: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?q=80&w=600&auto=format&fit=crop",
+        content: "Ayurveda categorizes mind-body types into three doshas: Vata (Air/Space), Pitta (Fire/Water), and Kapha (Earth/Water). Understanding your primary dosha helps tailor your diet, exercise, and lifestyle choices for optimal health and balance."
+      }
+    ]
+  });
+});
+
+app.get('/api/vedic-programs', (req, res) => {
+  return res.json({
+    success: true,
+    programs: [
+      {
+        id: "1",
+        title: "Sattva Retreat\nProgram",
+        subtitle: "Holistic Detox & Rejuvenation",
+        duration: "7 Days",
+        price: "₹15,000",
+        originalPrice: "₹22,000",
+        description: "A comprehensive 7-day program designed to cleanse your body of toxins and rejuvenate your mind through traditional Ayurvedic therapies, tailored diet, and guided meditation.",
+        benefits: ["Improved digestion", "Deep relaxation", "Enhanced mental clarity", "Immune system boost"],
+        whatsIncluded: ["Daily Ayurvedic consultations", "Customized meal plan", "Daily yoga sessions", "3 full-body Abhyanga massages"],
+        imagePath: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=600&auto=format&fit=crop",
+        tags: ["DETOX", "RELAXATION"]
+      },
+      {
+        id: "2",
+        title: "Ojas Immunity\nBooster",
+        subtitle: "Strengthen Your Vitality",
+        duration: "14 Days",
+        price: "₹25,000",
+        originalPrice: "₹35,000",
+        description: "Focusing on building 'Ojas'—the essence of immunity and vitality in Ayurveda. This program includes specialized herbal treatments and lifestyle modifications.",
+        benefits: ["Stronger immune response", "Increased energy levels", "Better sleep quality", "Stress reduction"],
+        whatsIncluded: ["Herbal supplements", "2 Shirodhara sessions", "Dietary guidelines", "Weekly check-ins"],
+        imagePath: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=600&auto=format&fit=crop",
+        tags: ["IMMUNITY", "VITALITY"]
+      }
+    ]
+  });
+});
+
 // ─── Start Server ─────────────────────────────────────────────────────────────
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Tapovana Backend running on http://0.0.0.0:${PORT}`);
