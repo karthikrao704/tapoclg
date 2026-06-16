@@ -248,6 +248,21 @@ async function initDatabase() {
       );
     `);
 
+    // Vedic Package Memberships table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS vedic_package_memberships (
+        id SERIAL PRIMARY KEY,
+        user_id INT REFERENCES users(id) ON DELETE CASCADE,
+        user_name VARCHAR(255),
+        email VARCHAR(255),
+        profile_pic TEXT,
+        membership_name VARCHAR(255) NOT NULL,
+        join_date DATE NOT NULL,
+        join_time VARCHAR(50) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     console.log('✅ All tables are ready.');
   } catch (err) {
     console.error('❌ Database initialization failed:', err);
@@ -906,6 +921,56 @@ app.post('/api/membership', async (req, res) => {
     });
   } catch (err) {
     console.error('❌ POST /api/membership error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//   VEDIC PACKAGES — JOIN (POST)
+// ═══════════════════════════════════════════════════════════════════════════════
+app.post('/api/vedic-packages/join', async (req, res) => {
+  const { userId, membership_name, join_date, join_time } = req.body;
+
+  if (!userId || !membership_name || !join_date || !join_time) {
+    return res.status(400).json({ success: false, message: 'Missing required fields: userId, membership_name, join_date, join_time' });
+  }
+
+  try {
+    // Fetch user details
+    const userCheck = await pool.query('SELECT name, email, profile_photo_url FROM users WHERE id = $1', [userId]);
+    if (userCheck.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    const user = userCheck.rows[0];
+
+    const result = await pool.query(
+      `INSERT INTO vedic_package_memberships (user_id, user_name, email, profile_pic, membership_name, join_date, join_time)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING *`,
+      [userId, user.name, user.email, user.profile_photo_url, membership_name, join_date, join_time]
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: 'Successfully joined Vedic Package.',
+      membership: result.rows[0]
+    });
+  } catch (err) {
+    console.error('❌ POST /api/vedic-packages/join error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//   VEDIC PACKAGES — GET MEMBERS
+// ═══════════════════════════════════════════════════════════════════════════════
+app.get('/api/vedic-packages/members', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM vedic_package_memberships ORDER BY created_at DESC');
+    return res.json({ success: true, count: result.rows.length, members: result.rows });
+  } catch (err) {
+    console.error('❌ GET /api/vedic-packages/members error:', err);
     return res.status(500).json({ success: false, message: 'Server error.' });
   }
 });
