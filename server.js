@@ -263,6 +263,20 @@ async function initDatabase() {
       );
     `);
 
+    // Reviews table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS reviews (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        module_type VARCHAR(50) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        rating INT NOT NULL,
+        feedback TEXT NOT NULL,
+        date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     console.log('✅ All tables are ready.');
   } catch (err) {
     console.error('❌ Database initialization failed:', err);
@@ -771,6 +785,36 @@ app.post('/api/bookings', async (req, res) => {
     });
   } catch (err) {
     console.error('❌ POST /api/bookings error:', err);
+    return res.status(500).json({ error: 'Database error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//   REVIEWS — POST
+// ═══════════════════════════════════════════════════════════════════════════════
+
+app.post('/api/reviews', async (req, res) => {
+  const { username, email, module_type, title, rating, feedback, date } = req.body;
+
+  if (!username || !email || !module_type || !title || !rating || !feedback) {
+    return res.status(400).json({ error: 'Missing required fields.' });
+  }
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO reviews (username, email, module_type, title, rating, feedback, date)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING id, date`,
+      [username, email, module_type, title, rating, feedback, date || new Date()]
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: 'Review saved.',
+      reviewId: result.rows[0].id,
+    });
+  } catch (err) {
+    console.error('❌ POST /api/reviews error:', err);
     return res.status(500).json({ error: 'Database error.' });
   }
 });
