@@ -7,7 +7,6 @@ import 'package:tapovana_mobile_app/core/storage/secure_storage.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/routing/app_router.dart';
 import 'package:tapovana_mobile_app/features/auth/bloc/auth/auth_cubit.dart';
-import 'package:tapovana_mobile_app/features/auth/bloc/auth/auth_state.dart';
 import 'package:tapovana_mobile_app/features/auth/data/auth_api_repository.dart';
 import 'package:tapovana_mobile_app/features/auth/data/firebase_auth_repo.dart';
 import 'package:tapovana_mobile_app/features/profile/bloc/profile/profile_bloc.dart';
@@ -84,28 +83,21 @@ class _MyAppState extends State<MyApp> {
       child: BlocBuilder<ThemeCubit, ThemeMode>(
         builder: (context, themeMode) {
           final isDark = themeMode == ThemeMode.dark;
-          return BlocListener<AuthCubit, AuthState>(
-            listener: (context, authState) {
-              if (authState is Authenticated) {
-                context.read<ProfileBloc>().add(LoadProfile());
-              }
+          return MaterialApp.router(
+            title: 'Tapovana',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.getLightTheme(context),
+            darkTheme: AppTheme.getDarkTheme(context),
+            themeMode: themeMode,
+            builder: (context, child) {
+              return Theme(
+                data: isDark
+                    ? AppTheme.getDarkTheme(context)
+                    : AppTheme.getLightTheme(context),
+                child: child!,
+              );
             },
-            child: MaterialApp.router(
-              title: 'Tapovana',
-              debugShowCheckedModeBanner: false,
-              theme: AppTheme.getLightTheme(context),
-              darkTheme: AppTheme.getDarkTheme(context),
-              themeMode: themeMode,
-              builder: (context, child) {
-                return Theme(
-                  data: isDark
-                      ? AppTheme.getDarkTheme(context)
-                      : AppTheme.getLightTheme(context),
-                  child: child!,
-                );
-              },
-              routerConfig: _router,
-            ),
+            routerConfig: _router,
           );
         },
       ),

@@ -9,6 +9,7 @@ import 'package:tapovana_mobile_app/features/services/bloc/service_state.dart';
 import 'package:tapovana_mobile_app/features/services/data/models/service_model.dart';
 import 'package:tapovana_mobile_app/features/services/data/repositories/service_repository.dart';
 import 'package:tapovana_mobile_app/features/service_details/presentation/pages/service_details_page.dart';
+import 'package:tapovana_mobile_app/core/widgets/media_helper.dart';
 
 // --- Main Grid Widget ---
 class ServiceGridSection extends StatelessWidget {
@@ -122,14 +123,12 @@ class _ServiceCard extends StatelessWidget {
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(15.0),
                     ),
-                    child: service.imageUrl != null && service.imageUrl!.isNotEmpty
-                        ? Image.network(
-                            service.imageUrl!,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => _buildPlaceholderImage(),
-                          )
-                        : _buildPlaceholderImage(),
+                    child: MediaHelper.buildServiceImage(
+                      service.imageUrl,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      fallbackWidget: _buildPlaceholderImage(),
+                    ),
                   ),
                   Positioned(
                     top: 8.0,

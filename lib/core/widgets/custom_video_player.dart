@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
+import 'package:tapovana_mobile_app/core/widgets/media_helper.dart';
+
 
 class CustomVideoPlayer extends StatefulWidget {
   final String videoUrl;
@@ -28,7 +30,8 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
   }
 
   void _initializePlayer() async {
-    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
+    final resolvedUrl = MediaHelper.resolveMediaUrl(widget.videoUrl);
+    _controller = VideoPlayerController.networkUrl(Uri.parse(resolvedUrl));
     try {
       await _controller.initialize();
       if (mounted) {

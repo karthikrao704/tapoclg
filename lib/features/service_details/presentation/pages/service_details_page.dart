@@ -11,6 +11,8 @@ import 'package:tapovana_mobile_app/features/services/bloc/service_state.dart';
 import 'package:tapovana_mobile_app/features/services/data/models/service_detail_model.dart';
 import 'package:tapovana_mobile_app/features/services/data/repositories/service_repository.dart';
 import 'package:tapovana_mobile_app/core/storage/local_database.dart';
+import 'package:tapovana_mobile_app/core/widgets/media_helper.dart';
+import 'package:tapovana_mobile_app/core/widgets/review_section.dart';
 
 class ServiceDetailsPage extends StatelessWidget {
   final String serviceId;
@@ -20,8 +22,9 @@ class ServiceDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => ServiceDetailCubit(repository: ServiceRepository())
-        ..fetchServiceById(serviceId),
+      create: (_) =>
+          ServiceDetailCubit(repository: ServiceRepository())
+            ..fetchServiceById(serviceId),
       child: _ServiceDetailsContent(serviceId: serviceId),
     );
   }
@@ -41,10 +44,7 @@ class _ServiceDetailsContent extends StatelessWidget {
         centerTitle: true,
         title: Text(
           "Service Details",
-          style: AppFonts.headland(
-            color: AppTheme.primaryText,
-            fontSize: 20,
-          ),
+          style: AppFonts.headland(color: AppTheme.primaryText, fontSize: 20),
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: AppTheme.primaryText),
@@ -54,24 +54,23 @@ class _ServiceDetailsContent extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: Icon(Icons.share_outlined, color: AppTheme.primaryText),
-          )
+          ),
         ],
       ),
       body: BlocBuilder<ServiceDetailCubit, ServiceDetailState>(
         builder: (context, state) {
           if (state is ServiceDetailLoading) {
             return const Center(
-              child: CircularProgressIndicator(
-                color: AppColors.tealBlue,
-              ),
+              child: CircularProgressIndicator(color: AppColors.tealBlue),
             );
           }
 
           if (state is ServiceDetailError) {
             return NoInternetWidget(
               errorType: state.errorType,
-              onReload: () =>
-                  context.read<ServiceDetailCubit>().fetchServiceById(serviceId),
+              onReload: () => context
+                  .read<ServiceDetailCubit>()
+                  .fetchServiceById(serviceId),
             );
           }
 
@@ -98,15 +97,13 @@ class _ServiceDetailsContent extends StatelessWidget {
                 /// IMAGE
                 ClipRRect(
                   borderRadius: BorderRadius.circular(0),
-                  child: service.imageUrl != null && service.imageUrl!.isNotEmpty
-                      ? Image.network(
-                          service.imageUrl!,
-                          height: 350,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _buildHeroPlaceholder(service),
-                        )
-                      : _buildHeroPlaceholder(service),
+                  child: MediaHelper.buildServiceImage(
+                    service.imageUrl,
+                    height: 350,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    fallbackWidget: _buildHeroPlaceholder(service),
+                  ),
                 ),
 
                 /// TAG
@@ -164,7 +161,7 @@ class _ServiceDetailsContent extends StatelessWidget {
                           color: Colors.black12,
                           blurRadius: 12,
                           offset: Offset(0, 4),
-                        )
+                        ),
                       ],
                     ),
                     child: Row(
@@ -173,8 +170,11 @@ class _ServiceDetailsContent extends StatelessWidget {
                         /// DURATION
                         Column(
                           children: [
-                            Icon(Icons.access_time,
-                                color: AppColors.primaryColor, size: 26),
+                            Icon(
+                              Icons.access_time,
+                              color: AppColors.primaryColor,
+                              size: 26,
+                            ),
                             const SizedBox(height: 2),
                             Text(
                               "DURATION",
@@ -202,8 +202,11 @@ class _ServiceDetailsContent extends StatelessWidget {
                         /// PRICE
                         Column(
                           children: [
-                            Icon(Icons.payments_outlined,
-                                color: AppColors.primaryColor, size: 26),
+                            Icon(
+                              Icons.payments_outlined,
+                              color: AppColors.primaryColor,
+                              size: 26,
+                            ),
                             const SizedBox(height: 2),
                             Text(
                               "STARTING PRICE",
@@ -229,10 +232,13 @@ class _ServiceDetailsContent extends StatelessWidget {
                                   }
                                 }
 
-                                final double originalPrice = double.tryParse(service.basePrice) ?? 0.0;
+                                final double originalPrice =
+                                    double.tryParse(service.basePrice) ?? 0.0;
                                 if (discountPercentage > 0) {
-                                  final double finalPrice = originalPrice * (1 - discountPercentage);
-                                  final String formattedFinal = '₹${finalPrice.toStringAsFixed(0)}';
+                                  final double finalPrice =
+                                      originalPrice * (1 - discountPercentage);
+                                  final String formattedFinal =
+                                      '₹${finalPrice.toStringAsFixed(0)}';
                                   return Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
@@ -249,7 +255,8 @@ class _ServiceDetailsContent extends StatelessWidget {
                                         style: AppFonts.poppinsRegular(
                                           color: AppColors.primaryBlack40,
                                           fontSize: 12,
-                                          decoration: TextDecoration.lineThrough,
+                                          decoration:
+                                              TextDecoration.lineThrough,
                                         ),
                                       ),
                                     ],
@@ -300,10 +307,7 @@ class _ServiceDetailsContent extends StatelessWidget {
                     _sectionHeader("Key Benefits"),
                     const SizedBox(height: 14),
                     ...service.benefitsList.map(
-                      (benefit) => BenefitItem(
-                        title: benefit,
-                        subtitle: "",
-                      ),
+                      (benefit) => BenefitItem(title: benefit, subtitle: ""),
                     ),
                     const SizedBox(height: 40),
                   ],
@@ -343,12 +347,26 @@ class _ServiceDetailsContent extends StatelessWidget {
                     const SizedBox(height: 14),
                     if (service.requiredCertification != null)
                       _infoRow(
-                          Icons.verified_outlined, service.requiredCertification!),
+                        Icons.verified_outlined,
+                        service.requiredCertification!,
+                      ),
                     if (service.experienceLevel != null)
-                      _infoRow(Icons.signal_cellular_alt,
-                          'Level: ${service.experienceLevel}'),
+                      _infoRow(
+                        Icons.signal_cellular_alt,
+                        'Level: ${service.experienceLevel}',
+                      ),
                     const SizedBox(height: 40),
                   ],
+                  
+                  /// REVIEWS SECTION
+                  ReviewSection(
+                    title: "Service Reviews",
+                    reviews: MockReviews.serviceReviews,
+                    averageRating: 4.5,
+                    moduleType: 'service',
+                    itemTitle: service.name,
+                  ),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
@@ -367,7 +385,6 @@ class _ServiceDetailsContent extends StatelessWidget {
                         builder: (context) => AppointmentBookingPage(
                           serviceName: service.name,
                           price: service.formattedPrice,
-                          therapists: service.assignedStaffDetails,
                         ),
                       ),
                     );

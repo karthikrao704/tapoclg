@@ -6,6 +6,8 @@ import '../../../core/config/api_config.dart';
 
 class AuthApiRepository {
   String get baseUrl => ApiConfig.authProfileBackendUrl;
+  String get tapovanaBaseUrl => ApiConfig.authProfileBackendUrl;
+
   final SecureStorage _secureStorage = SecureStorage();
 
   // ═══════════════════════════════════════
@@ -221,9 +223,12 @@ class AuthApiRepository {
   //   FORGOT PASSWORD
   // ═══════════════════════════════════════
 
+  // Forgot password routes live on the Tapovana Render backend (tapovanaBaseUrl),
+  // NOT on the Rosette backend, which would reject them with "Missing token".
+
   Future<Map<String, dynamic>> sendForgotPasswordOtp({required String email}) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/api/auth/signup/forgot-password/send-otp'),
+      Uri.parse('$tapovanaBaseUrl/api/auth/forgot-password/send-otp'),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({"email": email}),
     );
@@ -233,7 +238,7 @@ class AuthApiRepository {
 
   Future<Map<String, dynamic>> verifyForgotPasswordOtp({required String email, required String otp}) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/api/auth/signup/forgot-password/verify-otp'),
+      Uri.parse('$tapovanaBaseUrl/api/auth/forgot-password/verify-otp'),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({"email": email, "otp": otp}),
     );
@@ -243,7 +248,7 @@ class AuthApiRepository {
 
   Future<Map<String, dynamic>> resetPassword({required String email, required String newPassword}) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/api/auth/signup/forgot-password/reset'),
+      Uri.parse('$tapovanaBaseUrl/api/auth/forgot-password/reset'),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({"email": email, "new_password": newPassword}),
     );

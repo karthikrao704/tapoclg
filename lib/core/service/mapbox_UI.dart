@@ -86,7 +86,7 @@ class MapboxSearchResultsDropdown extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: const Color(0xFFC9A14A).withOpacity(0.12),
+              color: const Color(0xFFC9A14A).withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(
@@ -355,8 +355,8 @@ class _LocationMapSheet extends StatelessWidget {
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black
-                                          .withOpacity(
-                                              0.15),
+                                          .withValues(
+                                              alpha: 0.15),
                                       blurRadius: 10,
                                       offset:
                                           const Offset(
@@ -430,7 +430,7 @@ class _LocationMapSheet extends StatelessWidget {
                   height: 40,
                   decoration: BoxDecoration(
                     color: const Color(0xFFC9A14A)
-                        .withOpacity(0.12),
+                        .withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(

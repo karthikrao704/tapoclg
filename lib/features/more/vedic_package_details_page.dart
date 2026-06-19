@@ -3,6 +3,8 @@ import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'package:tapovana_mobile_app/features/appointments/presentation/pages/appointment_booking_page.dart';
+import 'package:tapovana_mobile_app/core/widgets/media_helper.dart';
+import 'package:tapovana_mobile_app/core/widgets/review_section.dart';
 import 'models/more_models.dart';
 
 class VedicPackageDetailsPage extends StatelessWidget {
@@ -37,28 +39,27 @@ class VedicPackageDetailsPage extends StatelessWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  package.imagePath != null
-                      ? Image.asset(
-                          package.imagePath!,
-                          fit: BoxFit.cover,
-                        )
-                      : Container(
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                Color(0xFFD8E8C8),
-                                Color(0xFFB0C898),
-                              ],
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.nature_outlined,
-                            size: 64,
-                            color: Color(0xFF688050),
-                          ),
+                  MediaHelper.buildServiceImage(
+                    package.imagePath,
+                    fit: BoxFit.cover,
+                    fallbackWidget: Container(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFFD8E8C8),
+                            Color(0xFFB0C898),
+                          ],
                         ),
+                      ),
+                      child: const Icon(
+                        Icons.nature_outlined,
+                        size: 64,
+                        color: Color(0xFF688050),
+                      ),
+                    ),
+                  ),
                   // Gradient Overlay
                   const Positioned.fill(
                     child: DecoratedBox(
@@ -289,6 +290,16 @@ class VedicPackageDetailsPage extends StatelessWidget {
                         ),
                       );
                     }).toList(),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Testimonials Section
+                  ReviewSection(
+                    title: "Testimonials",
+                    reviews: MockReviews.packageTestimonials,
+                    averageRating: 4.75,
+                    moduleType: 'vedic_life',
+                    itemTitle: package.title,
                   ),
                   const SizedBox(height: 32),
 

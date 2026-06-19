@@ -13,14 +13,8 @@ import 'package:tapovana_mobile_app/features/services/data/models/service_detail
 class AppointmentBookingPage extends StatefulWidget {
   final String? serviceName;
   final String? price;
-  final List<StaffDetail>? therapists;
 
-  const AppointmentBookingPage({
-    super.key,
-    this.serviceName,
-    this.price,
-    this.therapists,
-  });
+  const AppointmentBookingPage({super.key, this.serviceName, this.price});
 
   @override
   State<AppointmentBookingPage> createState() => _AppointmentBookingPageState();
@@ -29,7 +23,6 @@ class AppointmentBookingPage extends StatefulWidget {
 class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
   DateTime selectedDate = DateTime.now();
   String selectedTime = "10:30 AM";
-  String selectedTherapist = "Dr. Aris";
   String? activePass;
   int availableCredits = 0;
   bool useCredits = false;
@@ -55,9 +48,6 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
   void initState() {
     super.initState();
     _loadWellnessPass();
-    if (widget.therapists != null && widget.therapists!.isNotEmpty) {
-      selectedTherapist = widget.therapists!.first.fullName;
-    }
   }
 
   Future<void> _loadWellnessPass() async {
@@ -89,7 +79,10 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -196,53 +189,6 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
 
             const SizedBox(height: 24),
 
-            /// THERAPIST
-            const SectionTitle(icon: Icons.person_outline, title: "Therapist"),
-
-            const SizedBox(height: 14),
-
-            if (widget.therapists != null && widget.therapists!.isNotEmpty)
-              Wrap(
-                spacing: 16,
-                runSpacing: 16,
-                alignment: WrapAlignment.spaceEvenly,
-                children: widget.therapists!.map((staff) {
-                  return SizedBox(
-                    width: 105,
-                    child: therapistCard(
-                      staff.fullName,
-                      staff.email,
-                      imageUrl: staff.avatarUrl,
-                    ),
-                  );
-                }).toList(),
-              )
-            else
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  therapistCard(
-                    "Dr. Aris",
-                    "LEAD",
-                    assetImage: "assets/appointments/dr_1.png",
-                  ),
-
-                  therapistCard(
-                    "Sarah W.",
-                    "Massage",
-                    assetImage: "assets/appointments/dr_2.png",
-                  ),
-
-                  therapistCard(
-                    "Michael K.",
-                    "Yoga",
-                    assetImage: "assets/appointments/dr_3.png",
-                  ),
-                ],
-              ),
-
-            const SizedBox(height: 40),
-
             /// NOTES
             const SectionTitle(icon: Icons.notes_outlined, title: "Add Notes"),
 
@@ -251,18 +197,20 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
             TextField(
               controller: _noteController,
               maxLines: 3,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
               decoration: InputDecoration(
                 hintText:
                     "e.g., Deep tissue preference, focus on lower back...",
                 hintStyle: TextStyle(
                   fontSize: 16,
-                  color: Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey,
+                  color:
+                      Theme.of(context).textTheme.bodySmall?.color ??
+                      Colors.grey,
                 ),
                 filled: true,
-                fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : const Color.fromARGB(255, 241, 237, 237),
+                fillColor: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFF1E293B)
+                    : const Color.fromARGB(255, 241, 237, 237),
 
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -280,14 +228,24 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
                     colors: useCredits
                         ? [const Color(0xFF1E293B), const Color(0xFF334155)]
                         : (Theme.of(context).brightness == Brightness.dark
-                            ? [const Color(0xFF1E293B), const Color(0xFF1E293B)]
-                            : [const Color(0xFFF8FAFC), const Color(0xFFF8FAFC)]),
+                              ? [
+                                  const Color(0xFF1E293B),
+                                  const Color(0xFF1E293B),
+                                ]
+                              : [
+                                  const Color(0xFFF8FAFC),
+                                  const Color(0xFFF8FAFC),
+                                ]),
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: useCredits ? const Color(0xFFC9A14A) : (Theme.of(context).brightness == Brightness.dark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+                    color: useCredits
+                        ? const Color(0xFFC9A14A)
+                        : (Theme.of(context).brightness == Brightness.dark
+                              ? const Color(0xFF334155)
+                              : const Color(0xFFE2E8F0)),
                     width: useCredits ? 1.5 : 1,
                   ),
                 ),
@@ -295,7 +253,11 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
                   children: [
                     Icon(
                       Icons.stars_rounded,
-                      color: useCredits ? const Color(0xFFC9A14A) : (hasEnoughCredits ? Colors.amber.shade700 : Colors.grey),
+                      color: useCredits
+                          ? const Color(0xFFC9A14A)
+                          : (hasEnoughCredits
+                                ? Colors.amber.shade700
+                                : Colors.grey),
                       size: 28,
                     ),
                     const SizedBox(width: 12),
@@ -307,7 +269,13 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
                             "Pay with Wellness Credits",
                             style: AppFonts.poppinsSemiBold(
                               fontSize: 14,
-                              color: useCredits ? Colors.white : (hasEnoughCredits ? Theme.of(context).colorScheme.onSurface : Colors.grey),
+                              color: useCredits
+                                  ? Colors.white
+                                  : (hasEnoughCredits
+                                        ? Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface
+                                        : Colors.grey),
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -319,7 +287,12 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
                               fontSize: 12,
                               color: useCredits
                                   ? Colors.white70
-                                  : (hasEnoughCredits ? (Theme.of(context).textTheme.bodySmall?.color ?? AppTheme.secondaryText) : Colors.red.shade700),
+                                  : (hasEnoughCredits
+                                        ? (Theme.of(
+                                                context,
+                                              ).textTheme.bodySmall?.color ??
+                                              AppTheme.secondaryText)
+                                        : Colors.red.shade700),
                             ),
                           ),
                         ],
@@ -328,7 +301,9 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
                     Switch(
                       value: useCredits,
                       activeThumbColor: const Color(0xFFC9A14A),
-                      activeTrackColor: const Color(0xFFC9A14A).withValues(alpha: 0.3),
+                      activeTrackColor: const Color(
+                        0xFFC9A14A,
+                      ).withValues(alpha: 0.3),
                       inactiveThumbColor: Colors.grey.shade400,
                       inactiveTrackColor: Colors.grey.shade200,
                       onChanged: hasEnoughCredits
@@ -351,7 +326,10 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
               builder: (context) {
                 double originalPrice = 0.0;
                 if (widget.price != null) {
-                  final cleanStr = widget.price!.replaceAll(RegExp(r'[^0-9.]'), '');
+                  final cleanStr = widget.price!.replaceAll(
+                    RegExp(r'[^0-9.]'),
+                    '',
+                  );
                   originalPrice = double.tryParse(cleanStr) ?? 0.0;
                 }
 
@@ -374,8 +352,10 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
                 double discountAmount = originalPrice * discountPercentage;
                 double finalPrice = originalPrice - discountAmount;
 
-                String formattedOriginal = '₹${originalPrice.toStringAsFixed(2)}';
-                String formattedDiscount = '-₹${discountAmount.toStringAsFixed(2)}';
+                String formattedOriginal =
+                    '₹${originalPrice.toStringAsFixed(2)}';
+                String formattedDiscount =
+                    '-₹${discountAmount.toStringAsFixed(2)}';
                 String formattedFinal = '₹${finalPrice.toStringAsFixed(2)}';
 
                 if (originalPrice == originalPrice.roundToDouble()) {
@@ -389,9 +369,11 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
                 }
 
                 if (useCredits) {
-                  formattedOriginal = '$creditCost ${creditCost == 1 ? 'Credit' : 'Credits'}';
+                  formattedOriginal =
+                      '$creditCost ${creditCost == 1 ? 'Credit' : 'Credits'}';
                   formattedDiscount = '';
-                  formattedFinal = '$creditCost ${creditCost == 1 ? 'Credit' : 'Credits'}';
+                  formattedFinal =
+                      '$creditCost ${creditCost == 1 ? 'Credit' : 'Credits'}';
                   discountAmount = 0.0;
                 }
 
@@ -401,9 +383,15 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? const Color(0xFF1E293B)
+                            : const Color(0xFFF8FAFC),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+                        border: Border.all(
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? const Color(0xFF334155)
+                              : const Color(0xFFE2E8F0),
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -436,14 +424,18 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
                                 "Subtotal",
                                 style: AppFonts.poppinsRegular(
                                   fontSize: 14,
-                                  color: Theme.of(context).colorScheme.onSurface,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                 ),
                               ),
                               Text(
                                 formattedOriginal,
                                 style: AppFonts.poppinsMedium(
                                   fontSize: 14,
-                                  color: Theme.of(context).colorScheme.onSurface,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
                                 ),
                               ),
                             ],
@@ -485,7 +477,9 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
                             child: Divider(
                               height: 1,
                               thickness: 1,
-                              color: Theme.of(context).brightness == Brightness.dark
+                              color:
+                                  Theme.of(context).brightness ==
+                                      Brightness.dark
                                   ? const Color(0xFF334155)
                                   : const Color(0xFFE2E8F0),
                             ),
@@ -501,7 +495,9 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
                                     style: AppFonts.poppinsSemiBold(
                                       fontSize: 12,
                                       letterSpacing: 0.5,
-                                      color: Theme.of(context).colorScheme.onSurface,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
                                     ),
                                   ),
                                   if (useCredits)
@@ -556,8 +552,8 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
                           final String finalPriceToSave = useCredits
                               ? "$creditCost ${creditCost == 1 ? 'Credit' : 'Credits'}"
                               : (discountAmount > 0
-                                  ? "$formattedFinal (${activePass!.toUpperCase().replaceAll(' PASS', '')} Pass)"
-                                  : (widget.price ?? "₹1200"));
+                                    ? "$formattedFinal (${activePass!.toUpperCase().replaceAll(' PASS', '')} Pass)"
+                                    : (widget.price ?? "₹1200"));
 
                           // Show progress loader
                           showDialog(
@@ -565,7 +561,9 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
                             barrierDismissible: false,
                             builder: (context) => const Center(
                               child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFC9A14A)),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Color(0xFFC9A14A),
+                                ),
                               ),
                             ),
                           );
@@ -574,14 +572,20 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
                           final userName = profileState.name.isNotEmpty
                               ? profileState.name
                               : 'Guest User';
+                          final email = profileState.email.isNotEmpty
+                              ? profileState.email
+                              : 'guest@example.com';
                           final profilePic = profileState.profilePhotoUrl;
-                          final serviceName = widget.serviceName ?? "Swedish Massage";
-                          final dateStr = "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
+                          final serviceName =
+                              widget.serviceName ?? "Swedish Massage";
+                          final dateStr =
+                              "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
                           final note = _noteController.text;
 
                           String? passDetails;
                           if (useCredits) {
-                            final mType = profileState.membershipType.toUpperCase();
+                            final mType = profileState.membershipType
+                                .toUpperCase();
                             if (mType.contains('SILVER')) {
                               passDetails = 'SILVER';
                             } else if (mType.contains('GOLD')) {
@@ -594,30 +598,32 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
                           }
 
                           // Sync to PostgreSQL DB (via Node.js backend)
-                          final syncSuccess = await BookingRepository.createBooking(
-                            userName: userName,
-                            profilePic: profilePic,
-                            serviceName: serviceName,
-                            bookingDate: dateStr,
-                            bookingTime: selectedTime,
-                            therapistName: selectedTherapist,
-                            note: note.isNotEmpty ? note : null,
-                            totalAmount: finalPriceToSave,
-                            passDetails: passDetails,
-                          );
+                          final syncSuccess =
+                              await BookingRepository.createBooking(
+                                userName: userName,
+                                email: email,
+                                profilePic: profilePic,
+                                serviceName: serviceName,
+                                bookingDate: dateStr,
+                                bookingTime: selectedTime,
+                                note: note.isNotEmpty ? note : null,
+                                totalAmount: finalPriceToSave,
+                                passDetails: passDetails,
+                              );
 
                           // Close loader
                           navigator.pop();
 
                           if (useCredits) {
-                            await LocalDatabase.saveWellnessCredits(availableCredits - creditCost);
+                            await LocalDatabase.saveWellnessCredits(
+                              availableCredits - creditCost,
+                            );
                           }
 
                           await LocalDatabase.insertAppointment(
                             serviceName: serviceName,
                             date: dateStr,
                             time: selectedTime,
-                            therapist: selectedTherapist,
                             price: finalPriceToSave,
                           );
 
@@ -630,14 +636,19 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
                           if (syncSuccess) {
                             messenger.showSnackBar(
                               SnackBar(
-                                content: Text("Booking Confirmed & Synced for $serviceName!"),
+                                content: Text(
+                                  "Booking Confirmed & Synced for $serviceName!",
+                                ),
                                 backgroundColor: AppColors.primaryColor,
                               ),
                             );
+                            BookingRepository.startPollingForBookingStatus(email, serviceName);
                           } else {
                             messenger.showSnackBar(
                               const SnackBar(
-                                content: Text("Booking Saved Locally (Cloud Sync Failed)."),
+                                content: Text(
+                                  "Booking Saved Locally (Cloud Sync Failed).",
+                                ),
                                 backgroundColor: Colors.orange,
                               ),
                             );
@@ -663,7 +674,11 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
                               ),
                             ),
                             const SizedBox(width: 8),
-                            const Icon(Icons.arrow_forward, size: 18, color: Colors.white),
+                            const Icon(
+                              Icons.arrow_forward,
+                              size: 18,
+                              color: Colors.white,
+                            ),
                           ],
                         ),
                       ),
@@ -678,109 +693,20 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage> {
     );
   }
 
-  //therapist card
-  Widget therapistCard(String name, String role, {String? imageUrl, String? assetImage}) {
-    bool isSelected = selectedTherapist == name;
-
-    Widget imageWidget;
-    if (imageUrl != null && imageUrl.isNotEmpty) {
-      imageWidget = Image.network(
-        imageUrl,
-        width: 64,
-        height: 64,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Image.asset(
-          assetImage ?? "assets/appointments/dr_1.png",
-          width: 64,
-          height: 64,
-          fit: BoxFit.cover,
-        ),
-      );
-    } else {
-      imageWidget = Image.asset(
-        assetImage ?? "assets/appointments/dr_1.png",
-        width: 64,
-        height: 64,
-        fit: BoxFit.cover,
-      );
-    }
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedTherapist = name;
-        });
-      },
-
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Stack(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: isSelected
-                        ? const Color(0xFFC9A14A)
-                        : Colors.transparent,
-                    width: 2,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: imageWidget,
-                ),
-              ),
-
-              /// TICK ICON
-              if (isSelected)
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(3),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFC9A14A),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.check,
-                      size: 14,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-
-          const SizedBox(height: 6),
-
-          Text(
-            name,
-            style: AppFonts.poppinsSemiBold(fontSize: 14),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-          ),
-
-          Text(
-            role,
-            style: AppFonts.poppinsRegular(fontSize: 10, color: AppColors.primaryBlack40),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
   String _formatDate(DateTime date) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return "${months[date.month - 1]} ${date.day}, ${date.year}";
   }
@@ -799,10 +725,7 @@ class SectionTitle extends StatelessWidget {
       children: [
         Icon(icon, size: 26, color: const Color(0xFFC9A14A)),
         const SizedBox(width: 8),
-        Text(
-          title,
-          style: AppFonts.poppinsSemiBold(fontSize: 19),
-        ),
+        Text(title, style: AppFonts.poppinsSemiBold(fontSize: 19)),
       ],
     );
   }
@@ -836,7 +759,9 @@ class TimeSlot extends StatelessWidget {
       textColor = Colors.grey;
     } else if (isSelected) {
       borderColor = const Color(0xFFC9A14A);
-      backgroundColor = isDark ? const Color(0x33C9A14A) : const Color(0xFFF5E7C5); // light gold
+      backgroundColor = isDark
+          ? const Color(0x33C9A14A)
+          : const Color(0xFFF5E7C5); // light gold
       textColor = const Color(0xFFC9A14A);
     } else {
       borderColor = isDark ? Colors.white24 : Colors.grey.shade300;
@@ -857,10 +782,7 @@ class TimeSlot extends StatelessWidget {
         ),
         child: Text(
           time,
-          style: AppFonts.poppinsMedium(
-            fontSize: 16,
-            color: textColor,
-          ),
+          style: AppFonts.poppinsMedium(fontSize: 16, color: textColor),
         ),
       ),
     );

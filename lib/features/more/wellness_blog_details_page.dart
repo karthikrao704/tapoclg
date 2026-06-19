@@ -3,6 +3,8 @@ import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'models/more_models.dart';
+import 'package:tapovana_mobile_app/core/widgets/media_helper.dart';
+import 'package:tapovana_mobile_app/core/widgets/review_section.dart';
 
 class WellnessBlogDetailsPage extends StatelessWidget {
   final WellnessBlogPost post;
@@ -56,9 +58,17 @@ class WellnessBlogDetailsPage extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   post.imagePath != null
-                      ? Image.asset(
-                          post.imagePath!,
+                      ? MediaHelper.buildServiceImage(
+                          post.imagePath,
                           fit: BoxFit.cover,
+                          fallbackWidget: Container(
+                            color: const Color(0xFFE2E8F0),
+                            child: const Icon(
+                              Icons.spa_outlined,
+                              size: 64,
+                              color: Color(0xFF94A3B8),
+                            ),
+                          ),
                         )
                       : Container(
                           color: const Color(0xFFE2E8F0),
@@ -169,6 +179,16 @@ class WellnessBlogDetailsPage extends StatelessWidget {
 
                   // Content Body
                   _BlogBodyRenderer(content: post.content),
+                  const SizedBox(height: 40),
+
+                  // Reader Feedback Section
+                  ReviewSection(
+                    title: "Reader Feedback",
+                    reviews: MockReviews.blogFeedback,
+                    averageRating: 4.5,
+                    moduleType: 'blog',
+                    itemTitle: post.title,
+                  ),
                   const SizedBox(height: 40),
                 ],
               ),

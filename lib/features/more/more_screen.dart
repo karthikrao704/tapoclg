@@ -5,6 +5,7 @@ import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
 import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'package:tapovana_mobile_app/core/widgets/failed_image_cache.dart';
+import 'package:tapovana_mobile_app/core/widgets/media_helper.dart';
 import 'bloc/more_bloc.dart';
 import 'models/more_models.dart';
 import 'vedic_package_details_page.dart';
@@ -568,10 +569,7 @@ class _PackageImagePlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (imagePath != null) {
-      return Image.asset(imagePath!, fit: BoxFit.cover, width: double.infinity);
-    }
-    return Container(
+    final fallback = Container(
       width: double.infinity,
       color: const Color(0xFFD8E8C8),
       child: Column(
@@ -592,6 +590,13 @@ class _PackageImagePlaceholder extends StatelessWidget {
           ),
         ],
       ),
+    );
+
+    return MediaHelper.buildServiceImage(
+      imagePath,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      fallbackWidget: fallback,
     );
   }
 }
@@ -697,18 +702,22 @@ class _BlogCard extends StatelessWidget {
               child: SizedBox(
                 height: imageHeight,
                 width: double.infinity,
-                child: post.imagePath != null
-                    ? Image.asset(post.imagePath!, fit: BoxFit.fill)
-                    : Container(
-                        color: const Color(0xFFD0C4B0),
-                        child: Center(
-                          child: Icon(
-                            Icons.spa_outlined,
-                            size: isSmallScreen ? 28 : 36,
-                            color: const Color(0xFF907060),
-                          ),
-                        ),
+                child: MediaHelper.buildServiceImage(
+                  post.imagePath,
+                  fit: BoxFit.fill,
+                  width: double.infinity,
+                  height: imageHeight,
+                  fallbackWidget: Container(
+                    color: const Color(0xFFD0C4B0),
+                    child: Center(
+                      child: Icon(
+                        Icons.spa_outlined,
+                        size: isSmallScreen ? 28 : 36,
+                        color: const Color(0xFF907060),
                       ),
+                    ),
+                  ),
+                ),
               ),
             ),
             SizedBox(height: isSmallScreen ? 6 : 10),

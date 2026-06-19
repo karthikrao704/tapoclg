@@ -13,6 +13,7 @@ import 'package:tapovana_mobile_app/features/services/data/repositories/service_
 import 'package:tapovana_mobile_app/features/services/data/models/service_model.dart';
 import 'package:tapovana_mobile_app/features/service_details/presentation/pages/service_details_page.dart';
 import 'package:tapovana_mobile_app/features/appointments/presentation/pages/appointment_booking_page.dart';
+import 'package:tapovana_mobile_app/core/widgets/media_helper.dart';
 
 class ServiceScreen extends StatelessWidget {
   const ServiceScreen({super.key});
@@ -813,14 +814,11 @@ class _SearchServiceCard extends StatelessWidget {
               child: Stack(
                 children: [
                   Positioned.fill(
-                    child: service.imageUrl != null && service.imageUrl!.isNotEmpty
-                        ? Image.network(
-                            service.imageUrl!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
-                                _buildPlaceholderImage(service),
-                          )
-                        : _buildPlaceholderImage(service),
+                    child: MediaHelper.buildServiceImage(
+                      service.imageUrl,
+                      fit: BoxFit.cover,
+                      fallbackWidget: _buildPlaceholderImage(service),
+                    ),
                   ),
                   if (isPopular)
                     Positioned(

@@ -189,4 +189,38 @@ class NotificationService {
       debugPrint('❌ Failed to schedule wellness notifications: $e');
     }
   }
+
+  /// Show an instant notification
+  Future<void> showInstantNotification({
+    required int id,
+    required String title,
+    required String body,
+  }) async {
+    const androidDetails = AndroidNotificationDetails(
+      'instant_notifications_channel',
+      'Instant Notifications',
+      channelDescription: 'Receive important instant notifications',
+      importance: Importance.max,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+    );
+
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    const notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+
+    await _flutterLocalNotificationsPlugin.show(
+      id,
+      title,
+      body,
+      notificationDetails,
+    );
+  }
 }

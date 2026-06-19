@@ -7,11 +7,7 @@ class FeaturedWorkshop {
   final String date;
   final String tag;
   final String? imagePath;
-  final double progress;
-  final String theory;
   final String youtubeVideoUrl;
-  final List<String> modules;
-  final List<bool> moduleCompleted;
 
   const FeaturedWorkshop({
     required this.title,
@@ -22,11 +18,7 @@ class FeaturedWorkshop {
     required this.date,
     required this.tag,
     this.imagePath,
-    required this.progress,
-    required this.theory,
     required this.youtubeVideoUrl,
-    required this.modules,
-    required this.moduleCompleted,
   });
 
   factory FeaturedWorkshop.fromJson(Map<String, dynamic> json) {
@@ -70,32 +62,6 @@ class FeaturedWorkshop {
       }
     }
 
-    List<String> modulesList;
-    if (category.toLowerCase().contains('meditation')) {
-      modulesList = [
-        'Introduction to Mindful Breathing',
-        'Body Scan Meditation Practice',
-        'Cultivating Inner Peace & Quiet',
-        'Loving-Kindness (Metta) Practice'
-      ];
-    } else if (category.toLowerCase().contains('yoga')) {
-      modulesList = [
-        'Sun Salutations & Alignment',
-        'Standing Postures for Stability',
-        'Deep Restorative Stretches',
-        'Integrating Breath and Movement'
-      ];
-    } else {
-      modulesList = [
-        'Introduction and Setup',
-        'Core Concepts and Principles',
-        'Practical Application Exercises',
-        'Final Integration & Summary'
-      ];
-    }
-
-    final List<bool> completedList = List.generate(modulesList.length, (idx) => false);
-
     return FeaturedWorkshop(
       title: title,
       subtitle: category,
@@ -105,11 +71,7 @@ class FeaturedWorkshop {
       date: dateStr,
       tag: tag,
       imagePath: imagePath,
-      progress: 0.0,
-      theory: description.isNotEmpty ? description : 'No core principles description provided.',
       youtubeVideoUrl: finalVideoUrl,
-      modules: modulesList,
-      moduleCompleted: completedList,
     );
   }
 }
@@ -138,6 +100,74 @@ class VedicPackage {
     required this.whatsIncluded,
     required this.tags,
   });
+
+  factory VedicPackage.fromJson(Map<String, dynamic> json) {
+    final title = json['title'] ?? '';
+    final type = json['type'] ?? 'Program';
+    final description = json['description'] ?? '';
+    final duration = json['duration'] ?? '';
+
+    // Format price with ₹ symbol
+    final priceNum = json['price'];
+    final priceStr = priceNum != null ? '₹${priceNum.toString()}' : '₹0';
+    // Generate an original price ~40% higher for display
+    final originalPriceNum = priceNum != null ? (priceNum * 1.4).round() : 0;
+    final originalPriceStr = '₹$originalPriceNum';
+
+    // Resolve image URL
+    String? imagePath = json['image_url'];
+    if (imagePath != null && imagePath.isNotEmpty) {
+      if (!imagePath.startsWith('http') && !imagePath.startsWith('data:image')) {
+        final prefix = imagePath.startsWith('/') ? '' : '/';
+        imagePath = 'https://tapovana.onrender.com$prefix$imagePath';
+      }
+    }
+
+    // Services list → whatsIncluded
+    final List<String> services = (json['services'] as List<dynamic>?)
+        ?.map((e) => e.toString())
+        .toList() ?? [];
+
+    // Generate tags from type and languages
+    final List<String> tags = [type.toString().toUpperCase()];
+    final languages = json['languages'] as List<dynamic>?;
+    if (languages != null) {
+      for (var lang in languages) {
+        tags.add(lang.toString().toUpperCase());
+      }
+    }
+
+    // Generate benefits from accommodations and capacity
+    final List<String> benefits = [];
+    final accommodations = json['accommodations'];
+    if (accommodations != null && accommodations.toString().isNotEmpty) {
+      benefits.add('Accommodation: $accommodations');
+    }
+    final capacity = json['capacity'];
+    if (capacity != null) {
+      benefits.add('Limited to $capacity participants');
+    }
+    final consultantName = json['consultant_name'];
+    if (consultantName != null && consultantName.toString().isNotEmpty) {
+      benefits.add('Led by $consultantName');
+    }
+    if (benefits.isEmpty) {
+      benefits.add('Holistic Wellness Experience');
+    }
+
+    return VedicPackage(
+      title: title,
+      subtitle: type,
+      imagePath: imagePath,
+      description: description,
+      duration: duration,
+      price: priceStr,
+      originalPrice: originalPriceStr,
+      benefits: benefits,
+      whatsIncluded: services,
+      tags: tags,
+    );
+  }
 }
 
 class WellnessBlogPost {
@@ -158,4 +188,41 @@ class WellnessBlogPost {
     required this.date,
     required this.readTime,
   });
+
+  factory WellnessBlogPost.fromJson(Map<String, dynamic> json) {
+    String dateStr = 'Unknown Date';
+    try {
+      final dateTime = DateTime.tryParse(json['published_at'] ?? json['created_at'] ?? '');
+      if (dateTime != null) {
+        final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        final month = months[dateTime.month - 1];
+        final day = dateTime.day.toString().padLeft(2, '0');
+        final year = dateTime.year.toString();
+        dateStr = '$month $day, $year';
+      }
+    } catch (_) {}
+
+    String? imagePath = json['featured_image'];
+    if (imagePath != null && imagePath.isNotEmpty) {
+      if (!imagePath.startsWith('http')) {
+        final prefix = imagePath.startsWith('/') ? '' : '/';
+        imagePath = 'https://tapovana.onrender.com$prefix$imagePath';
+      }
+    }
+
+    String authorName = 'Unknown Author';
+    if (json['author'] != null && json['author']['name'] != null) {
+      authorName = json['author']['name'];
+    }
+
+    return WellnessBlogPost(
+      category: json['category'] ?? 'WELLNESS',
+      title: json['title'] ?? '',
+      imagePath: imagePath,
+      content: json['summary'] ?? json['content'] ?? '',
+      author: authorName,
+      date: dateStr,
+      readTime: json['read_time'] ?? '5 min read',
+    );
+  }
 }

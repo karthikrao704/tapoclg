@@ -11,6 +11,7 @@ import 'package:tapovana_mobile_app/features/services/data/models/service_model.
 import 'package:tapovana_mobile_app/features/services/data/repositories/service_repository.dart';
 import 'package:tapovana_mobile_app/features/service_details/presentation/pages/service_details_page.dart';
 import 'package:tapovana_mobile_app/core/storage/local_database.dart';
+import 'package:tapovana_mobile_app/core/widgets/media_helper.dart';
 
 /// A reusable screen that fetches and displays services for a given [category].
 ///
@@ -188,14 +189,11 @@ class _ApiServiceCard extends StatelessWidget {
             // Image Section
             AspectRatio(
               aspectRatio: 16 / 9,
-              child: service.imageUrl != null && service.imageUrl!.isNotEmpty
-                  ? Image.network(
-                      service.imageUrl!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) =>
-                          _buildPlaceholderImage(service),
-                    )
-                  : _buildPlaceholderImage(service),
+              child: MediaHelper.buildServiceImage(
+                service.imageUrl,
+                fit: BoxFit.cover,
+                fallbackWidget: _buildPlaceholderImage(service),
+              ),
             ),
 
             // Content Section

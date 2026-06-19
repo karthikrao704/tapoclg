@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
-import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'package:tapovana_mobile_app/core/widgets/secondary_app_bar.dart';
 

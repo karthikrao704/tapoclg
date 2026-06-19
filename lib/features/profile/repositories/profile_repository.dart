@@ -17,6 +17,56 @@ class ProfileRepository {
     if (id == null) throw ProfilePhotoException('Invalid user ID: $idStr');
     return id;
   }
+  // ─── GET membership details ───────────────────────────────────────────────
+
+  Future<Map<String, dynamic>> getMembershipDetails() async {
+    final userId = await _getLocalUserId();
+    final uri = Uri.parse('${ApiConfig.authProfileBackendUrl}/api/membership?userId=$userId');
+
+    final response = await http.get(uri);
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      if (json['success'] == true && json['membership'] != null) {
+        return json['membership'] as Map<String, dynamic>;
+      }
+    }
+    throw ProfilePhotoException(
+      'Failed to load membership details (status ${response.statusCode}).',
+    );
+  }
+
+  // ─── POST (SAVE/UPDATE) membership details ────────────────────────────────
+
+  Future<Map<String, dynamic>> saveMembershipDetails({
+    required String membershipName,
+    required int availableCredits,
+    String? purchaseDate,
+  }) async {
+    final userId = await _getLocalUserId();
+    final uri = Uri.parse('${ApiConfig.authProfileBackendUrl}/api/membership');
+
+    final response = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'userId': userId,
+        'membership_name': membershipName,
+        'available_credits': availableCredits,
+        if (purchaseDate != null) 'purchase_date': purchaseDate,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      if (json['success'] == true && json['membership'] != null) {
+        return json['membership'] as Map<String, dynamic>;
+      }
+    }
+    throw ProfilePhotoException(
+      'Failed to save membership details (status ${response.statusCode}).',
+    );
+  }
 
   // ─── GET user details ─────────────────────────────────────────────────────
 

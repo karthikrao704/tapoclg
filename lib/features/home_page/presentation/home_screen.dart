@@ -14,7 +14,11 @@ import 'package:tapovana_mobile_app/features/services/data/repositories/service_
 import 'package:tapovana_mobile_app/features/service_details/presentation/pages/service_details_page.dart';
 import 'package:tapovana_mobile_app/core/storage/local_database.dart';
 import 'package:tapovana_mobile_app/features/chatbot/presentation/components/floating_chat_button.dart';
-
+import 'package:tapovana_mobile_app/features/appointments/presentation/pages/appointment_details_page.dart';
+import 'package:tapovana_mobile_app/features/more/repositories/more_repository.dart';
+import 'package:tapovana_mobile_app/features/more/models/more_models.dart';
+import 'package:tapovana_mobile_app/features/more/wellness_blog_details_page.dart';
+import 'package:tapovana_mobile_app/features/more/vedic_package_details_page.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -37,6 +41,39 @@ class _HomeScreenContent extends StatefulWidget {
 }
 
 class _HomeScreenContentState extends State<_HomeScreenContent> {
+  int _selectedMoodIndex = -1;
+  double _mindValue = 0.75;
+  double _bodyValue = 0.85;
+  double _soulValue = 0.90;
+
+  void _updateBalanceValues(int moodIndex) {
+    setState(() {
+      _selectedMoodIndex = moodIndex;
+      switch (moodIndex) {
+        case 0: // Low
+          _mindValue = 0.30;
+          _bodyValue = 0.40;
+          _soulValue = 0.35;
+          break;
+        case 1: // Okay
+          _mindValue = 0.55;
+          _bodyValue = 0.60;
+          _soulValue = 0.55;
+          break;
+        case 2: // Good
+          _mindValue = 0.80;
+          _bodyValue = 0.85;
+          _soulValue = 0.80;
+          break;
+        case 3: // Great
+          _mindValue = 0.95;
+          _bodyValue = 0.95;
+          _soulValue = 0.95;
+          break;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final dailyTip = getWellnessTipForDate(DateTime.now());
@@ -59,6 +96,10 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
               // Daily Mind-Body Balance Tracker
               const SizedBox(height: 24),
               _buildWellnessTrackerCard(),
+
+              // Quick Actions
+              const SizedBox(height: 30),
+              _buildQuickActions(),
 
               // Featured Services Section
               const SizedBox(height: 30),
@@ -217,7 +258,25 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
                     );
                   }
 
-                  final appointments = snapshot.data ?? [];
+                  final allAppointments = snapshot.data ?? [];
+                  
+                  // Filter out past appointments
+                  final now = DateTime.now();
+                  final today = DateTime(now.year, now.month, now.day);
+                  final appointments = allAppointments.where((appt) {
+                    try {
+                      final dateStr = appptDateStr(appt['date']);
+                      if (dateStr.isNotEmpty) {
+                        final parsedDate = DateTime.parse(dateStr);
+                        // Return true if date is today or in the future
+                        return !parsedDate.isBefore(today);
+                      }
+                      return true; // Keep if we can't parse it just in case
+                    } catch (_) {
+                      return true;
+                    }
+                  }).toList();
+
                   if (appointments.isEmpty) {
                     return Container(
                       width: double.infinity,
@@ -266,6 +325,9 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
                           }
                         } catch (_) {}
 
+                        final doctorNameStr = 'with ${appt['therapist'] ?? 'Dr. Aris'}';
+                        final roomStr = 'Room ${100 + (appt['id'] as int? ?? 1)}';
+
                         return Container(
                           width: 290,
                           margin: const EdgeInsets.only(right: 14),
@@ -273,10 +335,20 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
                             month: month,
                             day: day,
                             title: appt['service_name'] ?? 'Swedish Massage',
-                            doctorName:
-                                'with ${appt['therapist'] ?? 'Dr. Aris'}',
+                            doctorName: doctorNameStr,
                             time: appt['time'] ?? '10:30 AM',
-                            room: 'Room ${100 + (appt['id'] as int? ?? 1)}',
+                            room: roomStr,
+                            onTap: () {
+                              final updatedAppt = Map<String, dynamic>.from(appt);
+                              updatedAppt['therapist'] = updatedAppt['therapist'] ?? 'Dr. Aris';
+                              updatedAppt['room'] = roomStr;
+                              
+                              Navigator.of(context, rootNavigator: true).push(
+                                MaterialPageRoute(
+                                  builder: (_) => AppointmentDetailsPage(appointment: updatedAppt),
+                                ),
+                              );
+                            },
                           ),
                         );
                       }).toList(),
@@ -288,6 +360,18 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
               // Recommended Vedic Programs Section
               const SizedBox(height: 30),
               _buildVedicPrograms(),
+
+              // Expert Therapists Section
+              const SizedBox(height: 30),
+              _buildExpertTherapists(),
+
+              // Yoga Daily Practice Section
+              const SizedBox(height: 30),
+              _buildYogaOptions(),
+
+              // Latest Wellness Articles Section
+              const SizedBox(height: 30),
+              _buildLatestArticles(),
 
               // Quote of the Day Section
               const SizedBox(height: 30),
@@ -376,24 +460,104 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: badgeTextColor, width: 0.5),
                 ),
-                child: Text(
-                  "Level: Optimal",
-                  style: AppFonts.poppinsMedium(
-                    fontSize: 11,
-                    color: badgeTextColor,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: Text(
+                    _selectedMoodIndex == 0 
+                        ? "Level: Low" 
+                        : _selectedMoodIndex == 1 
+                            ? "Level: Balanced"
+                            : _selectedMoodIndex == 3 
+                                ? "Level: Peak"
+                                : "Level: Optimal",
+                    key: ValueKey(_selectedMoodIndex),
+                    style: AppFonts.poppinsMedium(
+                      fontSize: 11,
+                      color: badgeTextColor,
+                    ),
                   ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          _buildProgressRow("Mind (Dhyana)", 0.75, mindColor, labelColor, valueColor, indicatorBg),
+          _buildProgressRow("Mind (Dhyana)", _mindValue, mindColor, labelColor, valueColor, indicatorBg),
           const SizedBox(height: 10),
-          _buildProgressRow("Body (Prana)", 0.85, bodyColor, labelColor, valueColor, indicatorBg),
+          _buildProgressRow("Body (Prana)", _bodyValue, bodyColor, labelColor, valueColor, indicatorBg),
           const SizedBox(height: 10),
-          _buildProgressRow("Soul (Sattva)", 0.90, soulColor, labelColor, valueColor, indicatorBg),
+          _buildProgressRow("Soul (Sattva)", _soulValue, soulColor, labelColor, valueColor, indicatorBg),
+          const SizedBox(height: 20),
+          _buildInteractiveMoodSelector(),
         ],
       ),
+    );
+  }
+
+  Widget _buildInteractiveMoodSelector() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final titleColor = isDark ? Colors.white70 : const Color(0xFF6F7894);
+    final moods = [
+      {'icon': '😔', 'label': 'Low'},
+      {'icon': '😐', 'label': 'Okay'},
+      {'icon': '🙂', 'label': 'Good'},
+      {'icon': '✨', 'label': 'Great'},
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "How are you feeling today?",
+          style: AppFonts.poppinsMedium(fontSize: 12, color: titleColor),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(moods.length, (index) {
+            final isSelected = _selectedMoodIndex == index;
+            return GestureDetector(
+              onTap: () {
+                _updateBalanceValues(index);
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: isSelected 
+                      ? const Color(0xFFC9A14A).withAlpha(50) 
+                      : Colors.transparent,
+                  border: Border.all(
+                    color: isSelected 
+                        ? const Color(0xFFC9A14A) 
+                        : (isDark ? Colors.white24 : Colors.black12),
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      moods[index]['icon']!,
+                      style: TextStyle(
+                        fontSize: isSelected ? 26 : 22,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      moods[index]['label']!,
+                      style: AppFonts.poppinsMedium(
+                        fontSize: 11,
+                        color: isSelected 
+                            ? const Color(0xFFC9A14A) 
+                            : (isDark ? Colors.white60 : Colors.black54),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ),
+      ],
     );
   }
 
@@ -415,20 +579,34 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
               label,
               style: AppFonts.poppinsRegular(fontSize: 12, color: labelColor),
             ),
-            Text(
-              "${(value * 100).toInt()}%",
-              style: AppFonts.poppinsMedium(fontSize: 12, color: valueColor),
+            TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0, end: value),
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeOutCubic,
+              builder: (context, val, child) {
+                return Text(
+                  "${(val * 100).toInt()}%",
+                  style: AppFonts.poppinsMedium(fontSize: 12, color: valueColor),
+                );
+              },
             ),
           ],
         ),
         const SizedBox(height: 6),
         ClipRRect(
           borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(
-            value: value,
-            backgroundColor: indicatorBg,
-            valueColor: AlwaysStoppedAnimation<Color>(color),
-            minHeight: 6,
+          child: TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0, end: value),
+            duration: const Duration(milliseconds: 800),
+            curve: Curves.easeOutCubic,
+            builder: (context, val, child) {
+              return LinearProgressIndicator(
+                value: val,
+                backgroundColor: indicatorBg,
+                valueColor: AlwaysStoppedAnimation<Color>(color),
+                minHeight: 6,
+              );
+            },
           ),
         ),
       ],
@@ -440,6 +618,8 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
     final quoteBg = isDark ? const Color(0xFF1E293B) : const Color(0xFFFDFBF7);
     final quoteBorder = isDark ? Colors.white.withAlpha(15) : const Color(0xFFF3EAD8);
     final quoteTextColor = isDark ? const Color(0xFFE2E8F0) : const Color(0xFF644F24);
+
+    final dailyProverb = getWellnessProverbForDate(DateTime.now());
 
     return Container(
       width: double.infinity,
@@ -458,7 +638,7 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
           ),
           const SizedBox(height: 8),
           Text(
-            "\"Health is a state of complete physical, mental, and social well-being, and not merely the absence of disease or infirmity.\"",
+            dailyProverb,
             textAlign: TextAlign.center,
             style: AppFonts.headland(
               fontSize: 15,
@@ -483,34 +663,16 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
   Widget _buildVedicPrograms() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final packages = [
-      {
-        'title': 'Ayurvedic Panchakarma',
-        'desc': 'Complete 5-stage detoxification & cell renewal.',
-        'duration': '7 Days Program',
-        'price': '₹14,500',
-        'gradient': isDark
-            ? [const Color(0xFF2C1B10), const Color(0xFF1F120A)]
-            : [const Color(0xFFFFF7ED), const Color(0xFFFEEDD8)],
-      },
-      {
-        'title': 'Sirodhara Rejuvenation',
-        'desc': 'Warm herbal oils poured onto the third eye chakra.',
-        'duration': '90 Mins Session',
-        'price': '₹3,200',
-        'gradient': isDark
-            ? [const Color(0xFF102A1A), const Color(0xFF0A1F12)]
-            : [const Color(0xFFF0FDF4), const Color(0xFFDCFCE7)],
-      },
-      {
-        'title': 'Nadi Pariksha consultation',
-        'desc': 'Pulse analysis to diagnose imbalances in Doshas.',
-        'duration': '45 Mins Session',
-        'price': '₹1,500',
-        'gradient': isDark
-            ? [const Color(0xFF101B2E), const Color(0xFF0A1221)]
-            : [const Color(0xFFEFF6FF), const Color(0xFFDBEAFE)],
-      },
+    final List<List<Color>> lightGradients = [
+      [const Color(0xFFFFF7ED), const Color(0xFFFEEDD8)],
+      [const Color(0xFFF0FDF4), const Color(0xFFDCFCE7)],
+      [const Color(0xFFEFF6FF), const Color(0xFFDBEAFE)],
+    ];
+
+    final List<List<Color>> darkGradients = [
+      [const Color(0xFF2C1B10), const Color(0xFF1F120A)],
+      [const Color(0xFF102A1A), const Color(0xFF0A1F12)],
+      [const Color(0xFF101B2E), const Color(0xFF0A1221)],
     ];
 
     return Column(
@@ -524,91 +686,573 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
           ),
         ),
         const SizedBox(height: 16),
+        FutureBuilder<List<VedicPackage>>(
+          future: MoreRepository().getVedicPrograms(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: CircularProgressIndicator(
+                    color: AppColors.primaryColor,
+                  ),
+                ),
+              );
+            }
+
+            if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8F9FA),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isDark ? Colors.white.withAlpha(20) : const Color(0xFFE9ECEF),
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    "No programs available",
+                    style: AppFonts.poppinsRegular(
+                      color: AppColors.primaryBlack40,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            final packages = snapshot.data!.take(5).toList();
+
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
+              child: Row(
+                children: List.generate(packages.length, (index) {
+                  final pkg = packages[index];
+                  final gradientColors = isDark 
+                      ? darkGradients[index % darkGradients.length] 
+                      : lightGradients[index % lightGradients.length];
+
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.of(context, rootNavigator: true).push(
+                        MaterialPageRoute(
+                          builder: (_) => VedicPackageDetailsPage(package: pkg),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      width: 260,
+                      margin: const EdgeInsets.only(right: 16),
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: gradientColors,
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isDark
+                              ? gradientColors[1].withAlpha(80)
+                              : gradientColors[1].withAlpha(200),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? Colors.black.withAlpha(120)
+                                  : Colors.white.withAlpha(200),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              pkg.duration,
+                              style: AppFonts.poppinsMedium(
+                                fontSize: 11,
+                                color: const Color(0xFFC9A14A),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            pkg.title,
+                            style: AppFonts.poppinsSemiBold(
+                              fontSize: 16,
+                              color: isDark ? Colors.white : const Color(0xFF1E293B),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            pkg.description,
+                            style: AppFonts.poppinsRegular(
+                              fontSize: 12,
+                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                              height: 1.4,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                pkg.price,
+                                style: AppFonts.poppinsSemiBold(
+                                  fontSize: 16,
+                                  color: isDark ? const Color(0xFFF8FAFC) : const Color(0xFF0F172A),
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFC9A14A),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.arrow_forward,
+                                  size: 14,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQuickActions() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final actions = [
+      {'icon': Icons.spa_outlined, 'label': 'Massage'},
+      {'icon': Icons.self_improvement_outlined, 'label': 'Yoga'},
+      {'icon': Icons.local_florist_outlined, 'label': 'Ayurveda'},
+      {'icon': Icons.medical_services_outlined, 'label': 'Consult'},
+    ];
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: actions.map((action) {
+        return Column(
+          children: [
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E293B) : const Color(0xFFFAF6EE),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isDark ? const Color(0xFF334155) : const Color(0xFFEADFCA),
+                ),
+              ),
+              child: IconButton(
+                icon: Icon(
+                  action['icon'] as IconData,
+                  color: const Color(0xFFC9A14A),
+                  size: 28,
+                ),
+                onPressed: () {
+                  context.go(RouteConstants.services);
+                },
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              action['label'] as String,
+              style: AppFonts.poppinsMedium(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ],
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildExpertTherapists() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final therapists = [
+      {'name': 'Dr. Aris', 'role': 'Ayurvedic Doctor', 'rating': '4.9', 'image': 'https://i.pravatar.cc/150?u=a042581f4e29026704d'},
+      {'name': 'Maya Devi', 'role': 'Yoga Instructor', 'rating': '4.8', 'image': 'https://i.pravatar.cc/150?u=a042581f4e29026024d'},
+      {'name': 'Ravi Kumar', 'role': 'Massage Therapist', 'rating': '5.0', 'image': 'https://i.pravatar.cc/150?u=a04258a2462d826712d'},
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Our Expert Therapists",
+          style: AppFonts.poppinsSemiBold(
+            fontSize: 22,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 16),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           clipBehavior: Clip.none,
           child: Row(
-            children: packages.map((pkg) {
-              final gradientColors = pkg['gradient'] as List<Color>;
+            children: therapists.map((therapist) {
               return Container(
-                width: 260,
+                width: 140,
                 margin: const EdgeInsets.only(right: 16),
-                padding: const EdgeInsets.all(18),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: gradientColors,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  color: isDark ? const Color(0xFF1E293B) : Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: isDark
-                        ? gradientColors[1].withAlpha(80)
-                        : gradientColors[1].withValues(alpha: 0.8),
+                    color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
                   ),
+                  boxShadow: [
+                    if (!isDark)
+                      BoxShadow(
+                        color: Colors.black.withAlpha(10),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                  ],
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? Colors.black.withAlpha(120)
-                            : Colors.white.withValues(alpha: 0.8),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        pkg['duration'] as String,
-                        style: AppFonts.poppinsMedium(
-                          fontSize: 11,
-                          color: const Color(0xFFC9A14A),
-                        ),
-                      ),
+                    CircleAvatar(
+                      radius: 35,
+                      backgroundImage: NetworkImage(therapist['image']!),
+                      backgroundColor: const Color(0xFFEADFCA),
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      pkg['title'] as String,
+                      therapist['name']!,
                       style: AppFonts.poppinsSemiBold(
-                        fontSize: 16,
-                        color: isDark ? Colors.white : const Color(0xFF1E293B),
+                        fontSize: 14,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      pkg['desc'] as String,
-                      style: AppFonts.poppinsRegular(
-                        fontSize: 12,
-                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                        height: 1.4,
-                      ),
-                      maxLines: 2,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 4),
+                    Text(
+                      therapist['role']!,
+                      style: AppFonts.poppinsRegular(
+                        fontSize: 11,
+                        color: AppColors.primaryBlack40,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        const Icon(Icons.star, color: Colors.amber, size: 14),
+                        const SizedBox(width: 4),
                         Text(
-                          pkg['price'] as String,
-                          style: AppFonts.poppinsSemiBold(
-                            fontSize: 16,
-                            color: isDark ? const Color(0xFFF8FAFC) : const Color(0xFF0F172A),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFC9A14A),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.arrow_forward,
-                            size: 14,
-                            color: Colors.white,
+                          therapist['rating']!,
+                          style: AppFonts.poppinsMedium(
+                            fontSize: 12,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ],
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLatestArticles() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Latest Articles",
+              style: AppFonts.poppinsSemiBold(
+                fontSize: 22,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                context.go(RouteConstants.more); // More tab has the blog section
+              },
+              child: Text(
+                "View all",
+                style: AppFonts.poppinsSemiBold(
+                  fontSize: 14,
+                  color: AppColors.primaryColor,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        FutureBuilder<List<WellnessBlogPost>>(
+          future: MoreRepository().getBlogs(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: CircularProgressIndicator(
+                    color: AppColors.primaryColor,
+                  ),
+                ),
+              );
+            }
+
+            if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8F9FA),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isDark ? Colors.white.withAlpha(20) : const Color(0xFFE9ECEF),
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    "No articles available",
+                    style: AppFonts.poppinsRegular(
+                      color: AppColors.primaryBlack40,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            // Take only the latest 3 articles
+            final articles = snapshot.data!.take(3).toList();
+
+            return Column(
+              children: articles.map((article) {
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.of(context, rootNavigator: true).push(
+                      MaterialPageRoute(
+                        builder: (_) => WellnessBlogDetailsPage(post: article),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                      ),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 100,
+                          height: 100,
+                          child: article.imagePath != null && article.imagePath!.isNotEmpty
+                              ? Image.network(
+                                  article.imagePath!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => Container(color: Colors.grey.shade300),
+                                )
+                              : Container(
+                                  color: Colors.grey.shade300,
+                                  child: const Icon(Icons.article, color: Colors.grey),
+                                ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  article.category,
+                                  style: AppFonts.poppinsSemiBold(
+                                    fontSize: 10,
+                                    color: const Color(0xFFC9A14A),
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  article.title,
+                                  style: AppFonts.poppinsMedium(
+                                    fontSize: 14,
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildYogaOptions() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final yogaPoses = [
+      {
+        'title': 'Surya Namaskar',
+        'subtitle': 'Sun Salutation',
+        'instruction': 'A flow of 12 postures that deeply stretches the whole body and warms up your muscles. Best performed at sunrise.',
+        'image': 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=400',
+      },
+      {
+        'title': 'Vrikshasana',
+        'subtitle': 'Tree Pose',
+        'instruction': 'Stand tall, place your right foot on your left inner thigh. Bring hands to prayer position. Improves focus and balance.',
+        'image': 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=400',
+      },
+      {
+        'title': 'Balasana',
+        'subtitle': 'Child\'s Pose',
+        'instruction': 'Kneel, sit on your heels, and walk your hands forward until your forehead touches the mat. Relieves back tension.',
+        'image': 'https://images.unsplash.com/photo-1593164842264-854604db2260?auto=format&fit=crop&q=80&w=400',
+      },
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Daily Yoga Practice",
+          style: AppFonts.poppinsSemiBold(
+            fontSize: 22,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 16),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          clipBehavior: Clip.none,
+          child: Row(
+            children: yogaPoses.map((pose) {
+              return Container(
+                width: 280,
+                margin: const EdgeInsets.only(right: 16),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                  ),
+                  boxShadow: [
+                    if (!isDark)
+                      BoxShadow(
+                        color: Colors.black.withAlpha(10),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                  ],
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 140,
+                      width: double.infinity,
+                      child: Image.network(
+                        pose['image']!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(color: Colors.grey.shade300),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                pose['title']!,
+                                style: AppFonts.poppinsSemiBold(
+                                  fontSize: 16,
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFC9A14A).withAlpha(30),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  "5 Mins",
+                                  style: AppFonts.poppinsMedium(
+                                    fontSize: 10,
+                                    color: const Color(0xFFC9A14A),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            pose['subtitle']!,
+                            style: AppFonts.poppinsMedium(
+                              fontSize: 12,
+                              color: const Color(0xFFC9A14A),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            pose['instruction']!,
+                            style: AppFonts.poppinsRegular(
+                              fontSize: 12,
+                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                              height: 1.4,
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),

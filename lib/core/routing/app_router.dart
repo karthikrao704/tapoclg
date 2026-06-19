@@ -10,6 +10,10 @@ import 'package:tapovana_mobile_app/features/auth/presentation/pages/login_page.
 import 'package:tapovana_mobile_app/features/auth/presentation/pages/signup_page.dart';
 import 'package:tapovana_mobile_app/features/auth/presentation/pages/otp_page.dart';
 import 'package:tapovana_mobile_app/features/auth/presentation/pages/data_entry_page.dart';
+import 'package:tapovana_mobile_app/features/auth/presentation/pages/forgot_password_page.dart';
+import 'package:tapovana_mobile_app/features/auth/bloc/forgot_password/forgot_password_cubit.dart';
+import 'package:tapovana_mobile_app/features/auth/data/auth_api_repository.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:tapovana_mobile_app/features/home_page/presentation/home_screen.dart';
 import 'package:tapovana_mobile_app/features/services/presentation/screens/body_care_screen.dart';
@@ -47,6 +51,7 @@ class AppRouter {
           RouteConstants.login2faOtp,
           RouteConstants.googleDataEntry,
           RouteConstants.google2faOtp,
+          RouteConstants.forgotPassword,
         ];
 
         final isAuthRoute = authRoutes.contains(currentLocation);
@@ -112,6 +117,13 @@ class AppRouter {
         GoRoute(
           path: RouteConstants.signup,
           builder: (context, state) => const SignupPage(),
+        ),
+        GoRoute(
+          path: RouteConstants.forgotPassword,
+          builder: (context, state) => BlocProvider(
+            create: (context) => ForgotPasswordCubit(AuthApiRepository()),
+            child: const ForgotPasswordPage(),
+          ),
         ),
 
         // Email signup OTP

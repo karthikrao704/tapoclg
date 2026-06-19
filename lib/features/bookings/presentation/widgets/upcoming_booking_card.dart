@@ -4,8 +4,7 @@ import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 class UpcomingBookingCard extends StatefulWidget {
-  final Map<String, dynamic>? booking;
-  const UpcomingBookingCard({super.key, this.booking});
+  const UpcomingBookingCard({super.key});
 
   @override
   State<UpcomingBookingCard> createState() => _UpcomingBookingCardState();
@@ -14,40 +13,11 @@ class UpcomingBookingCard extends StatefulWidget {
 class _UpcomingBookingCardState extends State<UpcomingBookingCard> {
   bool isRescheduleSelected = true;
 
-  String _formatDateString(String dateStr) {
-    try {
-      final dt = DateTime.parse(dateStr);
-      const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      return "${days[dt.weekday - 1]}, ${months[dt.month - 1]} ${dt.day}";
-    } catch (_) {
-      return dateStr;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     // 1. Establish breakpoints for dynamic scaling
     final size = MediaQuery.sizeOf(context);
     final isSmallScreen = size.height < 650 || size.width < 360;
-
-    final serviceName = widget.booking?['service_name'] ?? 'Deep Tissue Revive';
-    final therapistName = widget.booking?['therapist_name'] ?? 'Sarah Jennings';
-    final bookingTime = widget.booking?['booking_time'] ?? '10:00 AM';
-    
-    String dateLabel = 'Monday, Oct 24';
-    if (widget.booking?['booking_date'] != null) {
-      dateLabel = _formatDateString(widget.booking!['booking_date'].toString());
-    }
-
-    // Determine image based on service name
-    String imageAsset = "assets/bookings/deeptissue.png";
-    final sLower = serviceName.toString().toLowerCase();
-    if (sLower.contains('vedic') || sLower.contains('aroma') || sLower.contains('detox')) {
-      imageAsset = "assets/bookings/leaf.png";
-    } else if (sLower.contains('yoga') || sLower.contains('meditation')) {
-      imageAsset = "assets/bookings/yoga.png";
-    }
 
     return Container(
       decoration: BoxDecoration(
@@ -66,7 +36,7 @@ class _UpcomingBookingCardState extends State<UpcomingBookingCard> {
               ), // Adjusted to match outer container radius visually
             ),
             child: Image.asset(
-              imageAsset,
+              "assets/bookings/deeptissue.png",
               // 2. Responsive image height to prevent dominating small screens
               height: isSmallScreen ? 140 : 200,
               width: double.infinity,
@@ -85,7 +55,7 @@ class _UpcomingBookingCardState extends State<UpcomingBookingCard> {
                     // 3. Wrapped Title in Expanded to prevent horizontal collision with the badge
                     Expanded(
                       child: Text(
-                        serviceName,
+                        "Deep Tissue Revive",
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppFonts.poppinsSemiBold(
@@ -130,7 +100,7 @@ class _UpcomingBookingCardState extends State<UpcomingBookingCard> {
                         Expanded(
                           // Safety wrap for long dates on max system font scaling
                           child: Text(
-                            "$dateLabel • $bookingTime",
+                            "Monday, Oct 24 • 10:00 AM",
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: AppFonts.poppinsRegular(
@@ -155,7 +125,7 @@ class _UpcomingBookingCardState extends State<UpcomingBookingCard> {
                         Expanded(
                           // Safety wrap for long names
                           child: Text(
-                            "Therapist: $therapistName",
+                            "Therapist: Sarah Jennings",
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: AppFonts.poppinsRegular(

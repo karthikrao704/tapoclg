@@ -10,7 +10,6 @@ import 'package:tapovana_mobile_app/features/auth/bloc/signup/signup_event.dart'
 import 'package:tapovana_mobile_app/features/auth/bloc/signup/signup_state.dart';
 import 'package:tapovana_mobile_app/features/auth/data/auth_api_repository.dart';
 import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
-import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 
 class SignupPage extends StatefulWidget {

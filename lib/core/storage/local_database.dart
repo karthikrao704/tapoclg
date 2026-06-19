@@ -58,7 +58,6 @@ class LocalDatabase {
         service_name TEXT,
         date TEXT,
         time TEXT,
-        therapist TEXT,
         price TEXT,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
       )
@@ -84,7 +83,6 @@ class LocalDatabase {
           service_name TEXT,
           date TEXT,
           time TEXT,
-          therapist TEXT,
           price TEXT,
           created_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
@@ -270,7 +268,6 @@ class LocalDatabase {
     required String serviceName,
     required String date,
     required String time,
-    required String therapist,
     required String price,
   }) async {
     final db = await database;
@@ -278,7 +275,6 @@ class LocalDatabase {
       'service_name': serviceName,
       'date': date,
       'time': time,
-      'therapist': therapist,
       'price': price,
     });
     debugPrint('✅ Appointment saved locally: $serviceName');

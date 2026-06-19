@@ -4,6 +4,7 @@ import 'package:tapovana_mobile_app/core/theme/app_theme.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
 import 'package:tapovana_mobile_app/core/widgets/failed_image_cache.dart';
 import 'package:tapovana_mobile_app/core/widgets/custom_video_player.dart';
+import 'package:tapovana_mobile_app/core/widgets/review_section.dart';
 import 'models/more_models.dart';
 
 class WorkshopDetailsPage extends StatefulWidget {
@@ -152,33 +153,64 @@ class _WorkshopDetailsPageState extends State<WorkshopDetailsPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Progress section
-                  _buildProgressSection(context),
-                  const SizedBox(height: 28),
+                  // Description Section
+                  if (widget.workshop.description.isNotEmpty) ...[
+                    _sectionHeader("Description"),
+                    const SizedBox(height: 10),
+                    Text(
+                      widget.workshop.description,
+                      style: AppFonts.poppinsRegular(
+                        color: AppTheme.secondaryText,
+                        fontSize: 15,
+                        height: 1.6,
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                  ],
 
                   // Video Section
-                  _sectionHeader("Video Tutorial & Practice"),
-                  const SizedBox(height: 12),
-                  _buildVideoCard(context),
-                  const SizedBox(height: 28),
+                  if (widget.workshop.youtubeVideoUrl.isNotEmpty) ...[
+                    _sectionHeader("Video Tutorial & Practice"),
+                    const SizedBox(height: 12),
+                    _buildVideoCard(context),
+                    const SizedBox(height: 28),
+                  ],
 
-                  // Theory Section
-                  _sectionHeader("Theory & Core Principles"),
-                  const SizedBox(height: 10),
-                  Text(
-                    widget.workshop.theory,
-                    style: AppFonts.poppinsRegular(
-                      color: AppTheme.secondaryText,
-                      fontSize: 15,
-                      height: 1.6,
-                    ),
+                  // Participant Feedback Section
+                  ReviewSection(
+                    title: "Participant Feedback",
+                    reviews: MockReviews.workshopFeedback,
+                    averageRating: 4.8,
+                    moduleType: 'workshop',
+                    itemTitle: widget.workshop.title,
                   ),
                   const SizedBox(height: 28),
 
-                  // Modules checklist
-                  _sectionHeader("Workshop Syllabus"),
-                  const SizedBox(height: 14),
-                  _buildModulesList(context),
+                  // Enroll Now Button
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 54,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Enrollment functionality coming soon!")),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        "Enroll Now",
+                        style: AppFonts.poppinsSemiBold(fontSize: 16),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 40),
                 ],
               ),
@@ -189,52 +221,7 @@ class _WorkshopDetailsPageState extends State<WorkshopDetailsPage> {
     );
   }
 
-  Widget _buildProgressSection(BuildContext context) {
-    final percent = (widget.workshop.progress * 100).toInt();
 
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Workshop Progress",
-                style: AppFonts.poppinsSemiBold(
-                  fontSize: 14,
-                  color: AppTheme.primaryText,
-                ),
-              ),
-              Text(
-                "$percent% Complete",
-                style: AppFonts.poppinsSemiBold(
-                  fontSize: 14,
-                  color: AppColors.primaryColor,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: widget.workshop.progress,
-              minHeight: 8,
-              backgroundColor: const Color(0xFFE2E8F0),
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildVideoCard(BuildContext context) {
     return Container(
@@ -362,84 +349,7 @@ class _WorkshopDetailsPageState extends State<WorkshopDetailsPage> {
     );
   }
 
-  Widget _buildModulesList(BuildContext context) {
-    return Column(
-      children: List.generate(widget.workshop.modules.length, (index) {
-        final moduleTitle = widget.workshop.modules[index];
-        final isCompleted = widget.workshop.moduleCompleted[index];
-        final isInProgress = !isCompleted &&
-            (index == 0 || widget.workshop.moduleCompleted[index - 1]);
-        final isLocked = !isCompleted && !isInProgress;
 
-        Color itemBgColor = Colors.white;
-        Color borderCol = const Color(0xFFE2E8F0);
-        Widget trailingWidget;
-
-        if (isCompleted) {
-          itemBgColor = const Color(0xFFF0FDF4);
-          borderCol = const Color(0xFFDCFCE7);
-          trailingWidget = const Icon(Icons.check_circle, color: Color(0xFF16A34A), size: 22);
-        } else if (isInProgress) {
-          itemBgColor = const Color(0xFFFFFBEB);
-          borderCol = const Color(0xFFFEF3C7);
-          trailingWidget = Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFEF3C7),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              "IN PROGRESS",
-              style: AppFonts.poppinsSemiBold(
-                fontSize: 9,
-                color: const Color(0xFFD97706),
-              ),
-            ),
-          );
-        } else {
-          trailingWidget = const Icon(Icons.lock_outline, color: Color(0xFF94A3B8), size: 20);
-        }
-
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: itemBgColor,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: borderCol),
-          ),
-          child: Row(
-            children: [
-              // Index
-              Text(
-                (index + 1).toString().padLeft(2, '0'),
-                style: AppFonts.poppinsSemiBold(
-                  fontSize: 16,
-                  color: isLocked ? const Color(0xFF94A3B8) : AppColors.primaryColor,
-                ),
-              ),
-              const SizedBox(width: 16),
-
-              // Title
-              Expanded(
-                child: Text(
-                  moduleTitle,
-                  style: AppFonts.poppinsMedium(
-                    fontSize: 14,
-                    color: isLocked ? const Color(0xFF94A3B8) : AppTheme.primaryText,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-
-              // Status indicator
-              trailingWidget,
-            ],
-          ),
-        );
-      }),
-    );
-  }
 
   Widget _sectionHeader(String title) {
     return Row(

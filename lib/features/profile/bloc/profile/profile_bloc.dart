@@ -39,24 +39,36 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       // Load profile photo URL from local DB
       final photoUrl = await LocalDatabase.getProfilePhotoUrl();
 
-      // Load wellness pass from local DB
-      final savedPass = await LocalDatabase.getWellnessPass();
-      final String currentMembership = savedPass ?? 'GOLD';
+      // Load membership from backend first, fallback to local DB
+      String currentMembership = 'GOLD';
+      int credits = 12;
 
-      // Load wellness credits from local DB
-      int credits = 0;
-      final savedCredits = await LocalDatabase.getWellnessCredits();
-      if (savedCredits != null) {
-        credits = savedCredits;
-      } else {
-        if (currentMembership.toUpperCase().contains('SILVER')) {
-          credits = 5;
-        } else if (currentMembership.toUpperCase().contains('GOLD')) {
-          credits = 12;
-        } else if (currentMembership.toUpperCase().contains('DIAMOND')) {
-          credits = 25;
-        }
+      try {
+        final membershipData = await _repository.getMembershipDetails();
+        currentMembership = membershipData['membership_name'] as String? ?? 'GOLD';
+        credits = membershipData['available_credits'] as int? ?? 12;
+
+        // Persist backend values locally
+        await LocalDatabase.saveWellnessPass(currentMembership);
         await LocalDatabase.saveWellnessCredits(credits);
+      } catch (backendError) {
+        // Fallback to local DB if backend fetch fails
+        final savedPass = await LocalDatabase.getWellnessPass();
+        currentMembership = savedPass ?? 'GOLD';
+
+        final savedCredits = await LocalDatabase.getWellnessCredits();
+        if (savedCredits != null) {
+          credits = savedCredits;
+        } else {
+          if (currentMembership.toUpperCase().contains('SILVER')) {
+            credits = 5;
+          } else if (currentMembership.toUpperCase().contains('GOLD')) {
+            credits = 12;
+          } else if (currentMembership.toUpperCase().contains('DIAMOND')) {
+            credits = 25;
+          }
+          await LocalDatabase.saveWellnessCredits(credits);
+        }
       }
 
       emit(
@@ -107,6 +119,17 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
       await LocalDatabase.saveWellnessCredits(credits);
 
+      // Save to backend
+      try {
+        await _repository.saveMembershipDetails(
+          membershipName: event.passType,
+          availableCredits: credits,
+        );
+      } catch (backendError) {
+        // Log backend error without breaking UI update
+        print('⚠️ Failed to sync membership upgrade to backend: $backendError');
+      }
+
       emit(
         state.copyWith(
           membershipType: event.passType.toUpperCase().endsWith('PASS') || event.passType.toUpperCase().endsWith('MEMBER')
@@ -135,6 +158,17 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       if (currentCredits > 0) {
         final newCredits = currentCredits - 1;
         await LocalDatabase.saveWellnessCredits(newCredits);
+
+        // Sync new credits to backend
+        try {
+          await _repository.saveMembershipDetails(
+            membershipName: state.membershipType,
+            availableCredits: newCredits,
+          );
+        } catch (backendError) {
+          print('⚠️ Failed to sync deducted credits to backend: $backendError');
+        }
+
         emit(state.copyWith(availableCredits: newCredits));
       }
     } catch (e) {
@@ -216,6 +250,16 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   // ─── Logout ───────────────────────────────────────────────────────────────
 
   Future<void> _onLogout(Logout event, Emitter<ProfileState> emit) async {
-    emit(const ProfileState());
+    emit(state.copyWith(isLoading: true));
+    try {
+      emit(state.copyWith(isLoading: false));
+    } catch (e) {
+      emit(
+        state.copyWith(
+          error: 'Failed to logout: ${e.toString()}',
+          isLoading: false,
+        ),
+      );
+    }
   }
 }

@@ -9,6 +9,7 @@ class RouteConstants {
   static const String login2faOtp = '/login-2fa-otp';
   static const String googleDataEntry = '/google-data-entry';
   static const String google2faOtp = '/google-2fa-otp';
+  static const String forgotPassword = '/forgot-password';
 
   // Main navigation routes
   static const String home = '/home';

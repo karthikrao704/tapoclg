@@ -75,12 +75,15 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
   }
 
   void _updateControllers(PersonalInfoState state) {
-    if (_nameController.text != state.fullName)
+    if (_nameController.text != state.fullName) {
       _nameController.text = state.fullName;
-    if (_emailController.text != state.email)
+    }
+    if (_emailController.text != state.email) {
       _emailController.text = state.email;
-    if (_phoneController.text != state.phone)
+    }
+    if (_phoneController.text != state.phone) {
       _phoneController.text = state.phone;
+    }
     if (_dobController.text != state.dateOfBirth) {
       if (state.dateOfBirth.isNotEmpty) {
         try {
@@ -101,19 +104,25 @@ class _PersonalInfoViewState extends State<PersonalInfoView> {
         _dobController.text = state.dateOfBirth;
       }
     }
-    if (_genderController.text != state.gender)
+    if (_genderController.text != state.gender) {
       _genderController.text = state.gender;
-    if (_countryController.text != state.country)
+    }
+    if (_countryController.text != state.country) {
       _countryController.text = state.country;
+    }
     if (_cityController.text != state.city) _cityController.text = state.city;
-    if (_addressController.text != state.streetAddress)
+    if (_addressController.text != state.streetAddress) {
       _addressController.text = state.streetAddress;
-    if (_healthConcernsController.text != state.healthConcerns)
+    }
+    if (_healthConcernsController.text != state.healthConcerns) {
       _healthConcernsController.text = state.healthConcerns;
-    if (_preferredTherapiesController.text != state.preferredTherapies)
+    }
+    if (_preferredTherapiesController.text != state.preferredTherapies) {
       _preferredTherapiesController.text = state.preferredTherapies;
-    if (_allergiesController.text != state.allergies)
+    }
+    if (_allergiesController.text != state.allergies) {
       _allergiesController.text = state.allergies;
+    }
   }
 
   @override

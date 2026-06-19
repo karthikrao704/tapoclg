@@ -47,3 +47,28 @@ String getWellnessTipForDate(DateTime date) {
   final index = difference.abs() % wellnessTips.length;
   return wellnessTips[index];
 }
+
+const List<String> wellnessProverbs = [
+  "\"Health is a state of complete physical, mental, and social well-being, and not merely the absence of disease or infirmity.\"",
+  "\"The groundwork for all happiness is good health.\"",
+  "\"A calm mind brings inner strength and self-confidence, so that's very important for good health.\"",
+  "\"Let food be thy medicine and medicine be thy food.\"",
+  "\"To keep the body in good health is a duty... otherwise we shall not be able to keep our mind strong and clear.\"",
+  "\"The mind and body are not separate. What affects one, affects the other.\"",
+  "\"Physical fitness is the first requisite of happiness.\"",
+  "\"Take care of your body. It's the only place you have to live.\"",
+  "\"The greatest wealth is health.\"",
+  "\"Wellness is a connection of paths: knowledge and action.\"",
+  "\"It is health that is real wealth and not pieces of gold and silver.\"",
+  "\"A good laugh and a long sleep are the best cures in the doctor's book.\"",
+  "\"Your body hears everything your mind says. Stay positive.\"",
+  "\"Happiness is the highest form of health.\""
+];
+
+String getWellnessProverbForDate(DateTime date) {
+  final epoch = DateTime(2026, 1, 1);
+  final dateUtc = DateTime(date.year, date.month, date.day);
+  final difference = dateUtc.difference(epoch).inDays;
+  final index = difference.abs() % wellnessProverbs.length;
+  return wellnessProverbs[index];
+}

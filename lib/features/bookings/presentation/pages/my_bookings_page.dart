@@ -1,12 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:tapovana_mobile_app/features/bookings/presentation/widgets/future_booking_card.dart';
 import 'package:tapovana_mobile_app/features/bookings/presentation/widgets/upcoming_booking_card.dart';
 import 'package:tapovana_mobile_app/core/theme/app_colors.dart';
 import 'package:tapovana_mobile_app/core/theme/app_fonts.dart';
-import 'package:tapovana_mobile_app/core/config/api_config.dart';
-import 'package:tapovana_mobile_app/core/storage/local_database.dart';
 
 class MyBookingsPage extends StatefulWidget {
   const MyBookingsPage({super.key});
@@ -18,74 +14,17 @@ class MyBookingsPage extends StatefulWidget {
 class _MyBookingsPageState extends State<MyBookingsPage>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
-  List<dynamic> _bookings = [];
-  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this, initialIndex: 0);
-    _loadBookings();
-  }
-
-  Future<void> _loadBookings() async {
-    try {
-      final name = await LocalDatabase.getUserName();
-      if (name == null || name.isEmpty) {
-        setState(() {
-          _isLoading = false;
-          _bookings = [];
-        });
-        return;
-      }
-
-      final url = Uri.parse('${ApiConfig.backendUrl}/api/bookings?userName=${Uri.encodeComponent(name)}');
-      final response = await http.get(url).timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data['success'] == true && data['bookings'] != null) {
-          setState(() {
-            _bookings = data['bookings'];
-            _isLoading = false;
-          });
-          return;
-        }
-      }
-      setState(() {
-        _isLoading = false;
-      });
-    } catch (e) {
-      debugPrint('Error loading bookings: $e');
-      setState(() {
-        _isLoading = false;
-      });
-    }
   }
 
   @override
   void dispose() {
     _tabController?.dispose();
     super.dispose();
-  }
-
-  String _formatFutureDateTime(String dateStr, String timeStr) {
-    try {
-      final dt = DateTime.parse(dateStr);
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      final formattedDay = dt.day.toString().padLeft(2, '0');
-      return "${months[dt.month - 1]} $formattedDay • $timeStr";
-    } catch (_) {
-      return "$dateStr • $timeStr";
-    }
-  }
-
-  String _getFutureIcon(String serviceName) {
-    final sLower = serviceName.toLowerCase();
-    if (sLower.contains('vedic') || sLower.contains('aroma') || sLower.contains('detox')) {
-      return "assets/bookings/leaf.png";
-    }
-    return "assets/bookings/yoga.png";
   }
 
   @override
@@ -117,6 +56,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
           ),
         ),
         bottom: PreferredSize(
+          // Adjusted preferred size slightly for tighter screens
           preferredSize: Size.fromHeight(isSmallScreen ? 42 : 48),
           child: Container(
             color: Theme.of(context).scaffoldBackgroundColor,
@@ -132,6 +72,7 @@ class _MyBookingsPageState extends State<MyBookingsPage>
                 horizontal: isSmallScreen ? 12 : 16,
               ),
               padding: EdgeInsets.zero,
+              // 2. Scaled TabBar typography
               labelStyle: AppFonts.poppinsSemiBold(
                 fontSize: isSmallScreen ? 13 : 15,
               ),
@@ -158,34 +99,8 @@ class _MyBookingsPageState extends State<MyBookingsPage>
     );
   }
 
+  // 3. Passed the responsive variables down into the sub-trees
   Widget _buildUpcomingTab(bool isSmallScreen, double hPadding) {
-    if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
-        ),
-      );
-    }
-
-    if (_bookings.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Text(
-            "No upcoming bookings yet.",
-            style: AppFonts.poppinsRegular(
-              color: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : AppColors.primaryBlack40,
-              fontSize: isSmallScreen ? 13 : 15,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      );
-    }
-
-    final upcoming = _bookings[0];
-    final futureBookings = _bookings.sublist(1);
-
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(
         horizontal: hPadding,
@@ -204,38 +119,34 @@ class _MyBookingsPageState extends State<MyBookingsPage>
           ),
           SizedBox(height: isSmallScreen ? 8 : 12),
 
-          UpcomingBookingCard(booking: upcoming),
+          // NOTE: Ensure this external widget also uses Expanded/Flexible internally!
+          const UpcomingBookingCard(),
 
-          if (futureBookings.isNotEmpty) ...[
-            SizedBox(height: isSmallScreen ? 24 : 35),
-            Text(
-              "FUTURE APPOINTMENTS",
-              style: AppFonts.poppinsSemiBold(
-                fontSize: isSmallScreen ? 11 : 13,
-                letterSpacing: 1.2,
-                color: AppColors.primaryColor,
-              ),
+          SizedBox(height: isSmallScreen ? 24 : 35),
+          Text(
+            "FUTURE APPOINTMENTS",
+            style: AppFonts.poppinsSemiBold(
+              fontSize: isSmallScreen ? 11 : 13,
+              letterSpacing: 1.2,
+              color: AppColors.primaryColor,
             ),
-            SizedBox(height: isSmallScreen ? 8 : 12),
-            ...futureBookings.map((b) {
-              final title = b['service_name'] ?? 'Swedish Massage';
-              final dateStr = b['booking_date']?.toString() ?? '';
-              final timeStr = b['booking_time']?.toString() ?? '';
-              final timeLabel = _formatFutureDateTime(dateStr, timeStr);
-              final status = 'CONFIRMED';
-              final icon = _getFutureIcon(title);
+          ),
+          SizedBox(height: isSmallScreen ? 8 : 12),
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12.0),
-                child: FutureBookingCard(
-                  title: title,
-                  time: timeLabel,
-                  status: status,
-                  icon: icon,
-                ),
-              );
-            }),
-          ],
+          // NOTE: Ensure this external widget also uses Expanded/Flexible internally!
+          const FutureBookingCard(
+            title: "Vedic Aromatherapy",
+            time: "Nov 02 • 02:30 PM",
+            status: "PENDING",
+            icon: "assets/bookings/leaf.png",
+          ),
+          SizedBox(height: isSmallScreen ? 8 : 12),
+          const FutureBookingCard(
+            title: "Private Yoga Session",
+            time: "Nov 15 • 08:00 AM",
+            status: "CONFIRMED",
+            icon: "assets/bookings/yoga.png",
+          ),
         ],
       ),
     );
