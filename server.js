@@ -820,6 +820,28 @@ app.post('/api/reviews', async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
+//   REVIEWS — GET ALL
+// ═══════════════════════════════════════════════════════════════════════════════
+
+app.get('/api/reviews', async (req, res) => {
+  const { module_type, title } = req.query;
+  try {
+    let result;
+    if (module_type && title) {
+      result = await pool.query('SELECT * FROM reviews WHERE module_type = $1 AND title = $2 ORDER BY id DESC', [module_type, title]);
+    } else if (module_type) {
+      result = await pool.query('SELECT * FROM reviews WHERE module_type = $1 ORDER BY id DESC', [module_type]);
+    } else {
+      result = await pool.query('SELECT * FROM reviews ORDER BY id DESC');
+    }
+    return res.json({ success: true, count: result.rows.length, reviews: result.rows });
+  } catch (err) {
+    console.error('❌ GET /api/reviews error:', err);
+    return res.status(500).json({ error: 'Database error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
 //   BOOKINGS — GET ALL (optional ?userName= filter)
 // ═══════════════════════════════════════════════════════════════════════════════
 
