@@ -1009,26 +1009,18 @@ app.post('/api/membership', async (req, res) => {
 //   VEDIC PACKAGES — JOIN (POST)
 // ═══════════════════════════════════════════════════════════════════════════════
 app.post('/api/vedic-packages/join', async (req, res) => {
-  const { userId, membership_name, join_date, join_time } = req.body;
+  const { userName, email, profilePic, membership_name, join_date, join_time } = req.body;
 
-  if (!userId || !membership_name || !join_date || !join_time) {
-    return res.status(400).json({ success: false, message: 'Missing required fields: userId, membership_name, join_date, join_time' });
+  if (!userName || !membership_name || !join_date || !join_time) {
+    return res.status(400).json({ success: false, message: 'Missing required fields: userName, membership_name, join_date, join_time' });
   }
 
   try {
-    // Fetch user details
-    const userCheck = await pool.query('SELECT name, email, profile_photo_url FROM users WHERE id = $1', [userId]);
-    if (userCheck.rows.length === 0) {
-      return res.status(404).json({ success: false, message: 'User not found.' });
-    }
-
-    const user = userCheck.rows[0];
-
     const result = await pool.query(
-      `INSERT INTO vedic_package_memberships (user_id, user_name, email, profile_pic, membership_name, join_date, join_time)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `INSERT INTO vedic_package_memberships (user_name, email, profile_pic, membership_name, join_date, join_time)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [userId, user.name, user.email, user.profile_photo_url, membership_name, join_date, join_time]
+      [userName, email || null, profilePic || null, membership_name, join_date, join_time]
     );
 
     return res.status(201).json({
