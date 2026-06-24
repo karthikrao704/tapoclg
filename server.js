@@ -263,6 +263,20 @@ async function initDatabase() {
       );
     `);
 
+    // Workshop Enrollments table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS workshop_enrollments (
+        id SERIAL PRIMARY KEY,
+        user_id INT REFERENCES users(id) ON DELETE CASCADE,
+        username VARCHAR(255),
+        email VARCHAR(255),
+        profile_pic TEXT,
+        workshop_name VARCHAR(255) NOT NULL,
+        pass_name VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     // Reviews table
     await client.query(`
       CREATE TABLE IF NOT EXISTS reviews (
@@ -1037,6 +1051,56 @@ app.get('/api/vedic-packages/members', async (req, res) => {
     return res.json({ success: true, count: result.rows.length, members: result.rows });
   } catch (err) {
     console.error('❌ GET /api/vedic-packages/members error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//   WORKSHOPS — GET ENROLLMENTS
+// ═══════════════════════════════════════════════════════════════════════════════
+app.get('/api/workshops/enroll', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM workshop_enrollments ORDER BY created_at DESC');
+    return res.json({ success: true, count: result.rows.length, enrollments: result.rows });
+  } catch (err) {
+    console.error('❌ GET /api/workshops/enroll error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//   WORKSHOPS — ENROLL (POST)
+// ═══════════════════════════════════════════════════════════════════════════════
+app.post('/api/workshops/enroll', async (req, res) => {
+  const { userId, workshop_name, pass_name } = req.body;
+
+  if (!userId || !workshop_name) {
+    return res.status(400).json({ success: false, message: 'Missing required fields: userId, workshop_name' });
+  }
+
+  try {
+    // Fetch user details
+    const userCheck = await pool.query('SELECT name, email, profile_photo_url FROM users WHERE id = $1', [userId]);
+    if (userCheck.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    const user = userCheck.rows[0];
+
+    const result = await pool.query(
+      `INSERT INTO workshop_enrollments (user_id, username, email, profile_pic, workshop_name, pass_name)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING *`,
+      [userId, user.name, user.email, user.profile_photo_url, workshop_name, pass_name || null]
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: 'Successfully enrolled in the workshop.',
+      enrollment: result.rows[0]
+    });
+  } catch (err) {
+    console.error('❌ POST /api/workshops/enroll error:', err);
     return res.status(500).json({ success: false, message: 'Server error.' });
   }
 });
