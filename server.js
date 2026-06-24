@@ -1072,26 +1072,18 @@ app.get('/api/workshops/enroll', async (req, res) => {
 //   WORKSHOPS — ENROLL (POST)
 // ═══════════════════════════════════════════════════════════════════════════════
 app.post('/api/workshops/enroll', async (req, res) => {
-  const { userId, workshop_name, pass_name } = req.body;
+  const { userName, email, profilePic, workshop_name, pass_name } = req.body;
 
-  if (!userId || !workshop_name) {
-    return res.status(400).json({ success: false, message: 'Missing required fields: userId, workshop_name' });
+  if (!userName || !workshop_name) {
+    return res.status(400).json({ success: false, message: 'Missing required fields: userName, workshop_name' });
   }
 
   try {
-    // Fetch user details
-    const userCheck = await pool.query('SELECT name, email, profile_photo_url FROM users WHERE id = $1', [userId]);
-    if (userCheck.rows.length === 0) {
-      return res.status(404).json({ success: false, message: 'User not found.' });
-    }
-
-    const user = userCheck.rows[0];
-
     const result = await pool.query(
-      `INSERT INTO workshop_enrollments (user_id, username, email, profile_pic, workshop_name, pass_name)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO workshop_enrollments (username, email, profile_pic, workshop_name, pass_name)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
-      [userId, user.name, user.email, user.profile_photo_url, workshop_name, pass_name || null]
+      [userName, email || null, profilePic || null, workshop_name, pass_name || null]
     );
 
     return res.status(201).json({
