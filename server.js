@@ -263,6 +263,17 @@ async function initDatabase() {
       );
     `);
 
+    // Razorpay Transactions table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS razorpay_transactions (
+        id SERIAL PRIMARY KEY,
+        payment_id VARCHAR(255) NOT NULL,
+        order_id VARCHAR(255) NOT NULL,
+        signature VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     // Workshop Enrollments table
     await client.query(`
       CREATE TABLE IF NOT EXISTS workshop_enrollments (
