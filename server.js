@@ -9,6 +9,7 @@ const https = require('https');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const Razorpay = require('razorpay');
 require('dotenv').config();
 
 // Ensure uploads directory exists
@@ -270,8 +271,15 @@ async function initDatabase() {
         payment_id VARCHAR(255) NOT NULL,
         order_id VARCHAR(255) NOT NULL,
         signature VARCHAR(255),
+        payment_method VARCHAR(50),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+    `);
+    
+    // Auto-add payment_method column if the table already exists
+    await client.query(`
+      ALTER TABLE razorpay_transactions 
+      ADD COLUMN IF NOT EXISTS payment_method VARCHAR(50);
     `);
 
     // Workshop Enrollments table
@@ -1110,12 +1118,31 @@ app.post('/api/payment/transaction', async (req, res) => {
     return res.status(400).json({ success: false, message: 'Missing payment_id' });
   }
 
+  let paymentMethod = null;
+
+  try {
+    // Attempt to fetch payment details from Razorpay using the Key Secret
+    if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+      const razorpay = new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET
+      });
+      const paymentDetails = await razorpay.payments.fetch(payment_id);
+      paymentMethod = paymentDetails.method; // e.g., 'upi', 'card', 'netbanking'
+    } else {
+      console.warn("⚠️ RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET missing in .env. Cannot fetch payment method.");
+    }
+  } catch (rzpErr) {
+    console.error('❌ Failed to fetch from Razorpay:', rzpErr);
+    // Proceed to save the transaction anyway, just without the payment method
+  }
+
   try {
     const result = await pool.query(
-      `INSERT INTO razorpay_transactions (payment_id, order_id, signature)
-       VALUES ($1, $2, $3)
+      `INSERT INTO razorpay_transactions (payment_id, order_id, signature, payment_method)
+       VALUES ($1, $2, $3, $4)
        RETURNING *`,
-      [payment_id, order_id || '', signature || '']
+      [payment_id, order_id || '', signature || '', paymentMethod]
     );
 
     return res.status(201).json({
