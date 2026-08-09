@@ -272,14 +272,18 @@ async function initDatabase() {
         order_id VARCHAR(255) NOT NULL,
         signature VARCHAR(255),
         payment_method VARCHAR(50),
+        service_name VARCHAR(255),
+        amount DECIMAL(10,2),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
     
-    // Auto-add payment_method column if the table already exists
+    // Auto-add new columns if the table already exists
     await client.query(`
       ALTER TABLE razorpay_transactions 
-      ADD COLUMN IF NOT EXISTS payment_method VARCHAR(50);
+      ADD COLUMN IF NOT EXISTS payment_method VARCHAR(50),
+      ADD COLUMN IF NOT EXISTS service_name VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS amount DECIMAL(10,2);
     `);
 
     // Workshop Enrollments table
@@ -1112,7 +1116,7 @@ app.post('/api/workshops/enroll', async (req, res) => {
 //   PAYMENT TRANSACTIONS (POST)
 // ═══════════════════════════════════════════════════════════════════════════════
 app.post('/api/payment/transaction', async (req, res) => {
-  const { payment_id, order_id, signature } = req.body;
+  const { payment_id, order_id, signature, amount, service_name } = req.body;
 
   if (!payment_id) {
     return res.status(400).json({ success: false, message: 'Missing payment_id' });
@@ -1139,10 +1143,10 @@ app.post('/api/payment/transaction', async (req, res) => {
 
   try {
     const result = await pool.query(
-      `INSERT INTO razorpay_transactions (payment_id, order_id, signature, payment_method)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO razorpay_transactions (payment_id, order_id, signature, payment_method, service_name, amount)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [payment_id, order_id || '', signature || '', paymentMethod]
+      [payment_id, order_id || '', signature || '', paymentMethod, service_name || null, amount || null]
     );
 
     return res.status(201).json({
@@ -1162,10 +1166,20 @@ app.post('/api/payment/transaction', async (req, res) => {
 app.get('/api/payment/transaction', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM razorpay_transactions ORDER BY created_at DESC');
+    
+    // Map the result to exactly match the requested fields
+    const formattedTransactions = result.rows.map(tx => ({
+      payment_id: tx.payment_id,
+      service_name: tx.service_name || 'N/A',
+      amount: tx.amount || 0.00,
+      date_and_time_of_payment: tx.created_at,
+      payment_method: tx.payment_method || 'N/A'
+    }));
+
     return res.json({
       success: true,
-      count: result.rows.length,
-      transactions: result.rows
+      count: formattedTransactions.length,
+      transactions: formattedTransactions
     });
   } catch (err) {
     console.error('❌ GET /api/payment/transaction error:', err);
