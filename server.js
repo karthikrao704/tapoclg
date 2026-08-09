@@ -1130,6 +1130,16 @@ app.post('/api/payment/transaction', async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
+//   PAYMENT TRANSACTIONS (GET) - For browser testing
+// ═══════════════════════════════════════════════════════════════════════════════
+app.get('/api/payment/transaction', (req, res) => {
+  return res.json({
+    success: true,
+    message: 'The payment transaction endpoint is active and waiting for POST requests from the mobile app.'
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
 //   STATIC DATA FOR MORE TAB (Workshops, Blogs, Vedic Programs)
 // ═══════════════════════════════════════════════════════════════════════════════
 
