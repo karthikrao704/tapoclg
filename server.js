@@ -1140,6 +1140,31 @@ app.get('/api/payment/transaction', (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
+//   USER DATA (GET) - Fetch all users
+// ═══════════════════════════════════════════════════════════════════════════════
+app.get('/api/users', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM users ORDER BY created_at DESC');
+    
+    const users = result.rows.map(user => ({
+      id: user.id || null,
+      name: user.name || null,
+      email: user.email || null,
+      phone: user.phone || null,
+      joined_date: user.created_at || null,
+      status: 'active', // Default to active as there is no status column in DB
+      profile_image_url: user.profile_photo_url || null,
+      pass_name: user.membership || null
+    }));
+
+    return res.json({ success: true, users });
+  } catch (err) {
+    console.error('❌ GET /api/users error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
 //   STATIC DATA FOR MORE TAB (Workshops, Blogs, Vedic Programs)
 // ═══════════════════════════════════════════════════════════════════════════════
 
