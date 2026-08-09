@@ -1101,6 +1101,35 @@ app.post('/api/workshops/enroll', async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
+//   PAYMENT TRANSACTIONS (POST)
+// ═══════════════════════════════════════════════════════════════════════════════
+app.post('/api/payment/transaction', async (req, res) => {
+  const { payment_id, order_id, signature } = req.body;
+
+  if (!payment_id) {
+    return res.status(400).json({ success: false, message: 'Missing payment_id' });
+  }
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO razorpay_transactions (payment_id, order_id, signature)
+       VALUES ($1, $2, $3)
+       RETURNING *`,
+      [payment_id, order_id || '', signature || '']
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: 'Transaction saved successfully.',
+      transaction: result.rows[0]
+    });
+  } catch (err) {
+    console.error('❌ POST /api/payment/transaction error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
 //   STATIC DATA FOR MORE TAB (Workshops, Blogs, Vedic Programs)
 // ═══════════════════════════════════════════════════════════════════════════════
 
