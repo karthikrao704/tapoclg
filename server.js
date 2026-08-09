@@ -1130,13 +1130,20 @@ app.post('/api/payment/transaction', async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
-//   PAYMENT TRANSACTIONS (GET) - For browser testing
+//   PAYMENT TRANSACTIONS (GET) - Fetch all transactions
 // ═══════════════════════════════════════════════════════════════════════════════
-app.get('/api/payment/transaction', (req, res) => {
-  return res.json({
-    success: true,
-    message: 'The payment transaction endpoint is active and waiting for POST requests from the mobile app.'
-  });
+app.get('/api/payment/transaction', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM razorpay_transactions ORDER BY created_at DESC');
+    return res.json({
+      success: true,
+      count: result.rows.length,
+      transactions: result.rows
+    });
+  } catch (err) {
+    console.error('❌ GET /api/payment/transaction error:', err);
+    return res.status(500).json({ success: false, message: 'Server error.' });
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
